@@ -6,14 +6,14 @@ These conventions apply to the entire SagewayAI codebase. Claude must follow the
 
 ## File naming
 
-| What | Convention | Example |
-|---|---|---|
-| React component | `PascalCase.tsx` | `StoryCard.tsx` |
-| Custom hook | `camelCase.ts` | `useStories.ts` |
-| API/service | `camelCase.ts` | `storiesApi.ts` |
-| Types file | `camelCase.ts` | `storyTypes.ts` |
-| Utility | `camelCase.ts` | `formatDate.ts` |
-| Test | same name + `.test` | `StoryCard.test.tsx` |
+| What            | Convention          | Example              |
+| --------------- | ------------------- | -------------------- |
+| React component | `PascalCase.tsx`    | `StoryCard.tsx`      |
+| Custom hook     | `camelCase.ts`      | `useStories.ts`      |
+| API/service     | `camelCase.ts`      | `storiesApi.ts`      |
+| Types file      | `camelCase.ts`      | `storyTypes.ts`      |
+| Utility         | `camelCase.ts`      | `formatDate.ts`      |
+| Test            | same name + `.test` | `StoryCard.test.tsx` |
 
 One exported component per file. File name must match the component name.
 
@@ -70,8 +70,8 @@ interface Story {
 }
 
 // Union → type
-type StoryType = 'parable' | 'success_story';
-type StoryStatus = 'published' | 'pending' | 'rejected';
+type StoryType = "parable" | "success_story";
+type StoryStatus = "published" | "pending" | "rejected";
 
 // Component props → interface with Props suffix
 interface StoryCardProps {
@@ -82,13 +82,13 @@ interface StoryCardProps {
 
 ### Naming suffixes
 
-| Suffix | Usage | Example |
-|---|---|---|
-| `Props` | Component prop types | `StoryCardProps` |
-| `State` | Zustand store shape | `AuthState` |
-| `Params` | Function/query parameters | `FetchStoriesParams` |
-| `Response` | API response shapes | `StoriesResponse` |
-| `Config` | Configuration objects | `QueryConfig` |
+| Suffix     | Usage                     | Example              |
+| ---------- | ------------------------- | -------------------- |
+| `Props`    | Component prop types      | `StoryCardProps`     |
+| `State`    | Zustand store shape       | `AuthState`          |
+| `Params`   | Function/query parameters | `FetchStoriesParams` |
+| `Response` | API response shapes       | `StoriesResponse`    |
+| `Config`   | Configuration objects     | `QueryConfig`        |
 
 ### Strict rules
 
@@ -113,13 +113,13 @@ interface StoryCardProps {
 Blank line between each group:
 
 ```ts
-import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 
-import { StoryCard } from '@/stories/StoryCard';
-import { useStories } from '@/stories/useStories';
+import { StoryCard } from "@/stories/StoryCard";
+import { useStories } from "@/stories/useStories";
 
-import { formatReadTime } from './formatReadTime';
+import { formatReadTime } from "./formatReadTime";
 ```
 
 ---
@@ -131,6 +131,7 @@ import { formatReadTime } from './formatReadTime';
 The main signal is readability, not line count. A 200-line file that is cohesive and easy to follow is better than two 100-line files with unclear boundaries.
 
 Extract into a separate component when:
+
 - The same UI is rendered in 2+ places
 - A subtree has its own state or data fetching that makes the parent harder to read
 - A section can be named clearly and independently — if you can't name it well, it's not ready to extract
@@ -219,11 +220,11 @@ When slots aren't enough, reach for Context — but only for genuinely cross-cut
 // src/stories/useStoryFilters.ts
 export const useStoryFilters = () => {
   const [topic, setTopic] = useState<string | null>(null);
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState("");
 
   const reset = () => {
     setTopic(null);
-    setSearch('');
+    setSearch("");
   };
 
   return { topic, search, setTopic, setSearch, reset };
@@ -253,7 +254,7 @@ export { StoryCard };
 ```ts
 const MAX_STORY_LENGTH = 10_000;
 const DEFAULT_PAGE_SIZE = 20;
-const TOPICS = ['purpose', 'leadership', 'resilience'] as const;
+const TOPICS = ["purpose", "leadership", "resilience"] as const;
 ```
 
 ---
