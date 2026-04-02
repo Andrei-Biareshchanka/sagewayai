@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Story } from './mockData';
+import type { Story } from './mockData';
 
 interface FeaturedStoryCardProps {
   story: Story;

@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { TOPICS } from './mockData';
 
 interface HeroSectionProps {
