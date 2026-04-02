@@ -128,15 +128,18 @@ import { formatReadTime } from './formatReadTime';
 
 ### When to extract
 
+The main signal is readability, not line count. A 200-line file that is cohesive and easy to follow is better than two 100-line files with unclear boundaries.
+
 Extract into a separate component when:
-- The JSX subtree has its own state or data fetching logic
 - The same UI is rendered in 2+ places
-- The component file exceeds ~150 lines
-- A section can be named clearly and independently
+- A subtree has its own state or data fetching that makes the parent harder to read
+- A section can be named clearly and independently — if you can't name it well, it's not ready to extract
+
+Don't extract just because a file is "long". If the file tells one clear story, keep it together.
 
 ### Structure within a file
 
-Always in this order:
+Preferred order — but not enforced if another order reads better:
 
 ```ts
 // 1. Types
@@ -181,26 +184,27 @@ function StoryCard({ story }: StoryCardProps) {
 
 ---
 
-## Avoiding prop drilling
+## Composition over prop drilling
 
-**Rule:** No prop drilling beyond 2 levels deep.
+Prefer passing **slots** (children or named render props) over threading data through multiple levels. The goal is that a parent composes its children rather than configuring them from a distance.
 
-Prefer in this order:
-1. **Composition** — pass `children` or render slots instead of data
-2. **Context** — for cross-cutting concerns (auth, theme, current user)
-3. **Colocate state** — lift only as high as necessary, not higher
-
-```ts
-// Bad — drilling authorName 3 levels deep
+```tsx
+// Bad — parent passes data that only a grandchild uses
 <StoryList stories={stories} authorName={authorName} />
   <StoryCard story={story} authorName={authorName} />
     <AuthorTag name={authorName} />
 
-// Good — composition
-<StoryCard story={story}>
-  <AuthorTag name={story.author.name} />
-</StoryCard>
+// Good — parent composes, each level owns what it renders
+<StoryList>
+  {stories.map(story => (
+    <StoryCard key={story.id} story={story}>
+      <AuthorTag name={story.author.name} />
+    </StoryCard>
+  ))}
+</StoryList>
 ```
+
+When slots aren't enough, reach for Context — but only for genuinely cross-cutting concerns (current user, auth state, theme). Don't use Context as a shortcut to avoid thinking about composition.
 
 ---
 
