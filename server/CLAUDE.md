@@ -2,6 +2,8 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with the **server** (backend) of SagewayAI.
 
+> Coding style, naming, and TypeScript conventions: see **[CONVENTIONS.md](../CONVENTIONS.md)**.
+
 ## Stack
 
 - Node.js + Express 5 + TypeScript 6
