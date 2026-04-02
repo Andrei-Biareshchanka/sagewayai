@@ -65,6 +65,8 @@ PUT    /api/admin/stories/:id
 
 ## Conventions
 
+See **[CONVENTIONS.md](./CONVENTIONS.md)** for the full coding style guide (naming, types, components, imports, hooks).
+
 - Conventional commits: `feat:`, `fix:`, `chore:`, `test:`
 - TypeScript everywhere — no `any`
 - Zod for all API request validation
