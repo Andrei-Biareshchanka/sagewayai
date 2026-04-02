@@ -2,6 +2,8 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with the **client** (frontend) of SagewayAI.
 
+> Coding style, naming, component structure, and TypeScript conventions: see **[CONVENTIONS.md](../CONVENTIONS.md)**.
+
 ## Stack
 
 - React 19 + Vite 8 + TypeScript 5.9
