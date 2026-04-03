@@ -259,6 +259,40 @@ const TOPICS = ["purpose", "leadership", "resilience"] as const;
 
 ---
 
+## Commits
+
+Use the `/commit` command to review and commit changes. Never commit without user approval.
+
+### Format — Conventional Commits
+
+```
+<type>(<scope>): <short description>
+
+feat:     new feature
+fix:      bug fix
+docs:     documentation only
+chore:    tooling, config, dependencies
+refactor: code change without behaviour change
+test:     adding or updating tests
+style:    formatting only (no logic change)
+```
+
+### Rules
+
+- **One commit = one logical unit.** If you need "and" in the message — split it into two commits.
+- **Never commit broken code.** Build and type-check must pass first.
+- **Never commit** `.env` files, secrets, or `node_modules`.
+- **Wait for user approval** before committing. After completing work, show the diff summary and propose a commit plan — don't commit automatically.
+- **Suggest committing** when there are 3+ changed files that form a logical unit, so changes don't pile up.
+- **Commit file by file** (or logical group by group) — never `git add .` for everything at once unless explicitly asked.
+
+### When to propose a commit
+
+After completing a feature, fix, or any meaningful chunk of work — show what changed and ask:
+> "Ready to commit. Here's what changed: [summary]. Shall I proceed?"
+
+---
+
 ## Server-specific
 
 - Every async Express handler must be wrapped in try/catch
