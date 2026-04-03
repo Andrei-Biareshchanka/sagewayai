@@ -20,7 +20,7 @@ Review changes and commit them one logical unit at a time.
    2. fix(client): correct import order in App.tsx — App.tsx
    ```
 
-5. **Wait for approval.** Do not proceed until the user says "go", "ok", "давай" or similar.
+5. **Wait for approval.** Do not proceed until the user says "go", "ok", "yes" or similar.
 
 6. **Commit one by one:**
    - Stage only the files for that commit: `git add <file1> <file2>`
