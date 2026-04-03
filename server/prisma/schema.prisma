@@ -7,69 +7,35 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id              String       @id @default(cuid())
-  email           String       @unique
-  name            String
-  passwordHash    String
-  role            Role         @default(USER)
-  emailSubscribed Boolean      @default(true)
-  createdAt       DateTime     @default(now())
-  stories         Story[]
-  collections     Collection[]
+model Parable {
+  id         String        @id @default(cuid())
+  title      String
+  content    String        @db.Text
+  moral      String
+  source     String?
+  readTime   Int
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+  category   Category      @relation(fields: [categoryId], references: [id])
+  categoryId String
+  dailies    DailyParable[]
 }
 
-model Story {
-  id          String       @id @default(cuid())
-  title       String
-  content     String
-  type        StoryType
-  readTime    Int
-  status      StoryStatus  @default(PENDING)
-  savesCount  Int          @default(0)
-  viewsCount  Int          @default(0)
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-  author      User         @relation(fields: [authorId], references: [id])
-  authorId    String
-  tags        Tag[]
-  collections Collection[]
+model Category {
+  id            String    @id @default(cuid())
+  name          String
+  slug          String    @unique
+  description   String?
+  color         String?
+  parablesCount Int       @default(0)
+  parables      Parable[]
 }
 
-model Tag {
-  id           String  @id @default(cuid())
-  name         String  @unique
-  slug         String  @unique
-  description  String?
-  color        String?
-  storiesCount Int     @default(0)
-  stories      Story[]
+model DailyParable {
+  id        String   @id @default(cuid())
+  date      DateTime @unique
+  parable   Parable  @relation(fields: [parableId], references: [id])
+  parableId String
 }
 
-model Collection {
-  id      String   @id @default(cuid())
-  savedAt DateTime @default(now())
-  user    User     @relation(fields: [userId], references: [id])
-  userId  String
-  story   Story    @relation(fields: [storyId], references: [id])
-  storyId String
-
-  @@unique([userId, storyId])
-}
-
-enum Role {
-  USER
-  PRO
-  ADMIN
-}
-
-enum StoryType {
-  PARABLE
-  SUCCESS_STORY
-}
-
-enum StoryStatus {
-  PUBLISHED
-  PENDING
-  REJECTED
-}
+// v2 — User model with email subscription will be added
