@@ -1,66 +1,63 @@
-export const TOPICS = [
+export const CATEGORIES = [
   'All',
-  'Purpose',
+  'Wisdom',
+  'Motivation',
   'Leadership',
-  'Resilience',
-  'Risk',
-  'Path',
+  'Journey',
   'Loss',
+  'Risk',
   'Trust',
-  'Change',
-  'Gratitude',
-  'Courage',
+  'Meaning',
 ];
 
-export interface Story {
+export interface Parable {
   id: string;
   title: string;
-  excerpt: string;
-  topic: string;
-  type: 'parable' | 'success_story';
+  content: string;
+  moral: string;
+  source?: string;
   readTime: number;
-  author: string;
+  category: string;
 }
 
-export const FEATURED_STORY: Story = {
+export const DAILY_PARABLE: Parable = {
   id: '1',
-  title: 'The Farmer Who Sold His Field',
-  excerpt:
-    'An old farmer, tired of struggling with his rocky land, sold it for almost nothing and moved to the city. The buyer, curious about the strange stones, brought in a geologist — and discovered the field sat atop one of the richest gold veins in the region.',
-  topic: 'Resilience',
-  type: 'parable',
-  readTime: 4,
-  author: 'Ancient wisdom',
+  title: 'The Farmer and His Field',
+  content:
+    'An old farmer, exhausted from fighting rocky soil, sold his land for almost nothing and moved to the city. The buyer, intrigued by the strange stones, called a geologist — and discovered one of the richest gold veins in the region lay beneath the field.',
+  moral: 'What looks like an obstacle may be a gift — if you learn to see it differently.',
+  source: 'Folk wisdom',
+  readTime: 3,
+  category: 'Wisdom',
 };
 
-export const MINI_STORIES: Story[] = [
+export const PARABLES: Parable[] = [
   {
     id: '2',
-    title: 'The Two Wolves',
-    excerpt: 'A grandfather tells his grandson about the battle inside every person.',
-    topic: 'Purpose',
-    type: 'parable',
+    title: 'Two Wolves',
+    content: 'A grandfather tells his grandson about the battle that rages inside every person.',
+    moral: 'The wolf that wins is the one you feed.',
+    source: 'Cherokee',
     readTime: 2,
-    author: 'Cherokee tradition',
+    category: 'Meaning',
   },
   {
     id: '3',
-    title: 'How Howard Schultz Rebuilt Starbucks',
-    excerpt:
-      'After stepping away for eight years, Schultz returned to a company that had lost its soul — and chose discomfort over decline.',
-    topic: 'Leadership',
-    type: 'success_story',
-    readTime: 5,
-    author: 'Starbucks story',
+    title: 'The Bamboo and the Oak',
+    content:
+      'In a great storm, the mighty oak snapped — while the flexible bamboo bent to the ground and rose again.',
+    moral: 'Flexibility outlasts rigidity.',
+    readTime: 2,
+    category: 'Motivation',
   },
   {
     id: '4',
     title: 'The Bridge Builder',
-    excerpt:
-      'An old man, crossing a chasm at dusk, turns back to build a bridge for those who will follow.',
-    topic: 'Courage',
-    type: 'parable',
+    content:
+      'An old man crosses a chasm at sunset, then turns back to build a bridge — for those who will follow.',
+    moral: 'Wisdom means building roads for people you will never meet.',
+    source: 'Will Allen Dromgoole',
     readTime: 3,
-    author: 'Will Allen Dromgoole',
+    category: 'Journey',
   },
 ];

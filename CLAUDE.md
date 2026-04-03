@@ -4,9 +4,18 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project overview
 
-SagewayAI is a curated library of parables and success stories. Users browse stories by topic, save to personal collections, share links, and submit their own stories. A weekly email digest sends one story to subscribers.
+SagewayAI — a parable library organized by category. Every day a new random parable appears on the home page. Users can subscribe and receive it by email.
 
-**Motto:** "The right story for this moment."
+**Tagline:** "The daily parable that resonates"
+
+## Product evolution
+
+| Version | What |
+|---|---|
+| **v1** | Parables + categories + daily parable on home page |
+| **v2** | Auth + email subscription + category preferences |
+| **v3** | Success stories as a second content type |
+| **v4** | AI search by situation (Vercel AI SDK + Groq) |
 
 ## Architecture
 
@@ -17,55 +26,49 @@ sagewayai/
 └── docker-compose.yml  # PostgreSQL 16 on :5432
 ```
 
-Start the database before running either app:
-
 ```bash
-docker-compose up -d
+docker-compose up -d  # start PostgreSQL before running the app
 ```
+
+## Data models (v1)
+
+**Parable** — `id, title, content, moral, source?, readTime, categoryId, createdAt`
+
+**Category** — `id, name, slug, description?, color?, parablesCount`
+
+Seed categories: `Wisdom, Motivation, Leadership, Journey, Loss, Risk, Trust, Meaning`
+
+**DailyParable** — `id, parableId, date` (one unique parable per day)
 
 ## Design concept
 
-Editorial style — calm, warm, focused reading experience. The UI should feel like a thoughtful book or magazine, not a social feed.
+Editorial style — calm, warm, focused on reading.
 
 - **Primary accent:** Sage green `#6B8F71`
-- **Fonts:** Lora (serif, headings + story body) · Inter (sans, UI)
-- **Story reader max width:** `680px` — the core reading experience
+- **Fonts:** Lora (serif, headings + parable body) · Inter (sans, UI)
+- **Reader max width:** `680px`
 - **Page max width:** `1200px`
 
-### Key pages
+### Key pages (v1)
 
-1. **Home** — topic pills, featured story, 3-column mini grid
-2. **Story reader** — serif body, read time, save + share
-3. **Explore** — filter by topic, search, pagination
-4. **My collection** — saved stories (auth required)
-5. **Add story** — submit parable or success story (Pro users)
-6. **Settings** — email preferences, profile, subscription
+1. **Home** — daily parable hero, category pills, grid of other parables
+2. **Explore** — all parables, filter by category
+3. **Parable** — reader view: serif body, read time, moral
 
-## API contract
+## API contract (v1)
 
 ```
-GET    /api/stories              # list: ?topic, ?type, ?search, ?page
-GET    /api/stories/:id
-POST   /api/stories              # Pro only
-GET    /api/topics
-GET    /api/stories/weekly
-
-POST   /api/auth/register
-POST   /api/auth/login
-POST   /api/auth/refresh
-
-GET    /api/me/collection
-POST   /api/me/collection/:id
-DELETE /api/me/collection/:id
-PUT    /api/me/settings
-
-GET    /api/admin/stories/pending
-PUT    /api/admin/stories/:id
+GET  /api/parables              # list: ?category, ?page
+GET  /api/parables/daily        # parable of the day
+GET  /api/parables/:id          # single parable
+GET  /api/categories            # all categories with parable counts
 ```
+
+v2 adds: `/api/auth/*`, `/api/subscribe`
 
 ## Conventions
 
-See **[CONVENTIONS.md](./CONVENTIONS.md)** for the full coding style guide (naming, types, components, imports, hooks).
+See **[CONVENTIONS.md](./CONVENTIONS.md)** for the full coding style guide.
 
 - Conventional commits: `feat:`, `fix:`, `chore:`, `test:`
 - TypeScript everywhere — no `any`
@@ -79,4 +82,4 @@ See **[CONVENTIONS.md](./CONVENTIONS.md)** for the full coding style guide (nami
 
 ## Current phase
 
-**Phase 1 — Claude Code Setup** (in progress). Check Notion for current tasks.
+**Phase 1 — Done. Phase 2 — next.** Check Notion for current tasks.

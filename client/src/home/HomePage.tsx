@@ -1,24 +1,24 @@
 import { useState } from 'react';
 import { HeroSection } from './HeroSection';
-import { FeaturedStoryCard } from './FeaturedStoryCard';
-import { StoryMiniCard } from './StoryMiniCard';
-import { FEATURED_STORY, MINI_STORIES } from './mockData';
+import { DailyParableCard } from './FeaturedStoryCard';
+import { ParableCard } from './StoryMiniCard';
+import { DAILY_PARABLE, PARABLES } from './mockData';
 
 function HomePage() {
-  const [activeTopic, setActiveTopic] = useState('All');
+  const [activeCategory, setActiveCategory] = useState('All');
 
   return (
     <main>
-      <HeroSection activeTopic={activeTopic} onTopicChange={setActiveTopic} />
-      <FeaturedStoryCard story={FEATURED_STORY} />
+      <HeroSection activeCategory={activeCategory} onCategoryChange={setActiveCategory} />
+      <DailyParableCard parable={DAILY_PARABLE} />
 
       <section className="mx-auto max-w-[1200px] px-6 pb-20">
         <h2 className="mb-6 font-serif text-2xl font-semibold text-[#1A1A1A]">
-          More stories
+          More parables
         </h2>
         <div className="grid grid-cols-3 gap-5">
-          {MINI_STORIES.map((story) => (
-            <StoryMiniCard key={story.id} story={story} />
+          {PARABLES.map((parable) => (
+            <ParableCard key={parable.id} parable={parable} />
           ))}
         </div>
       </section>

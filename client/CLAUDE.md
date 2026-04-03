@@ -75,13 +75,13 @@ Fonts: **Lora** (serif, headings + story body) · **Inter** (sans, UI)
 All API calls go through React Query. Define query/mutation functions separately from the hook:
 
 ```ts
-// src/stories/storiesApi.ts
-export const fetchStories = (params) => axios.get('/api/stories', { params });
+// src/parables/parablesApi.ts
+export const fetchParables = (params) => axios.get('/api/parables', { params });
 
-// src/stories/useStories.ts
-export const useStories = (params) => useQuery({
-  queryKey: ['stories', params],
-  queryFn: () => fetchStories(params),
+// src/parables/useParables.ts
+export const useParables = (params) => useQuery({
+  queryKey: ['parables', params],
+  queryFn: () => fetchParables(params),
 });
 ```
 
