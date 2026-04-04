@@ -4,7 +4,6 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 model Parable {
@@ -19,6 +18,8 @@ model Parable {
   category   Category      @relation(fields: [categoryId], references: [id])
   categoryId String
   dailies    DailyParable[]
+
+  @@index([categoryId])
 }
 
 model Category {
@@ -33,7 +34,7 @@ model Category {
 
 model DailyParable {
   id        String   @id @default(cuid())
-  date      DateTime @unique
+  date      DateTime @unique @db.Date
   parable   Parable  @relation(fields: [parableId], references: [id])
   parableId String
 }

@@ -16,6 +16,11 @@ node_modules/
 dist/
 dist-ssr/
 
+# Editor — ignore personal settings, but keep shared project settings
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+
 # OS
 .DS_Store
 Thumbs.db
