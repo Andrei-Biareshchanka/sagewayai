@@ -1,6 +1,21 @@
 # Claude Code local settings (contains secrets)
 .claude/settings.local.json
 
+# MCP local config (contains DB credentials and tokens)
+.mcp.json
+
 # Environment files
 .env
+.env.*
 *.env.local
+
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+dist-ssr/
+
+# OS
+.DS_Store
+Thumbs.db
