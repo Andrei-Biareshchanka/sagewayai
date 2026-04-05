@@ -16,7 +16,15 @@ dotenv.config();
 export function createApp() {
   const app = express();
 
-  app.use(cors({ origin: process.env.CLIENT_URL ?? 'http://localhost:5173', credentials: true }));
+  const clientUrl = process.env.CLIENT_URL ?? 'http://localhost:5173';
+  app.use(cors({ origin: clientUrl, credentials: true }));
+  app.use((req, res, next) => {
+    const origin = req.headers.origin;
+    if (origin === clientUrl) {
+      res.setHeader('Access-Control-Allow-Credentials', 'true');
+    }
+    next();
+  });
   app.use(express.json());
   app.use(cookieParser());
 
