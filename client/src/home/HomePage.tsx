@@ -1,24 +1,55 @@
-import { useState } from 'react';
-import { HeroSection } from './HeroSection';
+import { useMemo, useState } from 'react';
+
+import { useCategories } from '@/categories/useCategories';
+import { useDailyParable, useParables } from '@/parables/useParables';
 import { DailyParableCard } from './FeaturedStoryCard';
+import { HeroSection } from './HeroSection';
 import { ParableCard } from './StoryMiniCard';
-import { DAILY_PARABLE, PARABLES } from './mockData';
 
 function HomePage() {
-  const [activeCategory, setActiveCategory] = useState('All');
+  const [activeSlug, setActiveSlug] = useState<string | null>(null);
+
+  const { data: daily, isLoading: dailyLoading } = useDailyParable();
+  const { data: parablesData, isLoading: parablesLoading } = useParables({ limit: 3 });
+  const { data: categories } = useCategories();
+
+  const categoryMap = useMemo(
+    () => Object.fromEntries((categories ?? []).map((c) => [c.id, c.name])),
+    [categories],
+  );
+
+  if (dailyLoading || parablesLoading) {
+    return (
+      <div className="flex min-h-[60vh] items-center justify-center text-[#6B7280]">
+        Loading...
+      </div>
+    );
+  }
 
   return (
     <main>
-      <HeroSection activeCategory={activeCategory} onCategoryChange={setActiveCategory} />
-      <DailyParableCard parable={DAILY_PARABLE} />
+      <HeroSection
+        categories={categories ?? []}
+        activeSlug={activeSlug}
+        onCategoryChange={setActiveSlug}
+      />
+
+      {daily && (
+        <DailyParableCard
+          parable={daily}
+          categoryName={categoryMap[daily.categoryId] ?? ''}
+        />
+      )}
 
       <section className="mx-auto max-w-[1200px] px-6 pb-20">
-        <h2 className="mb-6 font-serif text-2xl font-semibold text-[#1A1A1A]">
-          More parables
-        </h2>
+        <h2 className="mb-6 font-serif text-2xl font-semibold text-[#1A1A1A]">More parables</h2>
         <div className="grid grid-cols-3 gap-5">
-          {PARABLES.map((parable) => (
-            <ParableCard key={parable.id} parable={parable} />
+          {(parablesData?.data ?? []).map((parable) => (
+            <ParableCard
+              key={parable.id}
+              parable={parable}
+              categoryName={categoryMap[parable.categoryId] ?? ''}
+            />
           ))}
         </div>
       </section>

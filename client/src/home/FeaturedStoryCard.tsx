@@ -1,11 +1,13 @@
 import { Link } from 'react-router-dom';
-import type { Parable } from './mockData';
+
+import type { Parable } from '@/types';
 
 interface DailyParableCardProps {
   parable: Parable;
+  categoryName: string;
 }
 
-function DailyParableCard({ parable }: DailyParableCardProps) {
+function DailyParableCard({ parable, categoryName }: DailyParableCardProps) {
   return (
     <div className="mx-auto max-w-[1200px] px-6 pb-12">
       <div className="rounded-[12px] border border-[rgba(0,0,0,0.08)] bg-[#F0F4F0] p-10">
@@ -14,7 +16,7 @@ function DailyParableCard({ parable }: DailyParableCardProps) {
             Parable of the day
           </span>
           <span className="text-[11px] uppercase tracking-[0.5px] text-[#6B7280]">
-            {parable.category}
+            {categoryName}
           </span>
         </div>
 
