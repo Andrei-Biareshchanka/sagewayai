@@ -86,9 +86,49 @@ See **[CONVENTIONS.md](./CONVENTIONS.md)** for the full coding style guide.
 - **Notion:** SagewayAI workspace — update task status
 - **GitHub:** sagewayai repo — branches, PRs, CI status
 
+## Custom slash commands
+
+| Command | Purpose |
+|---------|---------|
+| `/sagewayai-reviewer` | Architecture-aware code review — checks TypeScript, Zod, Prisma patterns, error handling |
+| `/parable-formatter` | Validate and format a new parable before adding to the database |
+| `/new-parable [category]` | Scaffold a new parable interactively, validates with parable-formatter, appends to seed.ts |
+| `/new-migration <name>` | Create a Prisma migration with confirmation and error guidance |
+| `/seed-parable [category] [count]` | Insert generated test parables directly into the DB via MCP Postgres |
+
+## Custom MCP server
+
+`server/src/mcp/index.ts` — exposes 3 tools Claude can call directly (no HTTP server needed):
+
+| Tool | Description |
+|------|-------------|
+| `get_daily_parable` | Returns today's parable using the LRU selection strategy |
+| `get_parable_stats` | Total count, per-category breakdown, last 7 days history |
+| `get_parable_by_id` | Fetch a single parable by cuid |
+
+Register locally in `.mcp.json` (gitignored):
+```json
+"sagewayai": {
+  "type": "stdio",
+  "command": "npx",
+  "args": ["ts-node", "--project", "server/tsconfig.json", "server/src/mcp/index.ts"],
+  "env": { "DATABASE_URL": "postgresql://postgres:postgres@localhost:5432/sagewayai" }
+}
+```
+
+## Automated hooks
+
+Configured in `.claude/settings.json` (committed):
+
+| Trigger | What runs |
+|---------|-----------|
+| Edit `server/prisma/seed.ts` | `parable-formatter` validates all parables in the file |
+| `git commit` | `sagewayai-reviewer` checks staged diff — blocks on violations |
+| `gh pr create` | `sagewayai-reviewer` checks full branch diff — blocks on violations |
+
 ## Current phase
 
-**Phase 1 — Done. Phase 2 — next.** Check Notion for current tasks.
+**Phase 1 — Done. Phase 2 — Done. Phase 3 — Done.** Check Notion for current tasks.
 
 ## Git & commit workflow
 
