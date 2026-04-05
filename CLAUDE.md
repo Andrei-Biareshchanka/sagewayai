@@ -66,6 +66,12 @@ GET  /api/categories            # all categories with parable counts
 
 v2 adds: `/api/auth/*`, `/api/subscribe`
 
+## Language
+
+**All files must be written in English — no exceptions.**
+
+This includes: source code, comments, commit messages, documentation (CLAUDE.md, CONVENTIONS.md, README), Prisma schema comments, seed data descriptions, error messages, and variable names.
+
 ## Conventions
 
 See **[CONVENTIONS.md](./CONVENTIONS.md)** for the full coding style guide.
@@ -83,3 +89,28 @@ See **[CONVENTIONS.md](./CONVENTIONS.md)** for the full coding style guide.
 ## Current phase
 
 **Phase 1 — Done. Phase 2 — next.** Check Notion for current tasks.
+
+## Git & commit workflow
+
+**IMPORTANT: Follow this workflow strictly on every task.**
+
+### Branch-first rule
+- Every task or feature gets its own branch: `feat/task-name`, `fix/bug-name`, `chore/topic`
+- Never work directly on `main`
+
+### Commit & PR — only on explicit user command
+- **Never commit or push automatically**
+- **Never create a PR automatically**
+- Only commit when the user says "commit" or "make a commit"
+- Only create a PR when the user says "create PR" or "make a PR"
+
+### Suggest checkpoints proactively
+After completing a logical unit of work, suggest:
+> "Want to commit and create a PR? We can continue with the next step after merge."
+
+This keeps the git history clean and incremental — one PR per meaningful step.
+
+### Diffs are always visible
+- All file changes appear in the user's diff tray before any commit
+- Never batch unrelated changes into one commit
+- Small, focused commits — one reason to change per commit
