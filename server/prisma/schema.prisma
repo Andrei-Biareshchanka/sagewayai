@@ -19,6 +19,7 @@ model Parable {
   categoryId String
   dailies    DailyParable[]
 
+  @@unique([title, categoryId])
   @@index([categoryId])
 }
 
