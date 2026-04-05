@@ -21,6 +21,7 @@ jobs:
           cache: npm
           cache-dependency-path: server/package-lock.json
       - run: npm ci
+      - run: npx prisma generate
       - run: npm test
         env:
           JWT_SECRET: test-jwt-secret-for-ci
