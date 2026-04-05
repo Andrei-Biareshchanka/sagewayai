@@ -1,5 +1,19 @@
 {
   "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "agent",
+            "if": "Edit(server/prisma/seed.ts)",
+            "statusMessage": "parable-formatter: validating new parables in seed.ts...",
+            "timeout": 60,
+            "prompt": "The file server/prisma/seed.ts was just edited. Check if any new parables were added.\n\n1. Read the file: server/prisma/seed.ts\n2. For each parable object in the file, validate:\n   - title: 5–100 chars, no trailing punctuation\n   - content: 100–2000 chars, at least 2 sentences\n   - moral: 20–300 chars, does not duplicate the last sentence of content\n   - readTime: equals Math.ceil(wordCount / 200), minimum 1\n   - category connects to one of: wisdom, motivation, leadership, journey, loss, risk, trust, meaning\n   - No placeholder text: Lorem, TODO, example, test\n   - English only — no Cyrillic characters\n3. If issues found — output JSON: {\"hookSpecificOutput\": {\"hookEventName\": \"PostToolUse\", \"additionalContext\": \"parable-formatter warnings:\\n<list each issue with parable title>\"}}\n4. If all good — output JSON: {\"hookSpecificOutput\": {\"hookEventName\": \"PostToolUse\", \"additionalContext\": \"parable-formatter: all parables valid\"}}"
+          }
+        ]
+      }
+    ],
     "PreToolUse": [
       {
         "matcher": "Bash",
