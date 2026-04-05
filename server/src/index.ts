@@ -1,8 +1,11 @@
 import express, { Request, Response } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+
 import { prisma } from './lib/prisma';
 import { errorHandler } from './middleware/errorHandler';
+import { parablesRouter } from './routes/parables';
+import { categoriesRouter } from './routes/categories';
 
 dotenv.config();
 
@@ -16,6 +19,9 @@ export function createApp() {
     await prisma.$queryRaw`SELECT 1`;
     res.json({ status: 'ok' });
   });
+
+  app.use('/api/parables', parablesRouter);
+  app.use('/api/categories', categoriesRouter);
 
   app.use(errorHandler);
 
