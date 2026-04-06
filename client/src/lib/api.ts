@@ -3,8 +3,10 @@ import axios from 'axios';
 import { useAuthStore } from '@/auth/authStore';
 import type { AuthResponse } from '@/types';
 
+const BASE_URL = import.meta.env['VITE_API_URL'] ?? 'http://localhost:3001/api';
+
 export const api = axios.create({
-  baseURL: 'http://localhost:3001/api',
+  baseURL: BASE_URL,
   headers: { 'Content-Type': 'application/json' },
   withCredentials: true,
 });
@@ -25,7 +27,7 @@ api.interceptors.response.use(
       original._retry = true;
       try {
         const { data } = await axios.post<AuthResponse>(
-          'http://localhost:3001/api/auth/refresh',
+          `${BASE_URL}/auth/refresh`,
           {},
           { withCredentials: true },
         );
