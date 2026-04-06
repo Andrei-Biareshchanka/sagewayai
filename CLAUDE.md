@@ -123,8 +123,11 @@ Defined in `.claude/agents/` — Claude Code picks them up automatically.
 | Agent | File | When to use |
 |-------|------|-------------|
 | `research` | `.claude/agents/research.md` | Web search, npm version checks, docs lookup, package comparison, best practices |
+| `security-reviewer` | `.claude/agents/security-reviewer.md` | Security audit — JWT misuse, data leaks, injection, cookie flags, dependency vulnerabilities. Runs automatically on every `gh pr create`. |
 
 Never call `WebSearch` or `WebFetch` directly — delegate to the `research` agent.
+
+The `security-reviewer` runs automatically before every PR. It blocks on critical issues (hardcoded secrets, password in response, SQL injection) and injects warnings for lesser issues (missing rate limiting, cookie flags).
 
 ## Automated hooks
 
@@ -135,6 +138,7 @@ Configured in `.claude/settings.json` (committed):
 | Edit `server/prisma/seed.ts` | `parable-formatter` validates all parables in the file |
 | `git commit` | `sagewayai-reviewer` checks staged diff — blocks on violations |
 | `gh pr create` | `sagewayai-reviewer` checks full branch diff — blocks on violations |
+| `gh pr create` | `security-reviewer` scans for vulnerabilities — blocks on critical, warns on lesser issues |
 
 ## Current phase
 
