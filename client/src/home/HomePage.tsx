@@ -41,9 +41,9 @@ function HomePage() {
         />
       )}
 
-      <section className="mx-auto max-w-[1200px] px-6 pb-20">
+      <section className="mx-auto max-w-[1200px] px-4 pb-16 sm:px-6 sm:pb-20">
         <h2 className="mb-6 font-serif text-2xl font-semibold text-[#1A1A1A]">More parables</h2>
-        <div className="grid grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {(parablesData?.data ?? []).map((parable) => (
             <ParableCard
               key={parable.id}

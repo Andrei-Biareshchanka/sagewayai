@@ -9,8 +9,8 @@ interface DailyParableCardProps {
 
 function DailyParableCard({ parable, categoryName }: DailyParableCardProps) {
   return (
-    <div className="mx-auto max-w-[1200px] px-6 pb-12">
-      <div className="rounded-[12px] border border-[rgba(0,0,0,0.08)] bg-[#F0F4F0] p-10">
+    <div className="mx-auto max-w-[1200px] px-4 pb-10 sm:px-6 sm:pb-12">
+      <div className="rounded-[12px] border border-[rgba(0,0,0,0.08)] bg-[#F0F4F0] p-6 sm:p-10">
         <div className="mb-5 flex items-center gap-3">
           <span className="rounded-full bg-[#6B8F71] px-3 py-1 text-[11px] font-medium uppercase tracking-[0.5px] text-white">
             Parable of the day
@@ -20,7 +20,7 @@ function DailyParableCard({ parable, categoryName }: DailyParableCardProps) {
           </span>
         </div>
 
-        <h2 className="mb-4 max-w-2xl font-serif text-4xl font-semibold leading-snug text-[#1A1A1A]">
+        <h2 className="mb-4 max-w-2xl font-serif text-2xl font-semibold leading-snug text-[#1A1A1A] sm:text-4xl">
           {parable.title}
         </h2>
 
@@ -32,14 +32,14 @@ function DailyParableCard({ parable, categoryName }: DailyParableCardProps) {
           «{parable.moral}»
         </p>
 
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <span className="text-sm text-[#6B7280]">
             {parable.readTime} min read
             {parable.source ? ` · ${parable.source}` : ''}
           </span>
           <Link
             to={`/parables/${parable.id}`}
-            className="rounded-full border border-[#6B8F71] px-6 py-2 text-sm font-medium text-[#6B8F71] transition-colors hover:bg-[#6B8F71] hover:text-white"
+            className="self-start rounded-full border border-[#6B8F71] px-6 py-2 text-sm font-medium text-[#6B8F71] transition-colors hover:bg-[#6B8F71] hover:text-white sm:self-auto"
           >
             Read parable
           </Link>

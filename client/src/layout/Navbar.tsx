@@ -9,14 +9,14 @@ function Navbar() {
 
   return (
     <header className="border-b border-[rgba(0,0,0,0.08)] bg-[#FAFAF8]">
-      <div className="mx-auto flex max-w-[1200px] items-center justify-between px-6 py-4">
+      <div className="mx-auto flex max-w-[1200px] items-center justify-between px-4 py-4 sm:px-6">
         <Link to="/" className="flex items-center gap-2">
           <span className="font-serif text-xl font-semibold text-[#1A1A1A]">
             Sage<span className="text-[#6B8F71]">way</span>
           </span>
         </Link>
 
-        <nav className="flex items-center gap-8">
+        <nav className="hidden items-center gap-8 sm:flex">
           <NavLink
             to="/explore"
             className={({ isActive }) =>
@@ -35,13 +35,13 @@ function Navbar() {
           </NavLink>
         </nav>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3">
           {user ? (
             <>
-              <span className="text-sm text-[#6B7280]">{user.email}</span>
+              <span className="hidden text-sm text-[#6B7280] sm:inline">{user.email}</span>
               <button
                 onClick={() => logout()}
-                className="rounded-full border border-[rgba(0,0,0,0.15)] px-5 py-2 text-sm text-[#6B7280] transition-colors hover:border-[#6B8F71] hover:text-[#6B8F71]"
+                className="rounded-full border border-[rgba(0,0,0,0.15)] px-4 py-1.5 text-sm text-[#6B7280] transition-colors hover:border-[#6B8F71] hover:text-[#6B8F71] sm:px-5 sm:py-2"
               >
                 Log out
               </button>
@@ -56,7 +56,7 @@ function Navbar() {
               </Link>
               <Link
                 to="/register"
-                className="rounded-full bg-[#6B8F71] px-5 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90"
+                className="rounded-full bg-[#6B8F71] px-4 py-1.5 text-sm font-medium text-white transition-opacity hover:opacity-90 sm:px-5 sm:py-2"
               >
                 Sign up
               </Link>

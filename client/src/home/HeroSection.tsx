@@ -8,12 +8,12 @@ interface HeroSectionProps {
 
 function HeroSection({ categories, activeSlug, onCategoryChange }: HeroSectionProps) {
   return (
-    <section className="mx-auto max-w-[1200px] px-6 py-16">
+    <section className="mx-auto max-w-[1200px] px-4 py-10 sm:px-6 sm:py-16">
       <p className="mb-3 text-[11px] font-medium uppercase tracking-[0.5px] text-[#6B7280]">
         Parable library
       </p>
 
-      <h1 className="mb-10 max-w-2xl font-serif text-5xl font-semibold leading-tight text-[#1A1A1A]">
+      <h1 className="mb-10 max-w-2xl font-serif text-3xl font-semibold leading-tight text-[#1A1A1A] sm:text-5xl">
         The right story{' '}
         <em className="font-normal italic text-[#6B8F71]">for this moment</em>
       </h1>
