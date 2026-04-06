@@ -116,6 +116,16 @@ Register locally in `.mcp.json` (gitignored):
 }
 ```
 
+## Subagents
+
+Defined in `.claude/agents/` — Claude Code picks them up automatically.
+
+| Agent | File | When to use |
+|-------|------|-------------|
+| `research` | `.claude/agents/research.md` | Web search, npm version checks, docs lookup, package comparison, best practices |
+
+Never call `WebSearch` or `WebFetch` directly — delegate to the `research` agent.
+
 ## Automated hooks
 
 Configured in `.claude/settings.json` (committed):
