@@ -41,7 +41,7 @@ function ParableReaderPage() {
   }
 
   return (
-    <main className="mx-auto max-w-[680px] px-6 py-16">
+    <main className="mx-auto max-w-[680px] px-4 py-10 sm:px-6 sm:py-16">
       <Link
         to="/explore"
         className="mb-8 inline-block text-sm text-[#6B7280] transition-colors hover:text-[#1A1A1A]"
@@ -61,7 +61,7 @@ function ParableReaderPage() {
         )}
       </div>
 
-      <h1 className="mb-8 font-serif text-4xl font-semibold leading-tight text-[#1A1A1A]">
+      <h1 className="mb-8 font-serif text-3xl font-semibold leading-tight text-[#1A1A1A] sm:text-4xl">
         {parable.title}
       </h1>
 

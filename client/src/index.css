@@ -17,6 +17,10 @@
   --radius-card: 12px;
 }
 
+html {
+  scrollbar-gutter: stable;
+}
+
 body {
   font-family: var(--font-sans);
   background-color: var(--color-canvas);

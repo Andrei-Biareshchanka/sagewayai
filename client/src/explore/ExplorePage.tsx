@@ -28,8 +28,8 @@ function ExplorePage() {
   };
 
   return (
-    <main className="mx-auto max-w-[1200px] px-6 py-12">
-      <h1 className="mb-8 font-serif text-4xl font-semibold text-[#1A1A1A]">Explore parables</h1>
+    <main className="mx-auto max-w-[1200px] px-4 py-10 sm:px-6 sm:py-12">
+      <h1 className="mb-8 font-serif text-3xl font-semibold text-[#1A1A1A] sm:text-4xl">Explore parables</h1>
 
       <div className="mb-8 flex gap-2 overflow-x-auto pb-1">
         <button
@@ -71,7 +71,7 @@ function ExplorePage() {
 
       {!isLoading && !isError && (
         <>
-          <div className="grid grid-cols-3 gap-5">
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {(data?.data ?? []).map((parable) => (
               <ParableCard
                 key={parable.id}
