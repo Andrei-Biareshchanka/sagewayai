@@ -29,15 +29,15 @@ function ExplorePage() {
 
   return (
     <main className="mx-auto max-w-[1200px] px-4 py-10 sm:px-6 sm:py-12">
-      <h1 className="mb-8 font-serif text-3xl font-semibold text-[#1A1A1A] sm:text-4xl">Explore parables</h1>
+      <h1 className="mb-8 font-serif text-3xl font-semibold text-ink sm:text-4xl">Explore parables</h1>
 
       <div className="mb-8 flex gap-2 overflow-x-auto pb-1">
         <button
           onClick={() => handleCategoryChange(null)}
           className={`shrink-0 rounded-full px-4 py-1.5 text-sm transition-colors ${
             activeSlug === null
-              ? 'bg-[#6B8F71] text-white'
-              : 'bg-[#E8F0E8] text-[#3D6142] hover:bg-[#d8e8d8]'
+              ? 'bg-sage text-white'
+              : 'bg-sage-pill text-sage-dark hover:bg-sage-pill-hover'
           }`}
         >
           All
@@ -48,8 +48,8 @@ function ExplorePage() {
             onClick={() => handleCategoryChange(category.slug)}
             className={`shrink-0 rounded-full px-4 py-1.5 text-sm transition-colors ${
               activeSlug === category.slug
-                ? 'bg-[#6B8F71] text-white'
-                : 'bg-[#E8F0E8] text-[#3D6142] hover:bg-[#d8e8d8]'
+                ? 'bg-sage text-white'
+                : 'bg-sage-pill text-sage-dark hover:bg-sage-pill-hover'
             }`}
           >
             {category.name}
@@ -58,13 +58,13 @@ function ExplorePage() {
       </div>
 
       {isLoading && (
-        <div className="flex min-h-[40vh] items-center justify-center text-[#6B7280]">
+        <div className="flex min-h-[40vh] items-center justify-center text-muted">
           Loading...
         </div>
       )}
 
       {isError && (
-        <div className="flex min-h-[40vh] items-center justify-center text-[#6B7280]">
+        <div className="flex min-h-[40vh] items-center justify-center text-muted">
           Failed to load parables.
         </div>
       )}
@@ -86,17 +86,17 @@ function ExplorePage() {
               <button
                 onClick={() => setPage((p) => p - 1)}
                 disabled={page === 1}
-                className="rounded-full border border-[rgba(0,0,0,0.08)] px-5 py-2 text-sm text-[#6B7280] transition-colors hover:border-[#6B8F71] hover:text-[#6B8F71] disabled:opacity-30"
+                className="rounded-full border border-border px-5 py-2 text-sm text-muted transition-colors hover:border-sage hover:text-sage disabled:opacity-30"
               >
                 ← Previous
               </button>
-              <span className="text-sm text-[#6B7280]">
+              <span className="text-sm text-muted">
                 {page} / {totalPages}
               </span>
               <button
                 onClick={() => setPage((p) => p + 1)}
                 disabled={page === totalPages}
-                className="rounded-full border border-[rgba(0,0,0,0.08)] px-5 py-2 text-sm text-[#6B7280] transition-colors hover:border-[#6B8F71] hover:text-[#6B8F71] disabled:opacity-30"
+                className="rounded-full border border-border px-5 py-2 text-sm text-muted transition-colors hover:border-sage hover:text-sage disabled:opacity-30"
               >
                 Next →
               </button>

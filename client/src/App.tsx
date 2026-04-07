@@ -36,7 +36,7 @@ function App() {
   }, [setAuth]);
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#FAFAF8]">
+    <div className="flex min-h-screen flex-col bg-canvas">
       <Navbar />
       <div className="flex-1">
         <Suspense fallback={null}>

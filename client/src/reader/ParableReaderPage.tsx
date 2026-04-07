@@ -23,7 +23,7 @@ function ParableReaderPage() {
 
   if (isLoading) {
     return (
-      <div className="flex min-h-[60vh] items-center justify-center text-[#6B7280]">
+      <div className="flex min-h-[60vh] items-center justify-center text-muted">
         Loading...
       </div>
     );
@@ -31,9 +31,9 @@ function ParableReaderPage() {
 
   if (isError || !parable) {
     return (
-      <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4 text-[#6B7280]">
+      <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4 text-muted">
         <p>Parable not found.</p>
-        <Link to="/explore" className="text-sm text-[#6B8F71] hover:underline">
+        <Link to="/explore" className="text-sm text-sage hover:underline">
           ← Back to explore
         </Link>
       </div>
@@ -44,12 +44,12 @@ function ParableReaderPage() {
     <main className="mx-auto max-w-[680px] px-4 py-10 sm:px-6 sm:py-16">
       <Link
         to="/explore"
-        className="mb-8 inline-block text-sm text-[#6B7280] transition-colors hover:text-[#1A1A1A]"
+        className="mb-8 inline-block text-sm text-muted transition-colors hover:text-ink"
       >
         ← Back to explore
       </Link>
 
-      <div className="mb-4 flex flex-wrap gap-2 text-sm text-[#6B7280]">
+      <div className="mb-4 flex flex-wrap gap-2 text-sm text-muted">
         {categoryName && <span>{categoryName}</span>}
         {categoryName && <span>·</span>}
         <span>{parable.readTime} min read</span>
@@ -61,16 +61,16 @@ function ParableReaderPage() {
         )}
       </div>
 
-      <h1 className="mb-8 font-serif text-3xl font-semibold leading-tight text-[#1A1A1A] sm:text-4xl">
+      <h1 className="mb-8 font-serif text-3xl font-semibold leading-tight text-ink sm:text-4xl">
         {parable.title}
       </h1>
 
-      <p className="mb-10 font-serif text-lg leading-[1.8] text-[#1A1A1A]">
+      <p className="mb-10 font-serif text-lg leading-[1.8] text-ink">
         {parable.content}
       </p>
 
-      <blockquote className="rounded-r-[8px] border-l-4 border-[#6B8F71] bg-[#F0F4F0] px-6 py-4">
-        <p className="font-serif text-base italic text-[#3D6142]">«{parable.moral}»</p>
+      <blockquote className="rounded-r-lg border-l-4 border-sage bg-sage-light px-6 py-4">
+        <p className="font-serif text-base italic text-sage-dark">«{parable.moral}»</p>
       </blockquote>
 
       {user && (
@@ -79,8 +79,8 @@ function ParableReaderPage() {
           disabled={toggling}
           className={`mt-8 flex items-center gap-2 rounded-full border px-5 py-2 text-sm transition-colors disabled:opacity-60 ${
             isFavorited
-              ? 'border-[#6B8F71] bg-[#F0F4F0] text-[#3D6142]'
-              : 'border-[rgba(0,0,0,0.15)] text-[#6B7280] hover:border-[#6B8F71] hover:text-[#6B8F71]'
+              ? 'border-sage bg-sage-light text-sage-dark'
+              : 'border-border-medium text-muted hover:border-sage hover:text-sage'
           }`}
         >
           {isFavorited ? '♥ Saved to collection' : '♡ Save to collection'}
