@@ -2,14 +2,24 @@
 @import "tailwindcss";
 
 @theme {
+  /* Brand */
   --color-sage: #6B8F71;
   --color-sage-light: #F0F4F0;
   --color-sage-pill: #E8F0E8;
-  --color-sage-pill-text: #3D6142;
+  --color-sage-pill-hover: #d8e8d8;
+  --color-sage-dark: #3D6142;
+
+  /* Surface */
   --color-canvas: #FAFAF8;
-  --color-text-primary: #1A1A1A;
-  --color-text-secondary: #6B7280;
+
+  /* Text */
+  --color-ink: #1A1A1A;
+  --color-muted: #6B7280;
+
+  /* Borders */
   --color-border: rgba(0, 0, 0, 0.08);
+  --color-border-medium: rgba(0, 0, 0, 0.15);
+  --color-border-subtle: rgba(0, 0, 0, 0.06);
 
   --font-sans: 'Inter', sans-serif;
   --font-serif: 'Lora', serif;

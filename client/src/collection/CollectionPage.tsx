@@ -19,7 +19,7 @@ function CollectionPage() {
 
   if (isLoading) {
     return (
-      <div className="flex min-h-[60vh] items-center justify-center text-[#6B7280]">
+      <div className="flex min-h-[60vh] items-center justify-center text-muted">
         Loading...
       </div>
     );
@@ -27,12 +27,12 @@ function CollectionPage() {
 
   return (
     <main className="mx-auto max-w-[1200px] px-6 py-12">
-      <h1 className="mb-8 font-serif text-4xl font-semibold text-[#1A1A1A]">My collection</h1>
+      <h1 className="mb-8 font-serif text-4xl font-semibold text-ink">My collection</h1>
 
       {data?.data.length === 0 ? (
-        <div className="flex flex-col items-center gap-4 py-20 text-[#6B7280]">
+        <div className="flex flex-col items-center gap-4 py-20 text-muted">
           <p>No favorites yet.</p>
-          <Link to="/explore" className="text-sm text-[#6B8F71] hover:underline">
+          <Link to="/explore" className="text-sm text-sage hover:underline">
             Explore parables →
           </Link>
         </div>
@@ -53,17 +53,17 @@ function CollectionPage() {
               <button
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                 disabled={page === 1}
-                className="rounded-full border border-[rgba(0,0,0,0.15)] px-5 py-2 text-sm text-[#6B7280] transition-colors hover:border-[#6B8F71] hover:text-[#6B8F71] disabled:opacity-40"
+                className="rounded-full border border-border-medium px-5 py-2 text-sm text-muted transition-colors hover:border-sage hover:text-sage disabled:opacity-40"
               >
                 Previous
               </button>
-              <span className="text-sm text-[#6B7280]">
+              <span className="text-sm text-muted">
                 {page} / {totalPages}
               </span>
               <button
                 onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                 disabled={page === totalPages}
-                className="rounded-full border border-[rgba(0,0,0,0.15)] px-5 py-2 text-sm text-[#6B7280] transition-colors hover:border-[#6B8F71] hover:text-[#6B8F71] disabled:opacity-40"
+                className="rounded-full border border-border-medium px-5 py-2 text-sm text-muted transition-colors hover:border-sage hover:text-sage disabled:opacity-40"
               >
                 Next
               </button>
