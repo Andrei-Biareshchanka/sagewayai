@@ -4,6 +4,7 @@ import { Route, Routes } from 'react-router-dom';
 import { useAuthStore } from '@/auth/authStore';
 import { ProtectedRoute } from '@/auth/ProtectedRoute';
 import { refreshSession } from '@/auth/authApi';
+import { Footer } from '@/layout/Footer';
 import { Navbar } from '@/layout/Navbar';
 import { HomePage } from '@/home/HomePage';
 
@@ -35,25 +36,28 @@ function App() {
   }, [setAuth]);
 
   return (
-    <div className="min-h-screen bg-[#FAFAF8]">
+    <div className="flex min-h-screen flex-col bg-[#FAFAF8]">
       <Navbar />
-      <Suspense fallback={null}>
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/explore" element={<ExplorePage />} />
-          <Route path="/parables/:id" element={<ParableReaderPage />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/register" element={<RegisterPage />} />
-          <Route
-            path="/collection"
-            element={
-              <ProtectedRoute>
-                <CollectionPage />
-              </ProtectedRoute>
-            }
-          />
-        </Routes>
-      </Suspense>
+      <div className="flex-1">
+        <Suspense fallback={null}>
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/explore" element={<ExplorePage />} />
+            <Route path="/parables/:id" element={<ParableReaderPage />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
+            <Route
+              path="/collection"
+              element={
+                <ProtectedRoute>
+                  <CollectionPage />
+                </ProtectedRoute>
+              }
+            />
+          </Routes>
+        </Suspense>
+      </div>
+      <Footer />
     </div>
   );
 }
