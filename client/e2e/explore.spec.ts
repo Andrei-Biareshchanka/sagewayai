@@ -9,7 +9,7 @@ test('explore page shows "All" pill selected by default', async ({ page }) => {
   await page.goto('/explore');
   const allPill = page.getByRole('button', { name: 'All' });
   await expect(allPill).toBeVisible();
-  await expect(allPill).toHaveClass(/bg-\[#6B8F71\]/);
+  await expect(allPill).toHaveClass(/bg-sage/);
 });
 
 test('clicking a category pill activates it', async ({ page }) => {
@@ -19,5 +19,5 @@ test('clicking a category pill activates it', async ({ page }) => {
   const firstCategoryPill = filterRow.locator('button').nth(1); // 0 = All, 1 = first category
   await expect(firstCategoryPill).toBeVisible();
   await firstCategoryPill.click();
-  await expect(firstCategoryPill).toHaveClass(/bg-\[#6B8F71\]/);
+  await expect(firstCategoryPill).toHaveClass(/bg-sage/);
 });
