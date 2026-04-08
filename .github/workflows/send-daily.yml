@@ -1,0 +1,17 @@
+name: Send daily parable
+
+on:
+  schedule:
+    - cron: '0 8 * * *'  # 08:00 UTC every day
+  workflow_dispatch:       # allow manual trigger from GitHub UI
+
+jobs:
+  send:
+    name: Send daily parable email
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger send-daily endpoint
+        run: |
+          curl -f -X POST "${{ secrets.API_URL }}/admin/send-daily" \
+            -H "x-send-secret: ${{ secrets.ADMIN_SEND_SECRET }}" \
+            -H "Content-Type: application/json"

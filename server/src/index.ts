@@ -10,6 +10,7 @@ import { categoriesRouter } from './routes/categories';
 import { authRouter } from './routes/auth';
 import { meRouter } from './routes/me';
 import { adminRouter } from './routes/admin';
+import { subscribeRouter } from './routes/subscribe';
 
 dotenv.config();
 
@@ -38,6 +39,7 @@ export function createApp() {
   app.use('/api/auth', authRouter);
   app.use('/api/me', meRouter);
   app.use('/api/admin', adminRouter);
+  app.use('/api/subscribe', subscribeRouter);
 
   app.use(errorHandler);
 
