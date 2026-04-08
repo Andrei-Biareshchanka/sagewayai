@@ -67,6 +67,14 @@ model Subscription {
   updatedAt           DateTime @updatedAt
 }
 
+model EmailSubscriber {
+  id               String   @id @default(cuid())
+  email            String   @unique
+  active           Boolean  @default(true)
+  unsubscribeToken String   @unique @default(cuid())
+  createdAt        DateTime @default(now())
+}
+
 model Favorite {
   userId    String
   parableId String

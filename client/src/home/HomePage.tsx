@@ -5,6 +5,7 @@ import { useDailyParable, useParables } from '@/parables/useParables';
 import { DailyParableCard } from './FeaturedStoryCard';
 import { HeroSection } from './HeroSection';
 import { ParableCard } from './StoryMiniCard';
+import { SubscribeForm } from './SubscribeForm';
 
 function HomePage() {
   const [activeSlug, setActiveSlug] = useState<string | null>(null);
@@ -52,6 +53,10 @@ function HomePage() {
             />
           ))}
         </div>
+      </section>
+
+      <section className="mx-auto max-w-[1200px] px-4 pb-20 sm:px-6">
+        <SubscribeForm />
       </section>
     </main>
   );
