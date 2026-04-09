@@ -6,6 +6,7 @@ import { ProtectedRoute } from '@/auth/ProtectedRoute';
 import { refreshSession } from '@/auth/authApi';
 import { Footer } from '@/layout/Footer';
 import { Navbar } from '@/layout/Navbar';
+import { ScrollToTop } from '@/layout/ScrollToTop';
 import { HomePage } from '@/home/HomePage';
 
 const ExplorePage = lazy(() =>
@@ -37,6 +38,7 @@ function App() {
 
   return (
     <div className="flex min-h-screen flex-col bg-canvas">
+      <ScrollToTop />
       <Navbar />
       <div className="flex-1">
         <Suspense fallback={null}>

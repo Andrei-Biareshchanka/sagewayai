@@ -1,12 +1,15 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 
 import { useCategories } from '@/categories/useCategories';
 import { useParables } from '@/parables/useParables';
 import { ParableCard } from '@/home/StoryMiniCard';
 
 function ExplorePage() {
-  const [activeSlug, setActiveSlug] = useState<string | null>(null);
+  const [searchParams, setSearchParams] = useSearchParams();
   const [page, setPage] = useState(1);
+
+  const activeSlug = searchParams.get('category');
 
   const { data: categories } = useCategories();
   const { data, isLoading, isError } = useParables({
@@ -20,10 +23,21 @@ function ExplorePage() {
     [categories],
   );
 
+  const activeCategory = categories?.find((c) => c.slug === activeSlug);
+
+  useEffect(() => {
+    const title = activeCategory ? `${activeCategory.name} — SagewayAI` : 'Explore — SagewayAI';
+    document.title = title;
+  }, [activeCategory]);
+
   const totalPages = data ? Math.ceil(data.total / data.limit) : 0;
 
   const handleCategoryChange = (slug: string | null) => {
-    setActiveSlug(slug);
+    if (slug) {
+      setSearchParams({ category: slug });
+    } else {
+      setSearchParams({});
+    }
     setPage(1);
   };
 
@@ -71,15 +85,26 @@ function ExplorePage() {
 
       {!isLoading && !isError && (
         <>
-          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {(data?.data ?? []).map((parable) => (
-              <ParableCard
-                key={parable.id}
-                parable={parable}
-                categoryName={categoryMap[parable.categoryId] ?? ''}
-              />
-            ))}
-          </div>
+          {data?.data.length === 0 ? (
+            <div className="flex min-h-[40vh] flex-col items-center justify-center gap-3 text-center">
+              <p className="font-serif text-xl text-ink">No parables yet</p>
+              <p className="text-sm text-muted">
+                {activeSlug
+                  ? 'This category has no parables yet. Try another one.'
+                  : 'The library is empty.'}
+              </p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+              {(data?.data ?? []).map((parable) => (
+                <ParableCard
+                  key={parable.id}
+                  parable={parable}
+                  categoryName={categoryMap[parable.categoryId] ?? ''}
+                />
+              ))}
+            </div>
+          )}
 
           {totalPages > 1 && (
             <div className="mt-10 flex items-center justify-center gap-4">
