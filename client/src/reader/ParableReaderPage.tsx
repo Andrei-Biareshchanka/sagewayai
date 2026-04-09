@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { Link, useParams } from 'react-router-dom';
 
 import { useAuthStore } from '@/auth/authStore';
@@ -20,6 +20,12 @@ function ParableReaderPage() {
     if (!parable || !categories) return '';
     return categories.find((c) => c.id === parable.categoryId)?.name ?? '';
   }, [parable, categories]);
+
+  useEffect(() => {
+    if (parable) {
+      document.title = `${parable.title} — SagewayAI`;
+    }
+  }, [parable]);
 
   if (isLoading) {
     return (

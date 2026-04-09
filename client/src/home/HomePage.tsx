@@ -1,4 +1,5 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import { useCategories } from '@/categories/useCategories';
 import { useDailyParable, useParables } from '@/parables/useParables';
@@ -8,16 +9,28 @@ import { ParableCard } from './StoryMiniCard';
 import { SubscribeForm } from './SubscribeForm';
 
 function HomePage() {
-  const [activeSlug, setActiveSlug] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   const { data: daily, isLoading: dailyLoading } = useDailyParable();
   const { data: parablesData, isLoading: parablesLoading } = useParables({ limit: 3 });
   const { data: categories } = useCategories();
 
+  useEffect(() => {
+    document.title = 'SagewayAI — The daily parable that resonates';
+  }, []);
+
   const categoryMap = useMemo(
     () => Object.fromEntries((categories ?? []).map((c) => [c.id, c.name])),
     [categories],
   );
+
+  const handleCategoryChange = (slug: string | null) => {
+    if (slug) {
+      navigate(`/explore?category=${slug}`);
+    } else {
+      navigate('/explore');
+    }
+  };
 
   if (dailyLoading || parablesLoading) {
     return (
@@ -31,8 +44,8 @@ function HomePage() {
     <main>
       <HeroSection
         categories={categories ?? []}
-        activeSlug={activeSlug}
-        onCategoryChange={setActiveSlug}
+        activeSlug={null}
+        onCategoryChange={handleCategoryChange}
       />
 
       {daily && (
