@@ -164,6 +164,10 @@ After completing a logical unit of work, suggest:
 
 This keeps the git history clean and incremental — one PR per meaningful step.
 
+### PR descriptions
+- **Never add** `🤖 Generated with Claude Code` footer to PR bodies
+- **Never add** `Co-Authored-By: Claude` trailer to commit messages
+
 ### Diffs are always visible
 - All file changes appear in the user's diff tray before any commit
 - Never batch unrelated changes into one commit

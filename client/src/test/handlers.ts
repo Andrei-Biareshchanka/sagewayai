@@ -7,7 +7,7 @@ export const MOCK_CATEGORY: Category = {
   name: 'Wisdom',
   slug: 'wisdom',
   description: 'Timeless wisdom',
-  color: null,
+  color: undefined,
   parablesCount: 10,
 };
 
