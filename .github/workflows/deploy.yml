@@ -1,0 +1,15 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy-server:
+    name: Deploy server to Render
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Render deploy
+        run: curl --fail "$RENDER_DEPLOY_HOOK_URL"
+        env:
+          RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
