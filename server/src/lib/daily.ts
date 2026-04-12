@@ -1,10 +1,10 @@
-import { Parable, Prisma } from '@prisma/client';
-import { prisma } from './prisma';
+import { Parable, Prisma } from "@prisma/client";
+import { prisma } from "./prisma";
 
-const UNIQUE_CONSTRAINT_ERROR = 'P2002';
+const UNIQUE_CONSTRAINT_ERROR = "P2002";
 
 function getTodayDate(): Date {
-  return new Date(new Date().toISOString().split('T')[0] as string);
+  return new Date(new Date().toISOString().split("T")[0] as string);
 }
 
 async function pickNextParable(): Promise<Parable> {
@@ -18,11 +18,15 @@ async function pickNextParable(): Promise<Parable> {
   }
 
   const leastRecentDaily = await prisma.dailyParable.findFirst({
-    orderBy: { date: 'asc' },
+    orderBy: { date: "asc" },
     include: { parable: true },
   });
 
-  return (leastRecentDaily as NonNullable<typeof leastRecentDaily>).parable;
+  if (!leastRecentDaily) {
+    throw new Error("No parables found in database. Please run the seed.");
+  }
+
+  return leastRecentDaily.parable;
 }
 
 export async function getDailyParable(): Promise<Parable> {
