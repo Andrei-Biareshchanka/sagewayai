@@ -11,15 +11,8 @@ const adminRouter = Router();
 
 const SEND_SECRET = process.env['ADMIN_SEND_SECRET'];
 
-adminRouter.use(authenticate, requireRole('ADMIN'));
-
-adminRouter.get('/parables', async (_req: Request, res: Response) => {
-  const parables = await prisma.parable.findMany({ orderBy: { createdAt: 'desc' } });
-  res.json(parables);
-});
-
 adminRouter.post('/send-daily', async (req: Request, res: Response) => {
-  if (SEND_SECRET && req.headers['x-send-secret'] !== SEND_SECRET) {
+  if (!SEND_SECRET || req.headers['x-send-secret'] !== SEND_SECRET) {
     res.status(401).json({ error: 'Unauthorized' });
     return;
   }
@@ -49,6 +42,13 @@ adminRouter.post('/send-daily', async (req: Request, res: Response) => {
   const failed = results.filter((r) => r.status === 'rejected').length;
 
   res.json({ sent, failed, total: subscribers.length });
+});
+
+adminRouter.use(authenticate, requireRole('ADMIN'));
+
+adminRouter.get('/parables', async (_req: Request, res: Response) => {
+  const parables = await prisma.parable.findMany({ orderBy: { createdAt: 'desc' } });
+  res.json(parables);
 });
 
 export { adminRouter };
