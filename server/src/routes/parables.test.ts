@@ -108,6 +108,19 @@ describe('GET /api/parables', () => {
   });
 });
 
+describe('GET /api/parables/daily', () => {
+  it('returns the daily parable', async () => {
+    mockPrisma.dailyParable.findUnique.mockResolvedValue({
+      parable: MOCK_PARABLE,
+    });
+
+    const res = await request(app).get('/api/parables/daily');
+
+    expect(res.status).toBe(200);
+    expect(res.body).toMatchObject({ id: 'parable-1', title: 'The Empty Cup' });
+  });
+});
+
 describe('GET /api/parables/:id', () => {
   it('returns parable by id', async () => {
     mockPrisma.parable.findUnique.mockResolvedValue(MOCK_PARABLE);
