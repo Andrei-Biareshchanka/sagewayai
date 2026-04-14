@@ -12,6 +12,6 @@ jobs:
     steps:
       - name: Trigger send-daily endpoint
         run: |
-          curl -f -X POST "${{ secrets.API_URL }}/admin/send-daily" \
+          curl -f --max-time 60 -X POST "${{ secrets.API_URL }}/api/admin/send-daily" \
             -H "x-send-secret: ${{ secrets.ADMIN_SEND_SECRET }}" \
             -H "Content-Type: application/json"
