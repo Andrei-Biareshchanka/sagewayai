@@ -1,10 +1,11 @@
-import { useEffect, useMemo } from 'react';
+import { useMemo } from 'react';
 import { Link, useParams } from 'react-router-dom';
 
 import { useAuthStore } from '@/auth/authStore';
 import { useCategories } from '@/categories/useCategories';
 import { useParable } from '@/parables/useParables';
 import { useFavorites, useToggleFavorite } from '@/collection/useFavorites';
+import { useDocumentTitle } from '@/lib/useDocumentTitle';
 
 function ParableReaderPage() {
   const { id } = useParams<{ id: string }>();
@@ -21,11 +22,7 @@ function ParableReaderPage() {
     return categories.find((c) => c.id === parable.categoryId)?.name ?? '';
   }, [parable, categories]);
 
-  useEffect(() => {
-    if (parable) {
-      document.title = `${parable.title} — SagewayAI`;
-    }
-  }, [parable]);
+  useDocumentTitle(parable ? `${parable.title} — SagewayAI` : '');
 
   if (isLoading) {
     return (

@@ -1,8 +1,10 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
 import { useCategories } from '@/categories/useCategories';
+import { useCategoryMap } from '@/categories/useCategoryMap';
 import { useParables } from '@/parables/useParables';
+import { useDocumentTitle } from '@/lib/useDocumentTitle';
 import { ParableCard } from '@/home/StoryMiniCard';
 
 function ExplorePage() {
@@ -12,23 +14,17 @@ function ExplorePage() {
   const activeSlug = searchParams.get('category');
 
   const { data: categories } = useCategories();
+  const categoryMap = useCategoryMap();
   const { data, isLoading, isError } = useParables({
     category: activeSlug ?? undefined,
     page,
     limit: 20,
   });
 
-  const categoryMap = useMemo(
-    () => Object.fromEntries((categories ?? []).map((c) => [c.id, c.name])),
-    [categories],
-  );
-
   const activeCategory = categories?.find((c) => c.slug === activeSlug);
+  const pageTitle = activeCategory ? `${activeCategory.name} — SagewayAI` : 'Explore — SagewayAI';
 
-  useEffect(() => {
-    const title = activeCategory ? `${activeCategory.name} — SagewayAI` : 'Explore — SagewayAI';
-    document.title = title;
-  }, [activeCategory]);
+  useDocumentTitle(pageTitle);
 
   const totalPages = data ? Math.ceil(data.total / data.limit) : 0;
 

@@ -20,10 +20,11 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (r) => r,
   async (error: unknown) => {
-    const axiosError = error as { config?: { _retry?: boolean }; response?: { status: number } };
-    const original = axiosError.config;
+    if (!axios.isAxiosError(error)) return Promise.reject(error);
 
-    if (axiosError.response?.status === 401 && original && !original._retry) {
+    const original = error.config as (typeof error.config & { _retry?: boolean }) | undefined;
+
+    if (error.response?.status === 401 && original && !original._retry) {
       original._retry = true;
       try {
         const { data } = await axios.post<AuthResponse>(
@@ -32,7 +33,7 @@ api.interceptors.response.use(
           { withCredentials: true },
         );
         useAuthStore.getState().setAuth(data.user, data.accessToken);
-        return api(original as Parameters<typeof api>[0]);
+        return api(original);
       } catch {
         useAuthStore.getState().clearAuth();
       }

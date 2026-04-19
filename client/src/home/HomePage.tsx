@@ -1,8 +1,9 @@
-import { useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { useCategories } from '@/categories/useCategories';
+import { useCategoryMap } from '@/categories/useCategoryMap';
 import { useDailyParable, useParables } from '@/parables/useParables';
+import { useDocumentTitle } from '@/lib/useDocumentTitle';
 import { DailyParableCard } from './FeaturedStoryCard';
 import { HeroSection } from './HeroSection';
 import { ParableCard } from './StoryMiniCard';
@@ -14,15 +15,9 @@ function HomePage() {
   const { data: daily, isLoading: dailyLoading } = useDailyParable();
   const { data: parablesData, isLoading: parablesLoading } = useParables({ limit: 3 });
   const { data: categories } = useCategories();
+  const categoryMap = useCategoryMap();
 
-  useEffect(() => {
-    document.title = 'SagewayAI — The daily parable that resonates';
-  }, []);
-
-  const categoryMap = useMemo(
-    () => Object.fromEntries((categories ?? []).map((c) => [c.id, c.name])),
-    [categories],
-  );
+  useDocumentTitle('SagewayAI — The daily parable that resonates');
 
   const handleCategoryChange = (slug: string | null) => {
     if (slug) {
