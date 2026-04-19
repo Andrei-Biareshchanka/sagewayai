@@ -1,9 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
 import { useCategories } from '@/categories/useCategories';
 import { useCategoryMap } from '@/categories/useCategoryMap';
 import { useParables } from '@/parables/useParables';
+import { useDocumentTitle } from '@/lib/useDocumentTitle';
 import { ParableCard } from '@/home/StoryMiniCard';
 
 function ExplorePage() {
@@ -21,11 +22,9 @@ function ExplorePage() {
   });
 
   const activeCategory = categories?.find((c) => c.slug === activeSlug);
+  const pageTitle = activeCategory ? `${activeCategory.name} — SagewayAI` : 'Explore — SagewayAI';
 
-  useEffect(() => {
-    const title = activeCategory ? `${activeCategory.name} — SagewayAI` : 'Explore — SagewayAI';
-    document.title = title;
-  }, [activeCategory]);
+  useDocumentTitle(pageTitle);
 
   const totalPages = data ? Math.ceil(data.total / data.limit) : 0;
 
