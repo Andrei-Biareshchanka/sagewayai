@@ -7,6 +7,7 @@ import { refreshSession } from '@/auth/authApi';
 import { Footer } from '@/layout/Footer';
 import { Navbar } from '@/layout/Navbar';
 import { ScrollToTop } from '@/layout/ScrollToTop';
+import { ErrorBoundary } from '@/lib/ErrorBoundary';
 import { HomePage } from '@/home/HomePage';
 
 const ExplorePage = lazy(() =>
@@ -41,23 +42,25 @@ function App() {
       <ScrollToTop />
       <Navbar />
       <div className="flex-1">
-        <Suspense fallback={null}>
-          <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/explore" element={<ExplorePage />} />
-            <Route path="/parables/:id" element={<ParableReaderPage />} />
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/register" element={<RegisterPage />} />
-            <Route
-              path="/collection"
-              element={
-                <ProtectedRoute>
-                  <CollectionPage />
-                </ProtectedRoute>
-              }
-            />
-          </Routes>
-        </Suspense>
+        <ErrorBoundary>
+          <Suspense fallback={null}>
+            <Routes>
+              <Route path="/" element={<HomePage />} />
+              <Route path="/explore" element={<ExplorePage />} />
+              <Route path="/parables/:id" element={<ParableReaderPage />} />
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/register" element={<RegisterPage />} />
+              <Route
+                path="/collection"
+                element={
+                  <ProtectedRoute>
+                    <CollectionPage />
+                  </ProtectedRoute>
+                }
+              />
+            </Routes>
+          </Suspense>
+        </ErrorBoundary>
       </div>
       <Footer />
     </div>
