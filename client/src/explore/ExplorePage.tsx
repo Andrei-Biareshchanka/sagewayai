@@ -1,7 +1,8 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
 import { useCategories } from '@/categories/useCategories';
+import { useCategoryMap } from '@/categories/useCategoryMap';
 import { useParables } from '@/parables/useParables';
 import { ParableCard } from '@/home/StoryMiniCard';
 
@@ -12,16 +13,12 @@ function ExplorePage() {
   const activeSlug = searchParams.get('category');
 
   const { data: categories } = useCategories();
+  const categoryMap = useCategoryMap();
   const { data, isLoading, isError } = useParables({
     category: activeSlug ?? undefined,
     page,
     limit: 20,
   });
-
-  const categoryMap = useMemo(
-    () => Object.fromEntries((categories ?? []).map((c) => [c.id, c.name])),
-    [categories],
-  );
 
   const activeCategory = categories?.find((c) => c.slug === activeSlug);
 
