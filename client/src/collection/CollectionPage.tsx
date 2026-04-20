@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 
-import { useCategories } from '@/categories/useCategories';
 import { useCategoryMap } from '@/categories/useCategoryMap';
 import { ParableCard } from '@/home/StoryMiniCard';
 import { PaginationControls } from '@/lib/PaginationControls';
@@ -10,7 +9,6 @@ import { useFavorites } from './useFavorites';
 function CollectionPage() {
   const [page, setPage] = useState(1);
   const { data, isLoading } = useFavorites();
-  const { data: categories } = useCategories();
   const categoryMap = useCategoryMap();
 
   const totalPages = data ? Math.ceil(data.total / data.limit) : 0;
