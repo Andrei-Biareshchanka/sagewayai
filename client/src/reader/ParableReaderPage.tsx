@@ -3,7 +3,7 @@ import { Link, useParams } from 'react-router-dom';
 
 import { useAuthStore } from '@/auth/authStore';
 import { useCategories } from '@/categories/useCategories';
-import { useParable } from '@/parables/useParables';
+import { useParable } from '@/parables/useParable';
 import { useFavorites, useToggleFavorite } from '@/collection/useFavorites';
 import { useDocumentTitle } from '@/lib/useDocumentTitle';
 
