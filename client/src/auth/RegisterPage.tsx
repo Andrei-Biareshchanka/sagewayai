@@ -1,7 +1,7 @@
 import { type FormEvent, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
-import { useRegister } from './useAuth';
+import { useRegister } from './useRegister';
 
 function RegisterPage() {
   const [email, setEmail] = useState('');

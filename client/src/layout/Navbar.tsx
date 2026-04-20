@@ -1,7 +1,7 @@
 import { Link, NavLink } from 'react-router-dom';
 
 import { useAuthStore } from '@/auth/authStore';
-import { useLogout } from '@/auth/useAuth';
+import { useLogout } from '@/auth/useLogout';
 
 function Navbar() {
   const user = useAuthStore((s) => s.user);
