@@ -5,6 +5,7 @@ import { useCategories } from '@/categories/useCategories';
 import { useCategoryMap } from '@/categories/useCategoryMap';
 import { useParables } from '@/parables/useParables';
 import { useDocumentTitle } from '@/lib/useDocumentTitle';
+import { PaginationControls } from '@/lib/PaginationControls';
 import { ParableCard } from '@/home/StoryMiniCard';
 
 function ExplorePage() {
@@ -103,25 +104,12 @@ function ExplorePage() {
           )}
 
           {totalPages > 1 && (
-            <div className="mt-10 flex items-center justify-center gap-4">
-              <button
-                onClick={() => setPage((p) => p - 1)}
-                disabled={page === 1}
-                className="rounded-full border border-border px-5 py-2 text-sm text-muted transition-colors hover:border-sage hover:text-sage disabled:opacity-30"
-              >
-                ← Previous
-              </button>
-              <span className="text-sm text-muted">
-                {page} / {totalPages}
-              </span>
-              <button
-                onClick={() => setPage((p) => p + 1)}
-                disabled={page === totalPages}
-                className="rounded-full border border-border px-5 py-2 text-sm text-muted transition-colors hover:border-sage hover:text-sage disabled:opacity-30"
-              >
-                Next →
-              </button>
-            </div>
+            <PaginationControls
+              page={page}
+              totalPages={totalPages}
+              onPrev={() => setPage((p) => p - 1)}
+              onNext={() => setPage((p) => p + 1)}
+            />
           )}
         </>
       )}
