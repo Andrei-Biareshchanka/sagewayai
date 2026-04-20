@@ -1,19 +1,17 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 
 import { useCategories } from '@/categories/useCategories';
+import { useCategoryMap } from '@/categories/useCategoryMap';
 import { ParableCard } from '@/home/StoryMiniCard';
+import { PaginationControls } from '@/lib/PaginationControls';
 import { useFavorites } from './useFavorites';
 
 function CollectionPage() {
   const [page, setPage] = useState(1);
   const { data, isLoading } = useFavorites();
   const { data: categories } = useCategories();
-
-  const categoryMap = useMemo(
-    () => Object.fromEntries((categories ?? []).map((c) => [c.id, c.name])),
-    [categories],
-  );
+  const categoryMap = useCategoryMap();
 
   const totalPages = data ? Math.ceil(data.total / data.limit) : 0;
 
@@ -49,25 +47,12 @@ function CollectionPage() {
           </div>
 
           {totalPages > 1 && (
-            <div className="mt-10 flex items-center justify-center gap-4">
-              <button
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
-                disabled={page === 1}
-                className="rounded-full border border-border-medium px-5 py-2 text-sm text-muted transition-colors hover:border-sage hover:text-sage disabled:opacity-40"
-              >
-                Previous
-              </button>
-              <span className="text-sm text-muted">
-                {page} / {totalPages}
-              </span>
-              <button
-                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                disabled={page === totalPages}
-                className="rounded-full border border-border-medium px-5 py-2 text-sm text-muted transition-colors hover:border-sage hover:text-sage disabled:opacity-40"
-              >
-                Next
-              </button>
-            </div>
+            <PaginationControls
+              page={page}
+              totalPages={totalPages}
+              onPrev={() => setPage((p) => Math.max(1, p - 1))}
+              onNext={() => setPage((p) => Math.min(totalPages, p + 1))}
+            />
           )}
         </>
       )}
