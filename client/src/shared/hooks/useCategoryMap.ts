@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 
-import { useCategories } from './useCategories';
+import { useCategories } from '@/categories/useCategories';
 
 export const useCategoryMap = (): Record<string, string> => {
   const { data: categories } = useCategories();

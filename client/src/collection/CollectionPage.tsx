@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 
-import { useCategoryMap } from '@/categories/useCategoryMap';
+import { useCategoryMap } from '@/shared/hooks/useCategoryMap';
+import { useDocumentTitle } from '@/shared/hooks/useDocumentTitle';
 import { ParableCard } from '@/parables/ParableCard';
+import { LoadingSpinner } from '@/shared/ui/LoadingSpinner';
 import { PaginationControls } from '@/shared/ui/PaginationControls';
 import { useFavorites } from './useFavorites';
 
@@ -11,14 +13,12 @@ function CollectionPage() {
   const { data, isLoading } = useFavorites();
   const categoryMap = useCategoryMap();
 
+  useDocumentTitle('My collection — SagewayAI');
+
   const totalPages = data ? Math.ceil(data.total / data.limit) : 0;
 
   if (isLoading) {
-    return (
-      <div className="flex min-h-[60vh] items-center justify-center text-muted">
-        Loading...
-      </div>
-    );
+    return <LoadingSpinner />;
   }
 
   return (
