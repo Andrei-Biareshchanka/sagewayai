@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 
-import { useCategoryMap } from '@/categories/useCategoryMap';
+import { useCategoryMap } from '@/shared/hooks/useCategoryMap';
 import { ParableCard } from '@/parables/ParableCard';
 import { PaginationControls } from '@/shared/ui/PaginationControls';
 import { useFavorites } from './useFavorites';

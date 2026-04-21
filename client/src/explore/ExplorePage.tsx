@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
 import { useCategories } from '@/categories/useCategories';
-import { useCategoryMap } from '@/categories/useCategoryMap';
+import { useCategoryMap } from '@/shared/hooks/useCategoryMap';
 import { useParables } from '@/parables/useParables';
 import { useDocumentTitle } from '@/shared/hooks/useDocumentTitle';
 import { PaginationControls } from '@/shared/ui/PaginationControls';

@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 
 import { useCategories } from '@/categories/useCategories';
-import { useCategoryMap } from '@/categories/useCategoryMap';
+import { useCategoryMap } from '@/shared/hooks/useCategoryMap';
 import { useDailyParable } from '@/parables/useDailyParable';
 import { useParables } from '@/parables/useParables';
 import { useDocumentTitle } from '@/shared/hooks/useDocumentTitle';
