@@ -7,7 +7,7 @@ import { refreshSession } from '@/auth/authApi';
 import { Footer } from '@/layout/Footer';
 import { Navbar } from '@/layout/Navbar';
 import { ScrollToTop } from '@/layout/ScrollToTop';
-import { ErrorBoundary } from '@/lib/ErrorBoundary';
+import { ErrorBoundary } from '@/shared/ui/ErrorBoundary';
 import { HomePage } from '@/home/HomePage';
 
 const ExplorePage = lazy(() =>

@@ -4,8 +4,8 @@ import { useSearchParams } from 'react-router-dom';
 import { useCategories } from '@/categories/useCategories';
 import { useCategoryMap } from '@/categories/useCategoryMap';
 import { useParables } from '@/parables/useParables';
-import { useDocumentTitle } from '@/lib/useDocumentTitle';
-import { PaginationControls } from '@/lib/PaginationControls';
+import { useDocumentTitle } from '@/shared/hooks/useDocumentTitle';
+import { PaginationControls } from '@/shared/ui/PaginationControls';
 import { ParableCard } from '@/parables/ParableCard';
 
 function ExplorePage() {
