@@ -5,7 +5,7 @@ import { useCategoryMap } from '@/categories/useCategoryMap';
 import { useDailyParable } from '@/parables/useDailyParable';
 import { useParables } from '@/parables/useParables';
 import { useDocumentTitle } from '@/lib/useDocumentTitle';
-import { DailyParableCard } from './FeaturedStoryCard';
+import { DailyParableCard } from '@/parables/DailyParableCard';
 import { HeroSection } from './HeroSection';
 import { ParableCard } from '@/parables/ParableCard';
 import { SubscribeForm } from './SubscribeForm';
