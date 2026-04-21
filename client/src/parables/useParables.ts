@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 
-import type { FetchParablesParams } from '@/types';
+import type { FetchParablesParams } from '@/shared/types';
 import { fetchParables } from './parablesApi';
 
 export const useParables = (params?: FetchParablesParams) =>

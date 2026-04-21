@@ -1,4 +1,4 @@
-import type { AuthResponse } from '@/types';
+import type { AuthResponse } from '@/shared/types';
 import { api } from '@/lib/api';
 
 export const register = (email: string, password: string) =>
