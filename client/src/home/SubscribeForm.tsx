@@ -1,26 +1,17 @@
 import { type FormEvent, useState } from 'react';
 
-import { api } from '@/lib/api';
-
-type Status = 'idle' | 'loading' | 'success' | 'error';
+import { useSubscribe } from './useSubscribe';
 
 function SubscribeForm() {
   const [email, setEmail] = useState('');
-  const [status, setStatus] = useState<Status>('idle');
+  const { mutate: subscribe, isPending, isSuccess, isError, reset } = useSubscribe();
 
-  const handleSubmit = async (e: FormEvent) => {
+  const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    setStatus('loading');
-    try {
-      await api.post('/subscribe', { email });
-      setStatus('success');
-      setEmail('');
-    } catch {
-      setStatus('error');
-    }
+    subscribe(email, { onSuccess: () => setEmail('') });
   };
 
-  if (status === 'success') {
+  if (isSuccess) {
     return (
       <div className="rounded-card border border-border bg-sage-light px-6 py-8 text-center">
         <p className="font-serif text-lg font-semibold text-ink">You're subscribed!</p>
@@ -45,21 +36,21 @@ function SubscribeForm() {
         <input
           type="email"
           value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          onChange={(e) => { setEmail(e.target.value); if (isError) reset(); }}
           placeholder="your@email.com"
           required
           className="flex-1 rounded-full border border-border-medium bg-white px-5 py-2.5 text-sm text-ink outline-none focus:border-sage focus:ring-2 focus:ring-sage/20"
         />
         <button
           type="submit"
-          disabled={status === 'loading'}
+          disabled={isPending}
           className="rounded-full bg-sage px-6 py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-60"
         >
-          {status === 'loading' ? 'Subscribing…' : 'Subscribe'}
+          {isPending ? 'Subscribing…' : 'Subscribe'}
         </button>
       </form>
 
-      {status === 'error' && (
+      {isError && (
         <p className="mt-3 text-sm text-red-600">Something went wrong. Please try again.</p>
       )}
     </div>
