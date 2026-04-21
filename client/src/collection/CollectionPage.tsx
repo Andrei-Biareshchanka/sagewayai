@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 
 import { useCategoryMap } from '@/shared/hooks/useCategoryMap';
+import { useDocumentTitle } from '@/shared/hooks/useDocumentTitle';
 import { ParableCard } from '@/parables/ParableCard';
 import { LoadingSpinner } from '@/shared/ui/LoadingSpinner';
 import { PaginationControls } from '@/shared/ui/PaginationControls';
@@ -11,6 +12,8 @@ function CollectionPage() {
   const [page, setPage] = useState(1);
   const { data, isLoading } = useFavorites();
   const categoryMap = useCategoryMap();
+
+  useDocumentTitle('My collection — SagewayAI');
 
   const totalPages = data ? Math.ceil(data.total / data.limit) : 0;
 
