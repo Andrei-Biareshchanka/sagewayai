@@ -7,6 +7,7 @@ import { useParable } from '@/parables/useParable';
 import { useFavorites } from '@/collection/useFavorites';
 import { useToggleFavorite } from '@/collection/useToggleFavorite';
 import { useDocumentTitle } from '@/shared/hooks/useDocumentTitle';
+import { LoadingSpinner } from '@/shared/ui/LoadingSpinner';
 
 function ParableReaderPage() {
   const { id } = useParams<{ id: string }>();
@@ -26,11 +27,7 @@ function ParableReaderPage() {
   useDocumentTitle(parable ? `${parable.title} — SagewayAI` : '');
 
   if (isLoading) {
-    return (
-      <div className="flex min-h-[60vh] items-center justify-center text-muted">
-        Loading...
-      </div>
-    );
+    return <LoadingSpinner />;
   }
 
   if (isError || !parable) {

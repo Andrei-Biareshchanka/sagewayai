@@ -5,6 +5,7 @@ import { useCategoryMap } from '@/shared/hooks/useCategoryMap';
 import { useDailyParable } from '@/parables/useDailyParable';
 import { useParables } from '@/parables/useParables';
 import { useDocumentTitle } from '@/shared/hooks/useDocumentTitle';
+import { LoadingSpinner } from '@/shared/ui/LoadingSpinner';
 import { DailyParableCard } from '@/parables/DailyParableCard';
 import { HeroSection } from './HeroSection';
 import { ParableCard } from '@/parables/ParableCard';
@@ -29,11 +30,7 @@ function HomePage() {
   };
 
   if (dailyLoading || parablesLoading) {
-    return (
-      <div className="flex min-h-[60vh] items-center justify-center text-muted">
-        Loading...
-      </div>
-    );
+    return <LoadingSpinner />;
   }
 
   return (

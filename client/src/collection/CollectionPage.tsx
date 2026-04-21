@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 
 import { useCategoryMap } from '@/shared/hooks/useCategoryMap';
 import { ParableCard } from '@/parables/ParableCard';
+import { LoadingSpinner } from '@/shared/ui/LoadingSpinner';
 import { PaginationControls } from '@/shared/ui/PaginationControls';
 import { useFavorites } from './useFavorites';
 
@@ -14,11 +15,7 @@ function CollectionPage() {
   const totalPages = data ? Math.ceil(data.total / data.limit) : 0;
 
   if (isLoading) {
-    return (
-      <div className="flex min-h-[60vh] items-center justify-center text-muted">
-        Loading...
-      </div>
-    );
+    return <LoadingSpinner />;
   }
 
   return (

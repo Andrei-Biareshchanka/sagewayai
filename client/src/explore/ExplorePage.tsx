@@ -5,6 +5,7 @@ import { useCategories } from '@/categories/useCategories';
 import { useCategoryMap } from '@/shared/hooks/useCategoryMap';
 import { useParables } from '@/parables/useParables';
 import { useDocumentTitle } from '@/shared/hooks/useDocumentTitle';
+import { LoadingSpinner } from '@/shared/ui/LoadingSpinner';
 import { PaginationControls } from '@/shared/ui/PaginationControls';
 import { ParableCard } from '@/parables/ParableCard';
 
@@ -68,11 +69,7 @@ function ExplorePage() {
         ))}
       </div>
 
-      {isLoading && (
-        <div className="flex min-h-[40vh] items-center justify-center text-muted">
-          Loading...
-        </div>
-      )}
+      {isLoading && <LoadingSpinner minHeight="min-h-[40vh]" />}
 
       {isError && (
         <div className="flex min-h-[40vh] items-center justify-center text-muted">
