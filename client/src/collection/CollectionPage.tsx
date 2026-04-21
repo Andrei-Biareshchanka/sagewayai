@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 
 import { useCategoryMap } from '@/categories/useCategoryMap';
-import { ParableCard } from '@/home/StoryMiniCard';
+import { ParableCard } from '@/parables/ParableCard';
 import { PaginationControls } from '@/lib/PaginationControls';
 import { useFavorites } from './useFavorites';
 

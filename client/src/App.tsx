@@ -14,7 +14,7 @@ const ExplorePage = lazy(() =>
   import('@/explore/ExplorePage').then((m) => ({ default: m.ExplorePage })),
 );
 const ParableReaderPage = lazy(() =>
-  import('@/reader/ParableReaderPage').then((m) => ({ default: m.ParableReaderPage })),
+  import('@/parables/ParableReaderPage').then((m) => ({ default: m.ParableReaderPage })),
 );
 const LoginPage = lazy(() =>
   import('@/auth/LoginPage').then((m) => ({ default: m.LoginPage })),
