@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 
 import { useCategoryMap } from '@/categories/useCategoryMap';
 import { ParableCard } from '@/parables/ParableCard';
-import { PaginationControls } from '@/lib/PaginationControls';
+import { PaginationControls } from '@/shared/ui/PaginationControls';
 import { useFavorites } from './useFavorites';
 
 function CollectionPage() {
