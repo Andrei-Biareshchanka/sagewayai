@@ -6,7 +6,7 @@ import { useCategoryMap } from '@/categories/useCategoryMap';
 import { useParables } from '@/parables/useParables';
 import { useDocumentTitle } from '@/lib/useDocumentTitle';
 import { PaginationControls } from '@/lib/PaginationControls';
-import { ParableCard } from '@/home/StoryMiniCard';
+import { ParableCard } from '@/parables/ParableCard';
 
 function ExplorePage() {
   const [searchParams, setSearchParams] = useSearchParams();

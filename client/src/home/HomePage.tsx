@@ -7,7 +7,7 @@ import { useParables } from '@/parables/useParables';
 import { useDocumentTitle } from '@/lib/useDocumentTitle';
 import { DailyParableCard } from './FeaturedStoryCard';
 import { HeroSection } from './HeroSection';
-import { ParableCard } from './StoryMiniCard';
+import { ParableCard } from '@/parables/ParableCard';
 import { SubscribeForm } from './SubscribeForm';
 
 function HomePage() {
