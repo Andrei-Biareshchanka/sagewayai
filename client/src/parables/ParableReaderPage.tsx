@@ -6,7 +6,7 @@ import { useCategories } from '@/categories/useCategories';
 import { useParable } from '@/parables/useParable';
 import { useFavorites } from '@/collection/useFavorites';
 import { useToggleFavorite } from '@/collection/useToggleFavorite';
-import { useDocumentTitle } from '@/lib/useDocumentTitle';
+import { useDocumentTitle } from '@/shared/hooks/useDocumentTitle';
 
 function ParableReaderPage() {
   const { id } = useParams<{ id: string }>();
