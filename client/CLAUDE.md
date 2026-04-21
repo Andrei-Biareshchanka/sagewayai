@@ -62,28 +62,47 @@ CSS variables defined in `src/index.css`:
 
 Fonts: **Lora** (serif, headings + story body) · **Inter** (sans, UI)
 
-## Component conventions
+## Folder architecture
 
-- One exported component per file, filename matches component name
-- Named exports preferred over default exports
-- Feature-based folder structure under `src/` (e.g. `src/stories/`, `src/auth/`)
-- Custom hooks alongside their component in the same feature folder
-- Keep components focused on rendering — extract logic into hooks
+```
+src/
+├── lib/               # Infrastructure only — axios instance, no UI or React deps
+├── shared/
+│   ├── hooks/         # Hooks used by 2+ feature folders (useCategoryMap, useDocumentTitle)
+│   ├── types/         # All shared TypeScript types (index.ts)
+│   └── ui/            # UI components used by 2+ feature folders (LoadingSpinner, PaginationControls, ErrorBoundary)
+├── auth/              # Login, register, auth state, auth hooks
+├── categories/        # Category API and hooks
+├── collection/        # Favorites page and hooks
+├── explore/           # Explore page
+├── home/              # Home page, subscribe form, hero
+├── layout/            # Navbar, Footer, ScrollToTop
+└── parables/          # Everything parable-related: API, hooks, components, pages
+```
+
+**The rule:** if a hook or component is used in 2+ feature folders → it goes to `shared/`. If it belongs to one feature only → it stays inside that feature folder.
+
+**One export per file.** Filename matches the exported name. Named exports only.
+
+Keep components focused on rendering — extract all logic and API calls into hooks.
 
 ## React Query usage
 
-All API calls go through React Query. Define query/mutation functions separately from the hook:
+All API calls go through React Query. Never use raw `api.post/get` directly in components.
 
 ```ts
-// src/parables/parablesApi.ts
-export const fetchParables = (params) => axios.get('/api/parables', { params });
+// src/parables/parablesApi.ts  — HTTP function
+export const fetchParables = (params) => api.get('/parables', { params });
 
-// src/parables/useParables.ts
+// src/parables/useParables.ts  — one hook per file
 export const useParables = (params) => useQuery({
   queryKey: ['parables', params],
   queryFn: () => fetchParables(params),
+  staleTime: 1000 * 60 * 5,
 });
 ```
+
+Mutations follow the same pattern — extract the API function, wrap in `useMutation`.
 
 ## Testing
 
