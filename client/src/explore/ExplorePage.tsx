@@ -5,6 +5,7 @@ import { useCategories } from '@/categories/useCategories';
 import { useCategoryMap } from '@/shared/hooks/useCategoryMap';
 import { useParables } from '@/parables/useParables';
 import { useDocumentTitle } from '@/shared/hooks/useDocumentTitle';
+import { CategoryPills } from '@/shared/ui/CategoryPills';
 import { ParableCardSkeleton } from '@/shared/ui/ParableCardSkeleton';
 import { PaginationControls } from '@/shared/ui/PaginationControls';
 import { ParableCard } from '@/parables/ParableCard';
@@ -43,30 +44,12 @@ function ExplorePage() {
     <main className="mx-auto max-w-[1200px] px-4 py-10 sm:px-6 sm:py-12">
       <h1 className="mb-8 font-serif text-3xl font-semibold text-ink sm:text-4xl">Explore parables</h1>
 
-      <div className="mb-8 flex gap-2 overflow-x-auto pb-1">
-        <button
-          onClick={() => handleCategoryChange(null)}
-          className={`shrink-0 rounded-full px-4 py-1.5 text-sm transition-colors ${
-            activeSlug === null
-              ? 'bg-sage text-white'
-              : 'bg-sage-pill text-sage-dark hover:bg-sage-pill-hover'
-          }`}
-        >
-          All
-        </button>
-        {(categories ?? []).map((category) => (
-          <button
-            key={category.id}
-            onClick={() => handleCategoryChange(category.slug)}
-            className={`shrink-0 rounded-full px-4 py-1.5 text-sm transition-colors ${
-              activeSlug === category.slug
-                ? 'bg-sage text-white'
-                : 'bg-sage-pill text-sage-dark hover:bg-sage-pill-hover'
-            }`}
-          >
-            {category.name}
-          </button>
-        ))}
+      <div className="mb-8">
+        <CategoryPills
+          categories={categories ?? []}
+          activeSlug={activeSlug}
+          onChange={handleCategoryChange}
+        />
       </div>
 
       {isLoading && (
