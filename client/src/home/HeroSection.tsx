@@ -1,4 +1,4 @@
-import type { Category } from '@/shared/types';
+import type { Category } from '@/categories/types';
 
 interface HeroSectionProps {
   categories: Category[];

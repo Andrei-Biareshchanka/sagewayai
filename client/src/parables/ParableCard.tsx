@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 
-import type { Parable } from '@/shared/types';
+import type { Parable } from './types';
 
 interface ParableCardProps {
   parable: Parable;
