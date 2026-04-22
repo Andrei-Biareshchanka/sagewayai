@@ -1,4 +1,5 @@
 import type { Category } from '@/categories/types';
+import { CategoryPills } from '@/shared/ui/CategoryPills';
 
 interface HeroSectionProps {
   categories: Category[];
@@ -18,31 +19,7 @@ function HeroSection({ categories, activeSlug, onCategoryChange }: HeroSectionPr
         <em className="font-normal italic text-sage">for this moment</em>
       </h1>
 
-      <div className="flex gap-2 overflow-x-auto pb-1">
-        <button
-          onClick={() => onCategoryChange(null)}
-          className={`shrink-0 rounded-full px-4 py-1.5 text-sm transition-colors ${
-            activeSlug === null
-              ? 'bg-sage text-white'
-              : 'bg-sage-pill text-sage-dark hover:bg-sage-pill-hover'
-          }`}
-        >
-          All
-        </button>
-        {categories.map((category) => (
-          <button
-            key={category.id}
-            onClick={() => onCategoryChange(category.slug)}
-            className={`shrink-0 rounded-full px-4 py-1.5 text-sm transition-colors ${
-              activeSlug === category.slug
-                ? 'bg-sage text-white'
-                : 'bg-sage-pill text-sage-dark hover:bg-sage-pill-hover'
-            }`}
-          >
-            {category.name}
-          </button>
-        ))}
-      </div>
+      <CategoryPills categories={categories} activeSlug={activeSlug} onChange={onCategoryChange} />
     </section>
   );
 }
