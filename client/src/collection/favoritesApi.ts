@@ -1,4 +1,4 @@
-import type { FetchParablesParams, ParablesResponse } from '@/shared/types';
+import type { FetchParablesParams, ParablesResponse } from '@/parables/types';
 import { api } from '@/lib/api';
 
 export const fetchFavorites = (params?: FetchParablesParams) =>
