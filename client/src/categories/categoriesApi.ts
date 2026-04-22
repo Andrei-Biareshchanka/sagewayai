@@ -1,4 +1,4 @@
-import type { Category } from '@/shared/types';
+import type { Category } from './types';
 import { api } from '@/lib/api';
 
 export const fetchCategories = () =>
