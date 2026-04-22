@@ -5,7 +5,7 @@ import { useCategories } from '@/categories/useCategories';
 import { useCategoryMap } from '@/shared/hooks/useCategoryMap';
 import { useParables } from '@/parables/useParables';
 import { useDocumentTitle } from '@/shared/hooks/useDocumentTitle';
-import { LoadingSpinner } from '@/shared/ui/LoadingSpinner';
+import { ParableCardSkeleton } from '@/shared/ui/ParableCardSkeleton';
 import { PaginationControls } from '@/shared/ui/PaginationControls';
 import { ParableCard } from '@/parables/ParableCard';
 
@@ -69,7 +69,13 @@ function ExplorePage() {
         ))}
       </div>
 
-      {isLoading && <LoadingSpinner minHeight="min-h-[40vh]" />}
+      {isLoading && (
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <ParableCardSkeleton key={i} />
+          ))}
+        </div>
+      )}
 
       {isError && (
         <div className="flex min-h-[40vh] items-center justify-center text-muted">

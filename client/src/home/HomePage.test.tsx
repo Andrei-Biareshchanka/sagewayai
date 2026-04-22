@@ -15,9 +15,10 @@ function renderWithProviders(ui: React.ReactElement) {
 }
 
 describe('HomePage', () => {
-  it('shows loading state initially', () => {
+  it('shows skeleton loaders initially', () => {
     renderWithProviders(<HomePage />);
-    expect(screen.getByText('Loading...')).toBeInTheDocument();
+    const skeletons = document.querySelectorAll('.animate-pulse');
+    expect(skeletons.length).toBeGreaterThan(0);
   });
 
   it('renders daily parable title after load', async () => {

@@ -29,9 +29,10 @@ describe('ExplorePage', () => {
     expect(allPill).toBeInTheDocument();
   });
 
-  it('shows loading state while fetching', () => {
+  it('shows skeleton loaders while fetching', () => {
     renderWithProviders(<ExplorePage />);
-    expect(screen.getByText('Loading...')).toBeInTheDocument();
+    const skeletons = document.querySelectorAll('.animate-pulse');
+    expect(skeletons.length).toBeGreaterThan(0);
   });
 
   it('renders parables grid after load', async () => {

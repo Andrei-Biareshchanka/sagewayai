@@ -7,7 +7,7 @@ import { useParable } from '@/parables/useParable';
 import { useFavorites } from '@/collection/useFavorites';
 import { useToggleFavorite } from '@/collection/useToggleFavorite';
 import { useDocumentTitle } from '@/shared/hooks/useDocumentTitle';
-import { LoadingSpinner } from '@/shared/ui/LoadingSpinner';
+import { ParableReaderSkeleton } from '@/shared/ui/ParableReaderSkeleton';
 
 function ParableReaderPage() {
   const { id } = useParams<{ id: string }>();
@@ -27,7 +27,7 @@ function ParableReaderPage() {
   useDocumentTitle(parable ? `${parable.title} — SagewayAI` : '');
 
   if (isLoading) {
-    return <LoadingSpinner />;
+    return <ParableReaderSkeleton />;
   }
 
   if (isError || !parable) {
