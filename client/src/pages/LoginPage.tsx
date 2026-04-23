@@ -1,7 +1,7 @@
 import { Link, useNavigate } from 'react-router-dom';
 
-import { AuthForm } from '@/modules/auth/AuthForm';
-import { useLogin } from '@/modules/auth/useLogin';
+import { AuthForm } from '@/modules/auth';
+import { useLogin } from '@/modules/auth';
 
 function LoginPage() {
   const navigate = useNavigate();

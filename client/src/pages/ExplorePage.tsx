@@ -1,14 +1,13 @@
 import { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
-import { useCategories } from '@/modules/categories/useCategories';
+import { useCategories } from '@/modules/categories';
+import { ParableCard, useParables } from '@/modules/parables';
 import { useCategoryMap } from '@/shared/hooks/useCategoryMap';
-import { useParables } from '@/modules/parables/useParables';
 import { useDocumentTitle } from '@/shared/hooks/useDocumentTitle';
 import { CategoryPills } from '@/shared/ui/CategoryPills';
 import { ParableCardSkeleton } from '@/shared/ui/ParableCardSkeleton';
 import { PaginationControls } from '@/shared/ui/PaginationControls';
-import { ParableCard } from '@/modules/parables/ParableCard';
 
 function ExplorePage() {
   const [searchParams, setSearchParams] = useSearchParams();

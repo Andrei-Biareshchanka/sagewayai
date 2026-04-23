@@ -1,9 +1,9 @@
 import { lazy, Suspense, useEffect } from 'react';
 import { Route, Routes } from 'react-router-dom';
 
-import { useAuthStore } from '@/modules/auth/authStore';
-import { ProtectedRoute } from '@/modules/auth/ProtectedRoute';
-import { refreshSession } from '@/modules/auth/authApi';
+import { useAuthStore } from '@/modules/auth';
+import { ProtectedRoute } from '@/modules/auth';
+import { refreshSession } from '@/modules/auth';
 import { Footer } from '@/layout/Footer';
 import { Navbar } from '@/layout/Navbar';
 import { ScrollToTop } from '@/layout/ScrollToTop';

@@ -3,10 +3,10 @@ import { Link } from 'react-router-dom';
 
 import { useCategoryMap } from '@/shared/hooks/useCategoryMap';
 import { useDocumentTitle } from '@/shared/hooks/useDocumentTitle';
-import { ParableCard } from '@/modules/parables/ParableCard';
+import { ParableCard } from '@/modules/parables';
 import { LoadingSpinner } from '@/shared/ui/LoadingSpinner';
 import { PaginationControls } from '@/shared/ui/PaginationControls';
-import { useFavorites } from '@/modules/collection/useFavorites';
+import { useFavorites } from '@/modules/collection';
 
 function CollectionPage() {
   const [page, setPage] = useState(1);

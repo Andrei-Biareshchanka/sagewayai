@@ -1,8 +1,8 @@
 import { useEffect } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 
-import { useAuthStore } from '@/modules/auth/authStore';
-import { useLogout } from '@/modules/auth/useLogout';
+import { useAuthStore } from '@/modules/auth';
+import { useLogout } from '@/modules/auth';
 import { cn } from '@/lib/cn';
 
 interface MobileMenuProps {
