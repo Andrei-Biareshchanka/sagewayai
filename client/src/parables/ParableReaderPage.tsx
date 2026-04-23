@@ -1,28 +1,24 @@
-import { useMemo } from 'react';
 import { Link, useParams } from 'react-router-dom';
 
 import { useAuthStore } from '@/auth/authStore';
-import { useCategories } from '@/categories/useCategories';
 import { useParable } from '@/parables/useParable';
 import { useFavorites } from '@/collection/useFavorites';
 import { useToggleFavorite } from '@/collection/useToggleFavorite';
+import { useCategoryMap } from '@/shared/hooks/useCategoryMap';
 import { useDocumentTitle } from '@/shared/hooks/useDocumentTitle';
 import { ParableReaderSkeleton } from '@/shared/ui/ParableReaderSkeleton';
 
 function ParableReaderPage() {
   const { id } = useParams<{ id: string }>();
   const { data: parable, isLoading, isError } = useParable(id!);
-  const { data: categories } = useCategories();
+  const categoryMap = useCategoryMap();
   const user = useAuthStore((s) => s.user);
   const { data: favorites } = useFavorites();
 
   const isFavorited = Boolean(favorites?.data.some((f) => f.id === id));
   const { mutate: toggleFavorite, isPending: toggling } = useToggleFavorite(id!, isFavorited);
 
-  const categoryName = useMemo(() => {
-    if (!parable || !categories) return '';
-    return categories.find((c) => c.id === parable.categoryId)?.name ?? '';
-  }, [parable, categories]);
+  const categoryName = parable ? (categoryMap[parable.categoryId] ?? '') : '';
 
   useDocumentTitle(parable ? `${parable.title} — SagewayAI` : '');
 
