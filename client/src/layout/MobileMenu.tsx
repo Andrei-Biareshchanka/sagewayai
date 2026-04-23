@@ -3,6 +3,7 @@ import { Link, NavLink } from 'react-router-dom';
 
 import { useAuthStore } from '@/auth/authStore';
 import { useLogout } from '@/auth/useLogout';
+import { cn } from '@/lib/cn';
 
 interface MobileMenuProps {
   isOpen: boolean;
@@ -21,7 +22,7 @@ function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
   if (!isOpen) return null;
 
   const navLinkClass = ({ isActive }: { isActive: boolean }) =>
-    `font-serif text-2xl font-semibold transition-colors ${isActive ? 'text-sage' : 'text-ink hover:text-sage'}`;
+    cn('font-serif text-2xl font-semibold transition-colors', isActive ? 'text-sage' : 'text-ink hover:text-sage');
 
   return (
     <div className="fixed inset-0 z-50 sm:hidden">

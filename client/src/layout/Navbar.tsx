@@ -3,6 +3,7 @@ import { Link, NavLink } from 'react-router-dom';
 
 import { useAuthStore } from '@/auth/authStore';
 import { useLogout } from '@/auth/useLogout';
+import { cn } from '@/lib/cn';
 import { MobileMenu } from './MobileMenu';
 
 function Navbar() {
@@ -24,7 +25,7 @@ function Navbar() {
             <NavLink
               to="/explore"
               className={({ isActive }) =>
-                `text-sm transition-colors ${isActive ? 'text-ink' : 'text-muted hover:text-ink'}`
+                cn('text-sm transition-colors', isActive ? 'text-ink' : 'text-muted hover:text-ink')
               }
             >
               Explore
@@ -32,7 +33,7 @@ function Navbar() {
             <NavLink
               to="/collection"
               className={({ isActive }) =>
-                `text-sm transition-colors ${isActive ? 'text-ink' : 'text-muted hover:text-ink'}`
+                cn('text-sm transition-colors', isActive ? 'text-ink' : 'text-muted hover:text-ink')
               }
             >
               My collection
