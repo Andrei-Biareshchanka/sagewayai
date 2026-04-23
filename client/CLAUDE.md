@@ -87,6 +87,21 @@ src/
 
 All routes in `App.tsx` use `React.lazy()` for code splitting — every page is a separate chunk.
 
+## Module public API (index.ts)
+
+Each module exposes a public API through its `index.ts`. Always import from the module root, never from internal files:
+
+```ts
+// ✅ correct — import from module root
+import { useParables, ParableCard } from '@/modules/parables';
+
+// ❌ wrong — reaching into module internals
+import { useParables } from '@/modules/parables/useParables';
+import { ParableCard } from '@/modules/parables/ParableCard';
+```
+
+When adding a new file to a module, export it from `index.ts` if it's part of the public API. If it's an internal helper used only within the module, don't export it — it stays invisible to the rest of the app.
+
 **One export per file.** Filename matches the exported name. Named exports only.
 
 Keep components focused on rendering — extract all logic and API calls into hooks.

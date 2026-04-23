@@ -107,20 +107,35 @@ interface StoryCardProps {
 ### Import order (both client and server)
 
 1. External libraries
-2. Absolute paths (`@/`)
+2. Absolute paths (`@/`) — modules first, then shared, then lib
 3. Relative paths (`./`, `../`)
 
 Blank line between each group:
 
 ```ts
-import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 
-import { StoryCard } from "@/stories/StoryCard";
-import { useStories } from "@/stories/useStories";
+import { ParableCard, useParables } from '@/modules/parables';
+import { useCategoryMap } from '@/shared/hooks/useCategoryMap';
+import { cn } from '@/lib/cn';
 
-import { formatReadTime } from "./formatReadTime";
+import { formatReadTime } from './formatReadTime';
 ```
+
+### Module imports (client)
+
+Always import from the module root — never reach into internal files:
+
+```ts
+// ✅ correct
+import { useParables, ParableCard } from '@/modules/parables';
+
+// ❌ wrong — bypasses the module's public API
+import { useParables } from '@/modules/parables/useParables';
+```
+
+Each module exports its public API through `index.ts`. Internal files not listed in `index.ts` are implementation details — don't import them directly.
 
 ---
 
@@ -217,8 +232,8 @@ When slots aren't enough, reach for Context — but only for genuinely cross-cut
 - Hooks live in the same feature folder as the component that uses them
 
 ```ts
-// src/stories/useStoryFilters.ts
-export const useStoryFilters = () => {
+// src/modules/parables/useParableFilters.ts
+export const useParableFilters = () => {
   const [topic, setTopic] = useState<string | null>(null);
   const [search, setSearch] = useState("");
 
