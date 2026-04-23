@@ -66,21 +66,24 @@ Fonts: **Lora** (serif, headings + story body) · **Inter** (sans, UI)
 
 ```
 src/
-├── lib/               # Infrastructure only — axios instance, no UI or React deps
+├── pages/             # Route-level page components (thin, composition only) + colocated tests
+├── lib/               # Infrastructure only — axios instance, cn(), no UI or React deps
 ├── shared/
 │   ├── hooks/         # Hooks used by 2+ feature folders (useCategoryMap, useDocumentTitle)
-│   ├── types/         # All shared TypeScript types (index.ts)
-│   └── ui/            # UI components used by 2+ feature folders (LoadingSpinner, PaginationControls, ErrorBoundary)
-├── auth/              # Login, register, auth state, auth hooks
-├── categories/        # Category API and hooks
-├── collection/        # Favorites page and hooks
-├── explore/           # Explore page
-├── home/              # Home page, subscribe form, hero
-├── layout/            # Navbar, Footer, ScrollToTop
-└── parables/          # Everything parable-related: API, hooks, components, pages
+│   └── ui/            # UI components used by 2+ feature folders (skeletons, CategoryPills, etc.)
+├── auth/              # Auth forms, store, API, hooks — no pages
+├── categories/        # Category API, hooks, types
+├── collection/        # Favorites API and hooks — no pages
+├── home/              # HeroSection, SubscribeForm, useSubscribe
+├── layout/            # Navbar, MobileMenu, Footer, ScrollToTop
+└── parables/          # Parable cards, API, hooks, types — no pages
 ```
 
-**The rule:** if a hook or component is used in 2+ feature folders → it goes to `shared/`. If it belongs to one feature only → it stays inside that feature folder.
+**Two rules:**
+1. Pages live in `pages/` — they are thin composition layers that import from feature folders
+2. If a hook or component is used in 2+ feature folders → it goes to `shared/`. If it belongs to one feature only → it stays inside that feature folder.
+
+All routes in `App.tsx` use `React.lazy()` for code splitting — every page is a separate chunk.
 
 **One export per file.** Filename matches the exported name. Named exports only.
 

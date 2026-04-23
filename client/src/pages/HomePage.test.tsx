@@ -23,7 +23,6 @@ describe('HomePage', () => {
 
   it('renders daily parable title after load', async () => {
     renderWithProviders(<HomePage />);
-    // DailyParableCard renders the title in an h2
     expect(await screen.findByRole('heading', { level: 2, name: 'The Empty Cup' })).toBeInTheDocument();
   });
 
@@ -34,7 +33,6 @@ describe('HomePage', () => {
 
   it('renders category pills from API', async () => {
     renderWithProviders(<HomePage />);
-    // HeroSection renders categories as buttons
     expect(await screen.findByRole('button', { name: 'Wisdom' })).toBeInTheDocument();
   });
 
