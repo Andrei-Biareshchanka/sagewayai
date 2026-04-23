@@ -1,4 +1,4 @@
-import type { Category } from '@/modules/categories/types';
+import type { Category } from '@/modules/categories';
 import { cn } from '@/lib/cn';
 
 interface CategoryPillsProps {
