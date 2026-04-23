@@ -8,22 +8,24 @@ import { Footer } from '@/layout/Footer';
 import { Navbar } from '@/layout/Navbar';
 import { ScrollToTop } from '@/layout/ScrollToTop';
 import { ErrorBoundary } from '@/shared/ui/ErrorBoundary';
-import { HomePage } from '@/home/HomePage';
 
+const HomePage = lazy(() =>
+  import('@/pages/HomePage').then((m) => ({ default: m.HomePage })),
+);
 const ExplorePage = lazy(() =>
-  import('@/explore/ExplorePage').then((m) => ({ default: m.ExplorePage })),
+  import('@/pages/ExplorePage').then((m) => ({ default: m.ExplorePage })),
 );
 const ParableReaderPage = lazy(() =>
-  import('@/parables/ParableReaderPage').then((m) => ({ default: m.ParableReaderPage })),
+  import('@/pages/ParableReaderPage').then((m) => ({ default: m.ParableReaderPage })),
 );
 const LoginPage = lazy(() =>
-  import('@/auth/LoginPage').then((m) => ({ default: m.LoginPage })),
+  import('@/pages/LoginPage').then((m) => ({ default: m.LoginPage })),
 );
 const RegisterPage = lazy(() =>
-  import('@/auth/RegisterPage').then((m) => ({ default: m.RegisterPage })),
+  import('@/pages/RegisterPage').then((m) => ({ default: m.RegisterPage })),
 );
 const CollectionPage = lazy(() =>
-  import('@/collection/CollectionPage').then((m) => ({ default: m.CollectionPage })),
+  import('@/pages/CollectionPage').then((m) => ({ default: m.CollectionPage })),
 );
 
 function App() {

@@ -6,7 +6,7 @@ import { useDocumentTitle } from '@/shared/hooks/useDocumentTitle';
 import { ParableCard } from '@/parables/ParableCard';
 import { LoadingSpinner } from '@/shared/ui/LoadingSpinner';
 import { PaginationControls } from '@/shared/ui/PaginationControls';
-import { useFavorites } from './useFavorites';
+import { useFavorites } from '@/collection/useFavorites';
 
 function CollectionPage() {
   const [page, setPage] = useState(1);

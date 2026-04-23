@@ -8,9 +8,9 @@ import { useDocumentTitle } from '@/shared/hooks/useDocumentTitle';
 import { DailyParableCardSkeleton } from '@/shared/ui/DailyParableCardSkeleton';
 import { ParableCardSkeleton } from '@/shared/ui/ParableCardSkeleton';
 import { DailyParableCard } from '@/parables/DailyParableCard';
-import { HeroSection } from './HeroSection';
+import { HeroSection } from '@/home/HeroSection';
 import { ParableCard } from '@/parables/ParableCard';
-import { SubscribeForm } from './SubscribeForm';
+import { SubscribeForm } from '@/home/SubscribeForm';
 
 function HomePage() {
   const navigate = useNavigate();
