@@ -1,9 +1,9 @@
 import { Link, useParams } from 'react-router-dom';
 
-import { useAuthStore } from '@/auth/authStore';
-import { useParable } from '@/parables/useParable';
-import { useFavorites } from '@/collection/useFavorites';
-import { useToggleFavorite } from '@/collection/useToggleFavorite';
+import { useAuthStore } from '@/modules/auth/authStore';
+import { useParable } from '@/modules/parables/useParable';
+import { useFavorites } from '@/modules/collection/useFavorites';
+import { useToggleFavorite } from '@/modules/collection/useToggleFavorite';
 import { useCategoryMap } from '@/shared/hooks/useCategoryMap';
 import { useDocumentTitle } from '@/shared/hooks/useDocumentTitle';
 import { ParableReaderSkeleton } from '@/shared/ui/ParableReaderSkeleton';
