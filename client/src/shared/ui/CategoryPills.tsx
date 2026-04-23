@@ -1,4 +1,5 @@
 import type { Category } from '@/categories/types';
+import { cn } from '@/lib/cn';
 
 interface CategoryPillsProps {
   categories: Category[];
@@ -8,9 +9,10 @@ interface CategoryPillsProps {
 
 function CategoryPills({ categories, activeSlug, onChange }: CategoryPillsProps) {
   const pillClass = (isActive: boolean) =>
-    `shrink-0 rounded-full px-4 py-1.5 text-sm transition-colors ${
-      isActive ? 'bg-sage text-white' : 'bg-sage-pill text-sage-dark hover:bg-sage-pill-hover'
-    }`;
+    cn('shrink-0 rounded-full px-4 py-1.5 text-sm transition-colors', {
+      'bg-sage text-white': isActive,
+      'bg-sage-pill text-sage-dark hover:bg-sage-pill-hover': !isActive,
+    });
 
   return (
     <div className="flex gap-2 overflow-x-auto pb-1">
