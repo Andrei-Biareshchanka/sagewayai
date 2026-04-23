@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 
-import { useAuthStore } from '@/auth/authStore';
+import { useAuthStore } from '@/modules/auth/authStore';
 import { fetchFavorites } from './favoritesApi';
 
 export const useFavorites = () => {

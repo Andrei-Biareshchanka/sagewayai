@@ -1,4 +1,4 @@
-import type { Category } from '@/categories/types';
+import type { Category } from '@/modules/categories/types';
 import { CategoryPills } from '@/shared/ui/CategoryPills';
 
 interface HeroSectionProps {

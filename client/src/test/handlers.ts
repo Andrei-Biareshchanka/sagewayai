@@ -1,7 +1,7 @@
 import { http, HttpResponse } from 'msw';
 
-import type { Parable, ParablesResponse } from '@/parables/types'
-import type { Category } from '@/categories/types';
+import type { Parable, ParablesResponse } from '@/modules/parables/types'
+import type { Category } from '@/modules/categories/types';
 
 export const MOCK_CATEGORY: Category = {
   id: 'cat-1',

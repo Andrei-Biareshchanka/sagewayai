@@ -67,21 +67,23 @@ Fonts: **Lora** (serif, headings + story body) · **Inter** (sans, UI)
 ```
 src/
 ├── pages/             # Route-level page components (thin, composition only) + colocated tests
-├── lib/               # Infrastructure only — axios instance, cn(), no UI or React deps
+├── modules/           # Feature modules — each is self-contained (API, hooks, types, UI)
+│   ├── auth/          # Auth forms, store, API, hooks
+│   ├── categories/    # Category API, hooks, types
+│   ├── collection/    # Favorites API and hooks
+│   ├── home/          # HeroSection, SubscribeForm, useSubscribe
+│   └── parables/      # Parable cards, API, hooks, types
 ├── shared/
-│   ├── hooks/         # Hooks used by 2+ feature folders (useCategoryMap, useDocumentTitle)
-│   └── ui/            # UI components used by 2+ feature folders (skeletons, CategoryPills, etc.)
-├── auth/              # Auth forms, store, API, hooks — no pages
-├── categories/        # Category API, hooks, types
-├── collection/        # Favorites API and hooks — no pages
-├── home/              # HeroSection, SubscribeForm, useSubscribe
+│   ├── hooks/         # Hooks used by 2+ modules (useCategoryMap, useDocumentTitle)
+│   └── ui/            # UI components used by 2+ modules (skeletons, CategoryPills, etc.)
 ├── layout/            # Navbar, MobileMenu, Footer, ScrollToTop
-└── parables/          # Parable cards, API, hooks, types — no pages
+└── lib/               # Infrastructure only — axios instance, cn(), no UI or React deps
 ```
 
-**Two rules:**
-1. Pages live in `pages/` — they are thin composition layers that import from feature folders
-2. If a hook or component is used in 2+ feature folders → it goes to `shared/`. If it belongs to one feature only → it stays inside that feature folder.
+**Three rules:**
+1. Pages live in `pages/` — thin composition layers, import from `modules/`
+2. Business logic lives in `modules/` — each module owns its API, hooks, types, and UI
+3. If a hook or component is used in 2+ modules → it goes to `shared/`
 
 All routes in `App.tsx` use `React.lazy()` for code splitting — every page is a separate chunk.
 

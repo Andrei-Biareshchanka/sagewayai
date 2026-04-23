@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-import { useAuthStore } from '@/auth/authStore';
-import type { AuthResponse } from '@/auth/types';
+import { useAuthStore } from '@/modules/auth/authStore';
+import type { AuthResponse } from '@/modules/auth/types';
 
 const BASE_URL = import.meta.env['VITE_API_URL'] ?? 'http://localhost:3001/api';
 

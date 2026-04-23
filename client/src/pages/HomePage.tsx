@@ -1,16 +1,16 @@
 import { useNavigate } from 'react-router-dom';
 
-import { useCategories } from '@/categories/useCategories';
+import { useCategories } from '@/modules/categories/useCategories';
 import { useCategoryMap } from '@/shared/hooks/useCategoryMap';
-import { useDailyParable } from '@/parables/useDailyParable';
-import { useParables } from '@/parables/useParables';
+import { useDailyParable } from '@/modules/parables/useDailyParable';
+import { useParables } from '@/modules/parables/useParables';
 import { useDocumentTitle } from '@/shared/hooks/useDocumentTitle';
 import { DailyParableCardSkeleton } from '@/shared/ui/DailyParableCardSkeleton';
 import { ParableCardSkeleton } from '@/shared/ui/ParableCardSkeleton';
-import { DailyParableCard } from '@/parables/DailyParableCard';
-import { HeroSection } from '@/home/HeroSection';
-import { ParableCard } from '@/parables/ParableCard';
-import { SubscribeForm } from '@/home/SubscribeForm';
+import { DailyParableCard } from '@/modules/parables/DailyParableCard';
+import { HeroSection } from '@/modules/home/HeroSection';
+import { ParableCard } from '@/modules/parables/ParableCard';
+import { SubscribeForm } from '@/modules/home/SubscribeForm';
 
 function HomePage() {
   const navigate = useNavigate();
