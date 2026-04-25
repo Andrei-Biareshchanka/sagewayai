@@ -9,10 +9,9 @@ import { sendDailyParableEmail } from '../lib/email';
 
 const adminRouter = Router();
 
-const SEND_SECRET = process.env['ADMIN_SEND_SECRET'];
-
 adminRouter.post('/send-daily', async (req: Request, res: Response) => {
-  if (!SEND_SECRET || req.headers['x-send-secret'] !== SEND_SECRET) {
+  const sendSecret = process.env['ADMIN_SEND_SECRET'];
+  if (!sendSecret || req.headers['x-send-secret'] !== sendSecret) {
     res.status(401).json({ error: 'Unauthorized' });
     return;
   }
