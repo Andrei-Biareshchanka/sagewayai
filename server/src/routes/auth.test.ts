@@ -127,6 +127,51 @@ describe('POST /api/auth/login', () => {
   });
 });
 
+describe('POST /api/auth/refresh', () => {
+  it('returns new access token for a valid refresh cookie', async () => {
+    const { signRefreshToken } = await import('../lib/auth');
+    const refreshToken = signRefreshToken(MOCK_USER.id);
+
+    mockPrisma.user.findUnique.mockResolvedValue({
+      id: MOCK_USER.id,
+      email: MOCK_USER.email,
+      role: MOCK_USER.role,
+    });
+
+    const res = await request(app)
+      .post('/api/auth/refresh')
+      .set('Cookie', `refreshToken=${refreshToken}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.accessToken).toBeDefined();
+    expect(res.body.user.email).toBe(MOCK_USER.email);
+  });
+
+  it('returns 401 when no refresh cookie is present', async () => {
+    const res = await request(app).post('/api/auth/refresh');
+    expect(res.status).toBe(401);
+  });
+
+  it('returns 401 for a tampered refresh token', async () => {
+    const res = await request(app)
+      .post('/api/auth/refresh')
+      .set('Cookie', 'refreshToken=tampered.token.here');
+    expect(res.status).toBe(401);
+  });
+
+  it('returns 401 when user no longer exists', async () => {
+    const { signRefreshToken } = await import('../lib/auth');
+    const refreshToken = signRefreshToken('deleted-user-id');
+    mockPrisma.user.findUnique.mockResolvedValue(null);
+
+    const res = await request(app)
+      .post('/api/auth/refresh')
+      .set('Cookie', `refreshToken=${refreshToken}`);
+
+    expect(res.status).toBe(401);
+  });
+});
+
 describe('POST /api/auth/logout', () => {
   it('clears refresh token cookie and returns 204', async () => {
     const res = await request(app).post('/api/auth/logout');
