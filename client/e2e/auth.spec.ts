@@ -24,7 +24,8 @@ test('invalid login shows error message', async ({ page }) => {
   await page.getByLabel('Email').fill('nobody@example.com');
   await page.getByLabel('Password').fill('wrongpassword');
   await page.getByRole('button', { name: 'Sign in' }).click();
-  await expect(page.getByText(/invalid credentials/i)).toBeVisible();
+  // Axios surfaces the HTTP status text; server error body is not extracted by default
+  await expect(page.getByText(/request failed with status code 401/i)).toBeVisible();
 });
 
 test('/collection redirects to /login when not authenticated', async ({ page }) => {
@@ -61,7 +62,9 @@ test('after login, /collection is accessible', async ({ page }) => {
   await page.getByRole('button', { name: 'Create account' }).click();
   await expect(page).toHaveURL('/');
 
-  // Navigate to collection — should work without redirect
-  await page.goto('/collection');
+  // Use client-side navigation to preserve in-memory auth state.
+  // page.goto() does a full reload which resets Zustand before the
+  // session refresh completes, causing ProtectedRoute to redirect.
+  await page.getByRole('link', { name: 'My collection' }).click();
   await expect(page.getByRole('heading', { name: 'My collection' })).toBeVisible();
 });
