@@ -65,6 +65,6 @@ test('after login, /collection is accessible', async ({ page }) => {
   // Use client-side navigation to preserve in-memory auth state.
   // page.goto() does a full reload which resets Zustand before the
   // session refresh completes, causing ProtectedRoute to redirect.
-  await page.getByRole('link', { name: 'My collection' }).click();
+  await page.getByRole('banner').getByRole('link', { name: 'My collection' }).click();
   await expect(page.getByRole('heading', { name: 'My collection' })).toBeVisible();
 });
