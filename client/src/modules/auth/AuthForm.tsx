@@ -1,4 +1,5 @@
 import { type FormEvent, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface AuthFormProps {
   onSubmit: (email: string, password: string) => void;
@@ -10,6 +11,7 @@ interface AuthFormProps {
 }
 
 function AuthForm({ onSubmit, isPending, error, submitLabel, pendingLabel, passwordHint }: AuthFormProps) {
+  const { t } = useTranslation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
@@ -22,7 +24,7 @@ function AuthForm({ onSubmit, isPending, error, submitLabel, pendingLabel, passw
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
       <div className="flex flex-col gap-1.5">
         <label htmlFor="email" className="text-sm font-medium text-ink">
-          Email
+          {t('auth.email')}
         </label>
         <input
           id="email"
@@ -36,7 +38,7 @@ function AuthForm({ onSubmit, isPending, error, submitLabel, pendingLabel, passw
 
       <div className="flex flex-col gap-1.5">
         <label htmlFor="password" className="text-sm font-medium text-ink">
-          Password
+          {t('auth.password')}
           {passwordHint && (
             <span className="ml-1 font-normal text-muted">{passwordHint}</span>
           )}

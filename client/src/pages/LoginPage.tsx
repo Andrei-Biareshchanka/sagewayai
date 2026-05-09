@@ -1,9 +1,11 @@
 import { Link, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 import { AuthForm } from '@/modules/auth';
 import { useLogin } from '@/modules/auth';
 
 function LoginPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { mutate: login, isPending, error } = useLogin();
 
@@ -12,11 +14,11 @@ function LoginPage() {
   return (
     <main className="flex min-h-[80vh] items-center justify-center px-6">
       <div className="w-full max-w-[400px]">
-        <h1 className="mb-2 font-serif text-3xl font-semibold text-ink">Welcome back</h1>
+        <h1 className="mb-2 font-serif text-3xl font-semibold text-ink">{t('auth.loginHeading')}</h1>
         <p className="mb-8 text-sm text-muted">
-          Don't have an account?{' '}
+          {t('auth.loginNoAccount')}{' '}
           <Link to="/register" className="text-sage hover:underline">
-            Sign up
+            {t('auth.loginSignUp')}
           </Link>
         </p>
 
@@ -26,8 +28,8 @@ function LoginPage() {
           }
           isPending={isPending}
           error={errorMessage}
-          submitLabel="Sign in"
-          pendingLabel="Signing in..."
+          submitLabel={t('auth.loginSubmit')}
+          pendingLabel={t('auth.loginPending')}
         />
       </div>
     </main>

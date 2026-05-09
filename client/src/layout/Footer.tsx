@@ -1,6 +1,9 @@
 import { Link, NavLink } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 function Footer() {
+  const { t } = useTranslation();
+
   return (
     <footer className="border-t border-border bg-canvas">
       <div className="mx-auto max-w-[1200px] px-4 py-10 sm:px-6">
@@ -10,37 +13,37 @@ function Footer() {
               Sage<span className="text-sage">way</span>
             </Link>
             <p className="mt-2 max-w-xs text-sm leading-relaxed text-muted">
-              A daily parable that resonates. Wisdom, delivered one story at a time.
+              {t('footer.tagline')}
             </p>
           </div>
 
           <nav className="flex flex-col gap-2">
             <span className="text-[11px] font-medium uppercase tracking-[0.5px] text-muted">
-              Explore
+              {t('footer.exploreSection')}
             </span>
             <NavLink
               to="/"
               className="text-sm text-muted transition-colors hover:text-ink"
             >
-              Home
+              {t('footer.home')}
             </NavLink>
             <NavLink
               to="/explore"
               className="text-sm text-muted transition-colors hover:text-ink"
             >
-              All parables
+              {t('footer.allParables')}
             </NavLink>
             <NavLink
               to="/collection"
               className="text-sm text-muted transition-colors hover:text-ink"
             >
-              My collection
+              {t('footer.myCollection')}
             </NavLink>
           </nav>
         </div>
 
         <div className="mt-10 border-t border-border-subtle pt-6 text-center text-xs text-muted">
-          © {new Date().getFullYear()} Sageway. All rights reserved.
+          {t('footer.copyright', { year: new Date().getFullYear() })}
         </div>
       </div>
     </footer>

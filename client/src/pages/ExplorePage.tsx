@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 import { useCategories } from '@/modules/categories';
 import { ParableCard, useParables } from '@/modules/parables';
@@ -10,6 +11,7 @@ import { ParableCardSkeleton } from '@/shared/ui/ParableCardSkeleton';
 import { PaginationControls } from '@/shared/ui/PaginationControls';
 
 function ExplorePage() {
+  const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
   const [page, setPage] = useState(1);
 
@@ -24,7 +26,9 @@ function ExplorePage() {
   });
 
   const activeCategory = categories?.find((c) => c.slug === activeSlug);
-  const pageTitle = activeCategory ? `${activeCategory.name} — SagewayAI` : 'Explore — SagewayAI';
+  const pageTitle = activeCategory
+    ? `${activeCategory.name} — SagewayAI`
+    : t('explore.documentTitle');
 
   useDocumentTitle(pageTitle);
 
@@ -41,7 +45,9 @@ function ExplorePage() {
 
   return (
     <main className="mx-auto max-w-[1200px] px-4 py-10 sm:px-6 sm:py-12">
-      <h1 className="mb-8 font-serif text-3xl font-semibold text-ink sm:text-4xl">Explore parables</h1>
+      <h1 className="mb-8 font-serif text-3xl font-semibold text-ink sm:text-4xl">
+        {t('explore.heading')}
+      </h1>
 
       <div className="mb-8">
         <CategoryPills
@@ -61,7 +67,7 @@ function ExplorePage() {
 
       {isError && (
         <div className="flex min-h-[40vh] items-center justify-center text-muted">
-          Failed to load parables.
+          {t('explore.errorMessage')}
         </div>
       )}
 
@@ -69,11 +75,9 @@ function ExplorePage() {
         <>
           {data?.data.length === 0 ? (
             <div className="flex min-h-[40vh] flex-col items-center justify-center gap-3 text-center">
-              <p className="font-serif text-xl text-ink">No parables yet</p>
+              <p className="font-serif text-xl text-ink">{t('explore.emptyHeading')}</p>
               <p className="text-sm text-muted">
-                {activeSlug
-                  ? 'This category has no parables yet. Try another one.'
-                  : 'The library is empty.'}
+                {activeSlug ? t('explore.emptyCategory') : t('explore.emptyLibrary')}
               </p>
             </div>
           ) : (

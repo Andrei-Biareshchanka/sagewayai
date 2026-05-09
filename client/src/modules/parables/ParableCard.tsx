@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 import type { Parable } from './types';
 
@@ -8,6 +9,8 @@ interface ParableCardProps {
 }
 
 function ParableCard({ parable, categoryName }: ParableCardProps) {
+  const { t } = useTranslation();
+
   return (
     <Link
       to={`/parables/${parable.id}`}
@@ -25,7 +28,7 @@ function ParableCard({ parable, categoryName }: ParableCardProps) {
         «{parable.moral}»
       </p>
 
-      <span className="text-xs text-muted">{parable.readTime} min read</span>
+      <span className="text-xs text-muted">{t('parable.minRead', { count: parable.readTime })}</span>
     </Link>
   );
 }

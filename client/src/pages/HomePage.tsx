@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 import { useCategories } from '@/modules/categories';
 import { HeroSection, SubscribeForm } from '@/modules/home';
@@ -9,6 +10,7 @@ import { DailyParableCardSkeleton } from '@/shared/ui/DailyParableCardSkeleton';
 import { ParableCardSkeleton } from '@/shared/ui/ParableCardSkeleton';
 
 function HomePage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   const { data: daily, isLoading: dailyLoading } = useDailyParable();
@@ -16,7 +18,7 @@ function HomePage() {
   const { data: categories } = useCategories();
   const categoryMap = useCategoryMap();
 
-  useDocumentTitle('SagewayAI — The daily parable that resonates');
+  useDocumentTitle(t('home.documentTitle'));
 
   const handleCategoryChange = (slug: string | null) => {
     if (slug) {
@@ -46,7 +48,7 @@ function HomePage() {
       )}
 
       <section className="mx-auto max-w-[1200px] px-4 pb-16 sm:px-6 sm:pb-20">
-        <h2 className="mb-6 font-serif text-2xl font-semibold text-ink">More parables</h2>
+        <h2 className="mb-6 font-serif text-2xl font-semibold text-ink">{t('home.moreParables')}</h2>
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {parablesLoading
             ? Array.from({ length: 3 }).map((_, i) => <ParableCardSkeleton key={i} />)

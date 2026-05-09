@@ -1,9 +1,11 @@
 import { Link, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 import { AuthForm } from '@/modules/auth';
 import { useRegister } from '@/modules/auth';
 
 function RegisterPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { mutate: register, isPending, error } = useRegister();
 
@@ -13,11 +15,11 @@ function RegisterPage() {
   return (
     <main className="flex min-h-[80vh] items-center justify-center px-6">
       <div className="w-full max-w-[400px]">
-        <h1 className="mb-2 font-serif text-3xl font-semibold text-ink">Create account</h1>
+        <h1 className="mb-2 font-serif text-3xl font-semibold text-ink">{t('auth.registerHeading')}</h1>
         <p className="mb-8 text-sm text-muted">
-          Already have an account?{' '}
+          {t('auth.registerHasAccount')}{' '}
           <Link to="/login" className="text-sage hover:underline">
-            Sign in
+            {t('auth.registerSignIn')}
           </Link>
         </p>
 
@@ -27,9 +29,9 @@ function RegisterPage() {
           }
           isPending={isPending}
           error={errorMessage}
-          submitLabel="Create account"
-          pendingLabel="Creating account..."
-          passwordHint="(min 8 characters)"
+          submitLabel={t('auth.registerSubmit')}
+          pendingLabel={t('auth.registerPending')}
+          passwordHint={t('auth.passwordHint')}
         />
       </div>
     </main>
