@@ -1,0 +1,91 @@
+{
+  "nav": {
+    "explore": "Притчи",
+    "myCollection": "Моя коллекция",
+    "logIn": "Войти",
+    "logOut": "Выйти",
+    "signUp": "Регистрация",
+    "openMenu": "Открыть меню",
+    "closeMenu": "Закрыть меню"
+  },
+  "footer": {
+    "tagline": "Ежедневная притча, которая резонирует. Мудрость — одна история за раз.",
+    "exploreSection": "Навигация",
+    "home": "Главная",
+    "allParables": "Все притчи",
+    "myCollection": "Моя коллекция",
+    "copyright": "© {{year}} Sageway. Все права защищены."
+  },
+  "home": {
+    "documentTitle": "SagewayAI — Ежедневная притча, которая резонирует",
+    "moreParables": "Ещё притчи"
+  },
+  "hero": {
+    "label": "Библиотека притч",
+    "heading": "Та самая притча",
+    "headingEm": "для этого момента"
+  },
+  "subscribe": {
+    "label": "Ежедневная притча",
+    "heading": "Доставляем на почту",
+    "description": "Одна притча каждое утро. Без спама, отписка в любой момент.",
+    "placeholder": "ваш@email.com",
+    "button": "Подписаться",
+    "pending": "Подписываемся…",
+    "successHeading": "Вы подписаны!",
+    "successMessage": "Новая притча будет приходить на почту каждое утро.",
+    "error": "Что-то пошло не так. Попробуйте ещё раз."
+  },
+  "explore": {
+    "heading": "Все притчи",
+    "documentTitle": "Притчи — SagewayAI",
+    "errorMessage": "Не удалось загрузить притчи.",
+    "emptyHeading": "Притч пока нет",
+    "emptyCategory": "В этой категории пока нет притч. Попробуйте другую.",
+    "emptyLibrary": "Библиотека пуста."
+  },
+  "parable": {
+    "notFound": "Притча не найдена.",
+    "backToExplore": "← К притчам",
+    "minRead": "{{count}} мин. чтения",
+    "saveToCollection": "♡ Сохранить в коллекцию",
+    "savedToCollection": "♥ Сохранено в коллекцию"
+  },
+  "daily": {
+    "badge": "Притча дня",
+    "readParable": "Читать притчу"
+  },
+  "collection": {
+    "heading": "Моя коллекция",
+    "documentTitle": "Моя коллекция — SagewayAI",
+    "empty": "Пока нет избранных.",
+    "exploreLink": "Исследовать притчи →"
+  },
+  "pagination": {
+    "previous": "← Назад",
+    "next": "Вперёд →"
+  },
+  "auth": {
+    "email": "Email",
+    "password": "Пароль",
+    "passwordHint": "(минимум 8 символов)",
+    "loginHeading": "С возвращением",
+    "loginNoAccount": "Нет аккаунта?",
+    "loginSignUp": "Зарегистрироваться",
+    "loginSubmit": "Войти",
+    "loginPending": "Входим...",
+    "registerHeading": "Создать аккаунт",
+    "registerHasAccount": "Уже есть аккаунт?",
+    "registerSignIn": "Войти",
+    "registerSubmit": "Создать аккаунт",
+    "registerPending": "Создаём аккаунт..."
+  },
+  "error": {
+    "heading": "Что-то пошло не так",
+    "message": "Пожалуйста, обновите страницу или попробуйте позже."
+  },
+  "filters": {
+    "all": "Все"
+  },
+  "loading": "Загрузка..."
+}

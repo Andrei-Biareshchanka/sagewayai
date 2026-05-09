@@ -1,9 +1,11 @@
 import { useEffect } from 'react';
 import { Link, NavLink } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 import { useAuthStore } from '@/modules/auth';
 import { useLogout } from '@/modules/auth';
 import { cn } from '@/lib/cn';
+import { LanguageSwitcher } from './LanguageSwitcher';
 
 interface MobileMenuProps {
   isOpen: boolean;
@@ -11,6 +13,7 @@ interface MobileMenuProps {
 }
 
 function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
+  const { t } = useTranslation();
   const user = useAuthStore((s) => s.user);
   const { mutate: logout } = useLogout();
 
@@ -35,7 +38,7 @@ function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
           </Link>
           <button
             onClick={onClose}
-            aria-label="Close menu"
+            aria-label={t('nav.closeMenu')}
             className="flex h-9 w-9 items-center justify-center rounded-full text-muted transition-colors hover:text-ink"
           >
             <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
@@ -47,14 +50,18 @@ function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
 
         <nav className="mt-10 flex flex-col gap-6">
           <NavLink to="/explore" className={navLinkClass} onClick={onClose}>
-            Explore
+            {t('nav.explore')}
           </NavLink>
           <NavLink to="/collection" className={navLinkClass} onClick={onClose}>
-            My collection
+            {t('nav.myCollection')}
           </NavLink>
         </nav>
 
         <div className="mt-auto flex flex-col gap-3 pb-4">
+          <div className="mb-1">
+            <LanguageSwitcher />
+          </div>
+
           {user ? (
             <>
               <span className="text-sm text-muted">{user.email}</span>
@@ -62,7 +69,7 @@ function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
                 onClick={() => { logout(); onClose(); }}
                 className="rounded-full border border-border-medium px-5 py-2.5 text-sm text-muted transition-colors hover:border-sage hover:text-sage"
               >
-                Log out
+                {t('nav.logOut')}
               </button>
             </>
           ) : (
@@ -72,14 +79,14 @@ function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
                 onClick={onClose}
                 className="rounded-full border border-border-medium px-5 py-2.5 text-center text-sm text-muted transition-colors hover:border-sage hover:text-sage"
               >
-                Log in
+                {t('nav.logIn')}
               </Link>
               <Link
                 to="/register"
                 onClick={onClose}
                 className="rounded-full bg-sage px-5 py-2.5 text-center text-sm font-medium text-white transition-opacity hover:opacity-90"
               >
-                Sign up
+                {t('nav.signUp')}
               </Link>
             </>
           )}

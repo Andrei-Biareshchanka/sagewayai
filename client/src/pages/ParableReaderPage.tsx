@@ -1,4 +1,5 @@
 import { Link, useParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 import { useAuthStore } from '@/modules/auth';
 import { useFavorites, useToggleFavorite } from '@/modules/collection';
@@ -8,6 +9,7 @@ import { useDocumentTitle } from '@/shared/hooks/useDocumentTitle';
 import { ParableReaderSkeleton } from '@/shared/ui/ParableReaderSkeleton';
 
 function ParableReaderPage() {
+  const { t } = useTranslation();
   const { id } = useParams<{ id: string }>();
   const { data: parable, isLoading, isError } = useParable(id!);
   const categoryMap = useCategoryMap();
@@ -28,9 +30,9 @@ function ParableReaderPage() {
   if (isError || !parable) {
     return (
       <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4 text-muted">
-        <p>Parable not found.</p>
+        <p>{t('parable.notFound')}</p>
         <Link to="/explore" className="text-sm text-sage hover:underline">
-          ← Back to explore
+          {t('parable.backToExplore')}
         </Link>
       </div>
     );
@@ -42,13 +44,13 @@ function ParableReaderPage() {
         to="/explore"
         className="mb-8 inline-block text-sm text-muted transition-colors hover:text-ink"
       >
-        ← Back to explore
+        {t('parable.backToExplore')}
       </Link>
 
       <div className="mb-4 flex flex-wrap gap-2 text-sm text-muted">
         {categoryName && <span>{categoryName}</span>}
         {categoryName && <span>·</span>}
-        <span>{parable.readTime} min read</span>
+        <span>{t('parable.minRead', { count: parable.readTime })}</span>
         {parable.source && (
           <>
             <span>·</span>
@@ -79,7 +81,7 @@ function ParableReaderPage() {
               : 'border-border-medium text-muted hover:border-sage hover:text-sage'
           }`}
         >
-          {isFavorited ? '♥ Saved to collection' : '♡ Save to collection'}
+          {isFavorited ? t('parable.savedToCollection') : t('parable.saveToCollection')}
         </button>
       )}
     </main>

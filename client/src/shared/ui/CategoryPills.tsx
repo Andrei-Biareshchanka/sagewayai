@@ -1,3 +1,5 @@
+import { useTranslation } from 'react-i18next';
+
 import type { Category } from '@/modules/categories';
 import { cn } from '@/lib/cn';
 
@@ -8,6 +10,8 @@ interface CategoryPillsProps {
 }
 
 function CategoryPills({ categories, activeSlug, onChange }: CategoryPillsProps) {
+  const { t } = useTranslation();
+
   const pillClass = (isActive: boolean) =>
     cn('shrink-0 rounded-full px-4 py-1.5 text-sm transition-colors', {
       'bg-sage text-white': isActive,
@@ -17,7 +21,7 @@ function CategoryPills({ categories, activeSlug, onChange }: CategoryPillsProps)
   return (
     <div className="flex gap-2 overflow-x-auto pb-1">
       <button onClick={() => onChange(null)} className={pillClass(activeSlug === null)}>
-        All
+        {t('filters.all')}
       </button>
       {categories.map((category) => (
         <button

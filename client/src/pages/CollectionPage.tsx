@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 import { useCategoryMap } from '@/shared/hooks/useCategoryMap';
 import { useDocumentTitle } from '@/shared/hooks/useDocumentTitle';
@@ -9,17 +10,18 @@ import { PaginationControls } from '@/shared/ui/PaginationControls';
 import { useFavorites } from '@/modules/collection';
 
 function CollectionPage() {
+  const { t } = useTranslation();
   const [page, setPage] = useState(1);
   const { data, isLoading } = useFavorites();
   const categoryMap = useCategoryMap();
 
-  useDocumentTitle('My collection — SagewayAI');
+  useDocumentTitle(t('collection.documentTitle'));
 
   const totalPages = data ? Math.ceil(data.total / data.limit) : 0;
 
   return (
     <main className="mx-auto max-w-[1200px] px-6 py-12">
-      <h1 className="mb-8 font-serif text-4xl font-semibold text-ink">My collection</h1>
+      <h1 className="mb-8 font-serif text-4xl font-semibold text-ink">{t('collection.heading')}</h1>
 
       {isLoading ? (
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
@@ -29,9 +31,9 @@ function CollectionPage() {
         </div>
       ) : data?.data.length === 0 ? (
         <div className="flex flex-col items-center gap-4 py-20 text-muted">
-          <p>No favorites yet.</p>
+          <p>{t('collection.empty')}</p>
           <Link to="/explore" className="text-sm text-sage hover:underline">
-            Explore parables →
+            {t('collection.exploreLink')}
           </Link>
         </div>
       ) : (
