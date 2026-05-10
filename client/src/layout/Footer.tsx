@@ -1,6 +1,8 @@
 import { Link, NavLink } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
+import { DropletIcon } from '@/shared/ui/DropletIcon';
+
 function Footer() {
   const { t } = useTranslation();
 
@@ -9,8 +11,11 @@ function Footer() {
       <div className="mx-auto max-w-[1200px] px-4 py-10 sm:px-6">
         <div className="flex flex-col gap-8 sm:flex-row sm:items-start sm:justify-between">
           <div>
-            <Link to="/" className="font-serif text-lg font-semibold text-ink">
-              Sage<span className="text-sage">way</span>
+            <Link to="/" className="flex items-center gap-2">
+              <DropletIcon size={24} />
+              <span className="font-serif text-lg font-semibold text-ink">
+                Sage<span className="text-sage">way</span>
+              </span>
             </Link>
             <p className="mt-2 max-w-xs text-sm leading-relaxed text-muted">
               {t('footer.tagline')}

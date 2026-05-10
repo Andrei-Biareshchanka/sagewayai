@@ -52,8 +52,15 @@ export function buildDailyParableEmail(params: EmailTemplateParams): string {
           <!-- Header -->
           <tr>
             <td style="padding-bottom:32px;">
-              <a href="${parableUrl}" style="text-decoration:none;">
-                <span style="font-family:'Georgia',serif;font-size:20px;font-weight:600;color:#1A1A1A;">
+              <a href="${parableUrl}" style="text-decoration:none;display:inline-flex;align-items:center;gap:8px;">
+                <img
+                  src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0OCA0OCI+PHJlY3Qgd2lkdGg9IjQ4IiBoZWlnaHQ9IjQ4IiByeD0iMTIiIGZpbGw9IiNGRkZGRkYiLz48cGF0aCBkPSJNMjQgOEMyNCA4IDE0IDE2IDE0IDI2QzE0IDMxLjUgMTguNSAzNiAyNCAzNkMyOS41IDM2IDM0IDMxLjUgMzQgMjZDMzQgMTYgMjQgOCAyNCA4WiIgZmlsbD0iIzZCOEY3MSIvPjxwYXRoIGQ9Ik0yNCAyMEMyNCAyMCAxOSAyNCAxOSAyOEMxOSAzMC44IDIxLjIgMzMgMjQgMzNDMjYuOCAzMyAyOSAzMC44IDI5IDI4QzI5IDI0IDI0IDIwIDI0IDIwWiIgZmlsbD0iI0YwRjRGMCIvPjwvc3ZnPg=="
+                  width="28"
+                  height="28"
+                  alt=""
+                  style="display:inline-block;vertical-align:middle;"
+                />
+                <span style="font-family:'Georgia',serif;font-size:20px;font-weight:600;color:#1A1A1A;vertical-align:middle;">
                   Sage<span style="color:#6B8F71;">way</span>
                 </span>
               </a>
