@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '@/modules/auth';
 import { useLogout } from '@/modules/auth';
 import { cn } from '@/lib/cn';
+import { DropletIcon } from '@/shared/ui/DropletIcon';
 import { MobileMenu } from './MobileMenu';
 import { LanguageSwitcher } from './LanguageSwitcher';
 
@@ -19,6 +20,7 @@ function Navbar() {
       <header className="border-b border-border bg-canvas">
         <div className="mx-auto flex max-w-[1200px] items-center justify-between px-4 py-4 sm:px-6">
           <Link to="/" className="flex items-center gap-2">
+            <DropletIcon size={32} />
             <span className="font-serif text-xl font-semibold text-ink">
               Sage<span className="text-sage">way</span>
             </span>
