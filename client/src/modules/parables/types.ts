@@ -21,4 +21,5 @@ export interface FetchParablesParams {
   category?: string;
   page?: number;
   limit?: number;
+  lang?: string;
 }

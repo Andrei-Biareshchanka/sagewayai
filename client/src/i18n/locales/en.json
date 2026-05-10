@@ -34,7 +34,27 @@
     "pending": "Subscribing…",
     "successHeading": "You're subscribed!",
     "successMessage": "A new parable will arrive in your inbox every morning.",
-    "error": "Something went wrong. Please try again."
+    "error": "Something went wrong. Please try again.",
+    "langLabel": "Email language",
+    "langEn": "English",
+    "langRu": "Russian"
+  },
+  "manageSubscription": {
+    "documentTitle": "Manage subscription — SagewayAI",
+    "heading": "Your subscription",
+    "langLabel": "Email language",
+    "langEn": "English",
+    "langRu": "Russian",
+    "saveButton": "Save",
+    "saving": "Saving…",
+    "saved": "Saved!",
+    "unsubscribeButton": "Unsubscribe",
+    "unsubscribeConfirm": "Are you sure? You will stop receiving daily parables.",
+    "unsubscribed": "You've been unsubscribed.",
+    "unsubscribedMessage": "You won't receive daily parables anymore.",
+    "backHome": "← Back to Sageway",
+    "invalidLink": "This manage link is invalid or has expired.",
+    "saveError": "Failed to save. Please try again."
   },
   "explore": {
     "heading": "Explore parables",

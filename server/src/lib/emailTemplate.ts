@@ -1,3 +1,5 @@
+type Lang = 'en' | 'ru';
+
 interface EmailTemplateParams {
   title: string;
   content: string;
@@ -5,16 +7,37 @@ interface EmailTemplateParams {
   categoryName: string;
   readTime: number;
   parableUrl: string;
-  unsubscribeUrl: string;
+  manageUrl: string;
+  lang: Lang;
 }
 
-export function buildDailyParableEmail(params: EmailTemplateParams): string {
-  const { title, content, moral, categoryName, readTime, parableUrl, unsubscribeUrl } = params;
+const i18n = {
+  en: {
+    badge:       'Parable of the day',
+    readTime:    (n: number) => `${n} min read`,
+    readFull:    'Read full parable',
+    footer:      "You're receiving this because you subscribed to Sageway daily parables.",
+    manage:      'Manage subscription',
+    unsubscribe: 'Unsubscribe',
+  },
+  ru: {
+    badge:       'Притча дня',
+    readTime:    (n: number) => `${n} мин чтения`,
+    readFull:    'Читать полностью',
+    footer:      'Вы получаете это письмо, потому что подписались на ежедневные притчи Sageway.',
+    manage:      'Управление подпиской',
+    unsubscribe: 'Отписаться',
+  },
+} as const;
 
+export function buildDailyParableEmail(params: EmailTemplateParams): string {
+  const { title, content, moral, categoryName, readTime, parableUrl, manageUrl, lang } = params;
+  const t = i18n[lang];
   const excerpt = content.length > 300 ? content.slice(0, 300).trimEnd() + '…' : content;
+  const unsubscribeUrl = `${manageUrl}&action=unsubscribe`;
 
   return `<!DOCTYPE html>
-<html lang="en">
+<html lang="${lang}">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -41,7 +64,7 @@ export function buildDailyParableEmail(params: EmailTemplateParams): string {
           <tr>
             <td style="padding-bottom:16px;">
               <span style="display:inline-block;background-color:#6B8F71;color:#ffffff;font-family:'Inter',sans-serif;font-size:11px;font-weight:500;letter-spacing:0.5px;text-transform:uppercase;padding:4px 12px;border-radius:100px;">
-                Parable of the day
+                ${t.badge}
               </span>
               <span style="font-family:'Inter',sans-serif;font-size:11px;color:#6B7280;text-transform:uppercase;letter-spacing:0.5px;margin-left:10px;">
                 ${categoryName}
@@ -89,12 +112,12 @@ export function buildDailyParableEmail(params: EmailTemplateParams): string {
                 <tr>
                   <td style="padding-right:20px;vertical-align:middle;">
                     <span style="font-family:'Inter',sans-serif;font-size:13px;color:#6B7280;">
-                      ${readTime} min read
+                      ${t.readTime(readTime)}
                     </span>
                   </td>
                   <td style="vertical-align:middle;">
                     <a href="${parableUrl}" style="display:inline-block;border:1px solid #6B8F71;color:#6B8F71;font-family:'Inter',sans-serif;font-size:13px;font-weight:500;padding:8px 22px;border-radius:100px;text-decoration:none;">
-                      Read full parable
+                      ${t.readFull}
                     </a>
                   </td>
                 </tr>
@@ -106,8 +129,10 @@ export function buildDailyParableEmail(params: EmailTemplateParams): string {
           <tr>
             <td style="border-top:1px solid rgba(0,0,0,0.08);padding-top:24px;padding-bottom:8px;">
               <p style="margin:0;font-family:'Inter',sans-serif;font-size:12px;color:#9CA3AF;line-height:1.6;">
-                You're receiving this because you subscribed to Sageway daily parables.<br/>
-                <a href="${unsubscribeUrl}" style="color:#6B7280;text-decoration:underline;">Unsubscribe</a>
+                ${t.footer}<br/>
+                <a href="${manageUrl}" style="color:#6B7280;text-decoration:underline;">${t.manage}</a>
+                &nbsp;·&nbsp;
+                <a href="${unsubscribeUrl}" style="color:#6B7280;text-decoration:underline;">${t.unsubscribe}</a>
               </p>
             </td>
           </tr>

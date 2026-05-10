@@ -27,6 +27,9 @@ const RegisterPage = lazy(() =>
 const CollectionPage = lazy(() =>
   import('@/pages/CollectionPage').then((m) => ({ default: m.CollectionPage })),
 );
+const ManageSubscriptionPage = lazy(() =>
+  import('@/modules/subscription/ManageSubscriptionPage').then((m) => ({ default: m.ManageSubscriptionPage })),
+);
 
 function App() {
   const setAuth = useAuthStore((s) => s.setAuth);
@@ -52,6 +55,7 @@ function App() {
               <Route path="/parables/:id" element={<ParableReaderPage />} />
               <Route path="/login" element={<LoginPage />} />
               <Route path="/register" element={<RegisterPage />} />
+              <Route path="/subscription/manage" element={<ManageSubscriptionPage />} />
               <Route
                 path="/collection"
                 element={

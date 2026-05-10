@@ -3,8 +3,9 @@ import { Resend } from 'resend';
 import { buildDailyParableEmail } from './emailTemplate';
 
 const CLIENT_URL = process.env['CLIENT_URL'] ?? 'http://localhost:5173';
-const SERVER_URL = process.env['SERVER_URL'] ?? 'http://localhost:3001';
 const FROM_EMAIL = process.env['FROM_EMAIL'] ?? 'onboarding@resend.dev';
+
+type Lang = 'en' | 'ru';
 
 interface SendDailyParableParams {
   to: string;
@@ -17,7 +18,13 @@ interface SendDailyParableParams {
   };
   categoryName: string;
   unsubscribeToken: string;
+  lang: Lang;
 }
+
+const subjectByLang: Record<Lang, (title: string) => string> = {
+  en: (title) => `Today's parable: ${title}`,
+  ru: (title) => `Притча дня: ${title}`,
+};
 
 export async function sendDailyParableEmail(params: SendDailyParableParams): Promise<void> {
   const apiKey = process.env['RESEND_API_KEY'];
@@ -27,10 +34,10 @@ export async function sendDailyParableEmail(params: SendDailyParableParams): Pro
   }
 
   const resend = new Resend(apiKey);
-  const { to, parable, categoryName, unsubscribeToken } = params;
+  const { to, parable, categoryName, unsubscribeToken, lang } = params;
 
   const parableUrl = `${CLIENT_URL}/parables/${parable.id}`;
-  const unsubscribeUrl = `${SERVER_URL}/api/subscribe/unsubscribe/${unsubscribeToken}`;
+  const manageUrl = `${CLIENT_URL}/subscription/manage?token=${unsubscribeToken}`;
 
   const html = buildDailyParableEmail({
     title: parable.title,
@@ -39,13 +46,14 @@ export async function sendDailyParableEmail(params: SendDailyParableParams): Pro
     categoryName,
     readTime: parable.readTime,
     parableUrl,
-    unsubscribeUrl,
+    manageUrl,
+    lang,
   });
 
   await resend.emails.send({
     from: FROM_EMAIL,
     to,
-    subject: `Today's parable: ${parable.title}`,
+    subject: subjectByLang[lang](parable.title),
     html,
   });
 }
