@@ -11,6 +11,9 @@ model Parable {
   title      String
   content    String        @db.Text
   moral      String
+  titleRu    String?
+  contentRu  String?       @db.Text
+  moralRu    String?
   source     String?
   readTime   Int
   createdAt  DateTime      @default(now())
@@ -71,8 +74,10 @@ model EmailSubscriber {
   id               String   @id @default(cuid())
   email            String   @unique
   active           Boolean  @default(true)
+  lang             String   @default("en")
   unsubscribeToken String   @unique @default(cuid())
   createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 }
 
 model Favorite {

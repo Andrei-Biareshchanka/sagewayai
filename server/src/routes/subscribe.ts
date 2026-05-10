@@ -5,8 +5,11 @@ import { prisma } from '../lib/prisma';
 
 const subscribeRouter = Router();
 
+const langSchema = z.enum(['en', 'ru']).default('en');
+
 const subscribeSchema = z.object({
   email: z.string().email(),
+  lang:  langSchema,
 });
 
 subscribeRouter.post('/', async (req: Request, res: Response) => {
@@ -16,13 +19,13 @@ subscribeRouter.post('/', async (req: Request, res: Response) => {
     return;
   }
 
-  const { email } = result.data;
+  const { email, lang } = result.data;
 
   const existing = await prisma.emailSubscriber.findUnique({ where: { email } });
 
   if (existing) {
     if (!existing.active) {
-      await prisma.emailSubscriber.update({ where: { email }, data: { active: true } });
+      await prisma.emailSubscriber.update({ where: { email }, data: { active: true, lang } });
       res.json({ message: 'Resubscribed successfully' });
       return;
     }
@@ -30,8 +33,50 @@ subscribeRouter.post('/', async (req: Request, res: Response) => {
     return;
   }
 
-  await prisma.emailSubscriber.create({ data: { email } });
+  await prisma.emailSubscriber.create({ data: { email, lang } });
   res.status(201).json({ message: 'Subscribed successfully' });
+});
+
+subscribeRouter.get('/manage/:token', async (req: Request, res: Response) => {
+  const token = req.params['token'] as string;
+
+  const subscriber = await prisma.emailSubscriber.findUnique({
+    where: { unsubscribeToken: token },
+    select: { email: true, lang: true, active: true },
+  });
+
+  if (!subscriber) {
+    res.status(404).json({ error: 'Invalid manage link.' });
+    return;
+  }
+
+  res.json(subscriber);
+});
+
+subscribeRouter.patch('/manage/:token', async (req: Request, res: Response) => {
+  const token = req.params['token'] as string;
+  const result = z.object({ lang: langSchema }).safeParse(req.body);
+
+  if (!result.success) {
+    res.status(400).json({ error: result.error.issues[0]?.message ?? 'Invalid lang' });
+    return;
+  }
+
+  const subscriber = await prisma.emailSubscriber.findUnique({
+    where: { unsubscribeToken: token },
+  });
+
+  if (!subscriber) {
+    res.status(404).json({ error: 'Invalid manage link.' });
+    return;
+  }
+
+  await prisma.emailSubscriber.update({
+    where: { unsubscribeToken: token },
+    data: { lang: result.data.lang },
+  });
+
+  res.json({ message: 'Language updated' });
 });
 
 subscribeRouter.get('/unsubscribe/:token', async (req: Request, res: Response) => {

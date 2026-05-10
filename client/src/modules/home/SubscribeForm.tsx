@@ -4,13 +4,14 @@ import { useTranslation } from 'react-i18next';
 import { useSubscribe } from './useSubscribe';
 
 function SubscribeForm() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [email, setEmail] = useState('');
+  const [lang, setLang]   = useState<'en' | 'ru'>(i18n.language === 'ru' ? 'ru' : 'en');
   const { mutate: subscribe, isPending, isSuccess, isError, reset } = useSubscribe();
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    subscribe(email, { onSuccess: () => setEmail('') });
+    subscribe({ email, lang }, { onSuccess: () => setEmail('') });
   };
 
   if (isSuccess) {
@@ -34,22 +35,44 @@ function SubscribeForm() {
         {t('subscribe.description')}
       </p>
 
-      <form onSubmit={handleSubmit} className="flex flex-col gap-3 sm:flex-row">
-        <input
-          type="email"
-          value={email}
-          onChange={(e) => { setEmail(e.target.value); if (isError) reset(); }}
-          placeholder={t('subscribe.placeholder')}
-          required
-          className="flex-1 rounded-full border border-border-medium bg-white px-5 py-2.5 text-sm text-ink outline-none focus:border-sage focus:ring-2 focus:ring-sage/20"
-        />
-        <button
-          type="submit"
-          disabled={isPending}
-          className="rounded-full bg-sage px-6 py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-60"
-        >
-          {isPending ? t('subscribe.pending') : t('subscribe.button')}
-        </button>
+      <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+        <div className="flex flex-col gap-3 sm:flex-row">
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => { setEmail(e.target.value); if (isError) reset(); }}
+            placeholder={t('subscribe.placeholder')}
+            required
+            className="flex-1 rounded-full border border-border-medium bg-white px-5 py-2.5 text-sm text-ink outline-none focus:border-sage focus:ring-2 focus:ring-sage/20"
+          />
+          <button
+            type="submit"
+            disabled={isPending}
+            className="rounded-full bg-sage px-6 py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-60"
+          >
+            {isPending ? t('subscribe.pending') : t('subscribe.button')}
+          </button>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <span className="text-xs text-muted">{t('subscribe.langLabel')}:</span>
+          <div className="flex gap-2">
+            {(['en', 'ru'] as const).map((code) => (
+              <button
+                key={code}
+                type="button"
+                onClick={() => setLang(code)}
+                className={`rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
+                  lang === code
+                    ? 'border-sage bg-sage text-white'
+                    : 'border-border-medium bg-white text-muted hover:border-sage hover:text-sage'
+                }`}
+              >
+                {t(`subscribe.lang${code === 'en' ? 'En' : 'Ru'}`)}
+              </button>
+            ))}
+          </div>
+        </div>
       </form>
 
       {isError && (

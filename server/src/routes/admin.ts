@@ -7,6 +7,26 @@ import { prisma } from '../lib/prisma';
 import { getDailyParable } from '../lib/daily';
 import { sendDailyParableEmail } from '../lib/email';
 
+type Lang = 'en' | 'ru';
+
+function isValidLang(lang: string): lang is Lang {
+  return lang === 'en' || lang === 'ru';
+}
+
+function localizeParable(parable: {
+  title: string; content: string; moral: string;
+  titleRu: string | null; contentRu: string | null; moralRu: string | null;
+}, lang: Lang) {
+  if (lang === 'ru') {
+    return {
+      title:   parable.titleRu   ?? parable.title,
+      content: parable.contentRu ?? parable.content,
+      moral:   parable.moralRu   ?? parable.moral,
+    };
+  }
+  return { title: parable.title, content: parable.content, moral: parable.moral };
+}
+
 const adminRouter = Router();
 
 adminRouter.post('/send-daily', async (req: Request, res: Response) => {
@@ -27,17 +47,20 @@ adminRouter.post('/send-daily', async (req: Request, res: Response) => {
   });
 
   const results = await Promise.allSettled(
-    subscribers.map((sub) =>
-      sendDailyParableEmail({
-        to: sub.email,
-        parable,
-        categoryName: category?.name ?? '',
+    subscribers.map((sub) => {
+      const lang = isValidLang(sub.lang) ? sub.lang : 'en';
+      const localized = localizeParable(parable, lang);
+      return sendDailyParableEmail({
+        to:               sub.email,
+        parable:          { ...localized, id: parable.id, readTime: parable.readTime },
+        categoryName:     category?.name ?? '',
         unsubscribeToken: sub.unsubscribeToken,
-      }),
-    ),
+        lang,
+      });
+    }),
   );
 
-  const sent = results.filter((r) => r.status === 'fulfilled').length;
+  const sent   = results.filter((r) => r.status === 'fulfilled').length;
   const failed = results.filter((r) => r.status === 'rejected').length;
 
   res.json({ sent, failed, total: subscribers.length });
