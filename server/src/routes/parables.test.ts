@@ -50,6 +50,9 @@ const MOCK_PARABLE = {
   title: 'The Empty Cup',
   content: 'A scholar came to visit a Zen master...',
   moral: 'To learn, we must first be willing to unlearn.',
+  titleRu: 'Пустая чашка',
+  contentRu: 'Учёный пришёл к дзен-мастеру...',
+  moralRu: 'Чтобы учиться, нужно сначала быть готовым разучиться.',
   source: null,
   readTime: 2,
   categoryId: 'cat-1',
@@ -71,7 +74,29 @@ describe('GET /api/parables', () => {
     const res = await request(app).get('/api/parables');
 
     expect(res.status).toBe(200);
-    expect(res.body).toMatchObject({ data: [MOCK_PARABLE], page: 1, limit: 20, total: 1 });
+    expect(res.body.data[0]).toMatchObject({ id: 'parable-1', title: 'The Empty Cup' });
+    expect(res.body.data[0]).not.toHaveProperty('titleRu');
+  });
+
+  it('returns Russian fields when lang=ru', async () => {
+    mockPrisma.parable.findMany.mockResolvedValue([MOCK_PARABLE]);
+    mockPrisma.parable.count.mockResolvedValue(1);
+
+    const res = await request(app).get('/api/parables?lang=ru');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data[0].title).toBe('Пустая чашка');
+    expect(res.body.data[0].content).toBe('Учёный пришёл к дзен-мастеру...');
+    expect(res.body.data[0]).not.toHaveProperty('titleRu');
+  });
+
+  it('falls back to English when ru field is null', async () => {
+    mockPrisma.parable.findMany.mockResolvedValue([{ ...MOCK_PARABLE, titleRu: null }]);
+    mockPrisma.parable.count.mockResolvedValue(1);
+
+    const res = await request(app).get('/api/parables?lang=ru');
+
+    expect(res.body.data[0].title).toBe('The Empty Cup');
   });
 
   it('filters by category slug', async () => {
@@ -109,26 +134,47 @@ describe('GET /api/parables', () => {
 });
 
 describe('GET /api/parables/daily', () => {
-  it('returns the daily parable', async () => {
-    mockPrisma.dailyParable.findUnique.mockResolvedValue({
-      parable: MOCK_PARABLE,
-    });
+  it('returns the daily parable in English by default', async () => {
+    mockPrisma.dailyParable.findUnique.mockResolvedValue({ parable: MOCK_PARABLE });
 
     const res = await request(app).get('/api/parables/daily');
 
     expect(res.status).toBe(200);
     expect(res.body).toMatchObject({ id: 'parable-1', title: 'The Empty Cup' });
+    expect(res.body).not.toHaveProperty('titleRu');
+  });
+
+  it('returns Russian fields when lang=ru', async () => {
+    mockPrisma.dailyParable.findUnique.mockResolvedValue({ parable: MOCK_PARABLE });
+
+    const res = await request(app).get('/api/parables/daily?lang=ru');
+
+    expect(res.status).toBe(200);
+    expect(res.body.title).toBe('Пустая чашка');
+    expect(res.body).not.toHaveProperty('titleRu');
   });
 });
 
 describe('GET /api/parables/:id', () => {
-  it('returns parable by id', async () => {
+  it('returns parable by id in English by default', async () => {
     mockPrisma.parable.findUnique.mockResolvedValue(MOCK_PARABLE);
 
     const res = await request(app).get('/api/parables/parable-1');
 
     expect(res.status).toBe(200);
     expect(res.body).toMatchObject({ id: 'parable-1', title: 'The Empty Cup' });
+    expect(res.body).not.toHaveProperty('titleRu');
+  });
+
+  it('returns Russian fields when lang=ru', async () => {
+    mockPrisma.parable.findUnique.mockResolvedValue(MOCK_PARABLE);
+
+    const res = await request(app).get('/api/parables/parable-1?lang=ru');
+
+    expect(res.status).toBe(200);
+    expect(res.body.title).toBe('Пустая чашка');
+    expect(res.body.moral).toBe('Чтобы учиться, нужно сначала быть готовым разучиться.');
+    expect(res.body).not.toHaveProperty('titleRu');
   });
 
   it('returns 404 when id not found', async () => {
