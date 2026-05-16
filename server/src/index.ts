@@ -29,8 +29,7 @@ export function createApp() {
   app.use(express.json());
   app.use(cookieParser());
 
-  app.get('/api/health', async (_req: Request, res: Response) => {
-    await prisma.$queryRaw`SELECT 1`;
+  app.get('/api/health', (_req: Request, res: Response) => {
     res.json({ status: 'ok' });
   });
 
