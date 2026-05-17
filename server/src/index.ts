@@ -2,7 +2,7 @@ import express, { Request, Response } from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import dotenv from 'dotenv';
-import { Pool } from 'pg';
+import { Pool, Client } from 'pg';
 
 import { prisma } from './lib/prisma';
 import { errorHandler } from './middleware/errorHandler';
@@ -35,7 +35,7 @@ export function createApp() {
     console.log('[health] request received');
     const dbUrl = process.env['DATABASE_URL'] ?? '';
     const sep = dbUrl.includes('?') ? '&' : '?';
-    const client = new (await import('pg')).Client({
+    const client = new Client({
       connectionString:        `${dbUrl}${sep}connect_timeout=10`,
       connectionTimeoutMillis: 15_000,
     });
