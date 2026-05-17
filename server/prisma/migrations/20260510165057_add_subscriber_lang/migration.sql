@@ -6,4 +6,5 @@
 */
 -- AlterTable
 ALTER TABLE "EmailSubscriber" ADD COLUMN     "lang" TEXT NOT NULL DEFAULT 'en',
-ADD COLUMN     "updatedAt" TIMESTAMP(3) NOT NULL;
+ADD COLUMN     "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT NOW();
+ALTER TABLE "EmailSubscriber" ALTER COLUMN "updatedAt" DROP DEFAULT;
