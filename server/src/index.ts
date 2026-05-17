@@ -2,7 +2,7 @@ import express, { Request, Response } from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import dotenv from 'dotenv';
-import { Client } from 'pg';
+import { Pool } from 'pg';
 
 import { prisma } from './lib/prisma';
 import { errorHandler } from './middleware/errorHandler';
@@ -31,18 +31,19 @@ export function createApp() {
   app.use(cookieParser());
 
   app.get('/api/health', async (_req: Request, res: Response) => {
-    const client = new Client({
+    const healthPool = new Pool({
       connectionString:        process.env['DATABASE_URL'],
       connectionTimeoutMillis: 20_000,
+      max:                     1,
+      idleTimeoutMillis:       1_000,
     });
     try {
-      await client.connect();
-      await client.query('SELECT 1');
+      await healthPool.query('SELECT 1');
       res.json({ status: 'ok' });
     } catch {
       res.status(503).json({ status: 'db_unavailable' });
     } finally {
-      await client.end().catch(() => {});
+      await healthPool.end().catch(() => {});
     }
   });
 

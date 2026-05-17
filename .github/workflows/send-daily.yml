@@ -14,7 +14,7 @@ jobs:
         run: |
           for i in $(seq 1 10); do
             echo "Attempt $i / 10..."
-            if curl -sf --max-time 45 "${{ secrets.API_URL }}/api/health"; then
+            if curl -sf --max-time 75 "${{ secrets.API_URL }}/api/health"; then
               echo "Server and database ready"
               exit 0
             fi
