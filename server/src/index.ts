@@ -2,6 +2,7 @@ import express, { Request, Response } from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import dotenv from 'dotenv';
+import { Client } from 'pg';
 
 import { prisma } from './lib/prisma';
 import { errorHandler } from './middleware/errorHandler';
@@ -30,16 +31,18 @@ export function createApp() {
   app.use(cookieParser());
 
   app.get('/api/health', async (_req: Request, res: Response) => {
+    const client = new Client({
+      connectionString:        process.env['DATABASE_URL'],
+      connectionTimeoutMillis: 20_000,
+    });
     try {
-      await Promise.race([
-        prisma.$queryRaw`SELECT 1`,
-        new Promise<never>((_, reject) =>
-          setTimeout(() => reject(new Error('DB timeout')), 20_000),
-        ),
-      ]);
+      await client.connect();
+      await client.query('SELECT 1');
       res.json({ status: 'ok' });
     } catch {
       res.status(503).json({ status: 'db_unavailable' });
+    } finally {
+      await client.end().catch(() => {});
     }
   });
 
