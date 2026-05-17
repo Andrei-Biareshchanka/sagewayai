@@ -31,9 +31,11 @@ export function createApp() {
   app.use(cookieParser());
 
   app.get('/api/health', async (_req: Request, res: Response) => {
+    const dbUrl = process.env['DATABASE_URL'] ?? '';
+    const sep = dbUrl.includes('?') ? '&' : '?';
     const healthPool = new Pool({
-      connectionString:        process.env['DATABASE_URL'],
-      connectionTimeoutMillis: 20_000,
+      connectionString:        `${dbUrl}${sep}connect_timeout=20`,
+      connectionTimeoutMillis: 25_000,
       max:                     1,
       idleTimeoutMillis:       1_000,
     });
