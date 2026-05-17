@@ -31,21 +31,25 @@ export function createApp() {
   app.use(cookieParser());
 
   app.get('/api/health', async (_req: Request, res: Response) => {
+    const start = Date.now();
+    console.log('[health] request received');
     const dbUrl = process.env['DATABASE_URL'] ?? '';
     const sep = dbUrl.includes('?') ? '&' : '?';
-    const healthPool = new Pool({
-      connectionString:        `${dbUrl}${sep}connect_timeout=20`,
-      connectionTimeoutMillis: 25_000,
-      max:                     1,
-      idleTimeoutMillis:       1_000,
+    const client = new (await import('pg')).Client({
+      connectionString:        `${dbUrl}${sep}connect_timeout=10`,
+      connectionTimeoutMillis: 15_000,
     });
     try {
-      await healthPool.query('SELECT 1');
+      console.log('[health] connecting to DB...');
+      await client.connect();
+      await client.query('SELECT 1');
+      console.log(`[health] DB ok in ${Date.now() - start}ms`);
       res.json({ status: 'ok' });
-    } catch {
-      res.status(503).json({ status: 'db_unavailable' });
+    } catch (err) {
+      console.error(`[health] DB error after ${Date.now() - start}ms:`, err instanceof Error ? err.message : err);
+      res.status(503).json({ status: 'db_unavailable', error: err instanceof Error ? err.message : 'unknown' });
     } finally {
-      await healthPool.end().catch(() => {});
+      await client.end().catch(() => {});
     }
   });
 

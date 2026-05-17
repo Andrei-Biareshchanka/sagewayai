@@ -14,11 +14,16 @@ jobs:
         run: |
           for i in $(seq 1 15); do
             echo "Attempt $i / 15..."
-            if curl -sf --max-time 35 "${{ secrets.API_URL }}/api/health"; then
+            status=$(curl -s -o /dev/null -w "%{http_code}" --max-time 35 "${{ secrets.API_URL }}/api/health" || echo "000")
+            echo "HTTP status: $status"
+            if [ "$status" = "200" ]; then
               echo "Server and database ready"
               exit 0
+            elif [ "$status" = "503" ]; then
+              echo "Server up, DB not ready yet..."
+            else
+              echo "No response (status: $status) - server still waking up"
             fi
-            echo "Not ready yet, waiting 15s..."
             sleep 15
           done
           echo "Server or database did not become ready in time"
