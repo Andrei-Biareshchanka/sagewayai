@@ -30,23 +30,33 @@ export function createApp() {
   app.use(express.json());
   app.use(cookieParser());
 
-  app.get('/api/health', async (_req: Request, res: Response) => {
+  app.get('/api/health', (_req: Request, res: Response) => {
+    res.json({ status: 'ok' });
+  });
+
+  app.get('/api/health/db', async (_req: Request, res: Response) => {
     const start = Date.now();
-    console.log('[health] request received');
     const dbUrl = process.env['DATABASE_URL'] ?? '';
     const sep = dbUrl.includes('?') ? '&' : '?';
     const client = new Client({
       connectionString:        `${dbUrl}${sep}connect_timeout=10`,
       connectionTimeoutMillis: 15_000,
     });
+    let timeout: ReturnType<typeof setTimeout> | undefined;
     try {
-      console.log('[health] connecting to DB...');
-      await client.connect();
+      await Promise.race([
+        client.connect(),
+        new Promise<never>((_, reject) => {
+          timeout = setTimeout(() => reject(new Error('DB connect timeout after 12s')), 12_000);
+        }),
+      ]);
+      clearTimeout(timeout);
       await client.query('SELECT 1');
-      console.log(`[health] DB ok in ${Date.now() - start}ms`);
+      console.log(`[health/db] ok in ${Date.now() - start}ms`);
       res.json({ status: 'ok' });
     } catch (err) {
-      console.error(`[health] DB error after ${Date.now() - start}ms:`, err instanceof Error ? err.message : err);
+      clearTimeout(timeout);
+      console.error(`[health/db] error after ${Date.now() - start}ms:`, err instanceof Error ? err.message : err);
       res.status(503).json({ status: 'db_unavailable', error: err instanceof Error ? err.message : 'unknown' });
     } finally {
       await client.end().catch(() => {});

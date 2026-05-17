@@ -10,24 +10,36 @@ jobs:
     name: Send daily parable email
     runs-on: ubuntu-latest
     steps:
-      - name: Wake up server and database
+      - name: Wake up server
         run: |
-          for i in $(seq 1 15); do
-            echo "Attempt $i / 15..."
-            status=$(curl -s -o /dev/null -w "%{http_code}" --max-time 90 "${{ secrets.API_URL }}/api/health" 2>/dev/null)
-            [ -z "$status" ] && status="000"
+          for i in $(seq 1 20); do
+            echo "Attempt $i / 20..."
+            status=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 "${{ secrets.API_URL }}/api/health" 2>/dev/null) || status="000"
             echo "HTTP status: $status"
             if [ "$status" = "200" ]; then
-              echo "Server and database ready"
+              echo "Server is up"
               exit 0
-            elif [ "$status" = "503" ]; then
-              echo "Server up, DB not ready yet..."
-            else
-              echo "No response (status: $status) - server still waking up"
             fi
+            echo "Server not ready, waiting 10s..."
             sleep 10
           done
-          echo "Server or database did not become ready in time"
+          echo "Server did not wake up in time"
+          exit 1
+
+      - name: Wait for database
+        run: |
+          for i in $(seq 1 10); do
+            echo "DB check $i / 10..."
+            status=$(curl -s -o /dev/null -w "%{http_code}" --max-time 20 "${{ secrets.API_URL }}/api/health/db" 2>/dev/null) || status="000"
+            echo "HTTP status: $status"
+            if [ "$status" = "200" ]; then
+              echo "Database ready"
+              exit 0
+            fi
+            echo "DB not ready, waiting 15s..."
+            sleep 15
+          done
+          echo "Database did not become ready in time"
           exit 1
 
       - name: Trigger send-daily endpoint
