@@ -29,8 +29,18 @@ export function createApp() {
   app.use(express.json());
   app.use(cookieParser());
 
-  app.get('/api/health', (_req: Request, res: Response) => {
-    res.json({ status: 'ok' });
+  app.get('/api/health', async (_req: Request, res: Response) => {
+    try {
+      await Promise.race([
+        prisma.$queryRaw`SELECT 1`,
+        new Promise<never>((_, reject) =>
+          setTimeout(() => reject(new Error('DB timeout')), 20_000),
+        ),
+      ]);
+      res.json({ status: 'ok' });
+    } catch {
+      res.status(503).json({ status: 'db_unavailable' });
+    }
   });
 
   app.use('/api/parables', parablesRouter);

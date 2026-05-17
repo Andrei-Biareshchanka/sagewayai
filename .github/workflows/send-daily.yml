@@ -10,11 +10,19 @@ jobs:
     name: Send daily parable email
     runs-on: ubuntu-latest
     steps:
-      - name: Wake up server
-        run: curl --max-time 60 "${{ secrets.API_URL }}/api/health" || true
-
-      - name: Wait for server and database to be ready
-        run: sleep 30
+      - name: Wake up server and database
+        run: |
+          for i in $(seq 1 10); do
+            echo "Attempt $i / 10..."
+            if curl -sf --max-time 45 "${{ secrets.API_URL }}/api/health"; then
+              echo "Server and database ready"
+              exit 0
+            fi
+            echo "Not ready yet, waiting 20s..."
+            sleep 20
+          done
+          echo "Server or database did not become ready in time"
+          exit 1
 
       - name: Trigger send-daily endpoint
         run: |
