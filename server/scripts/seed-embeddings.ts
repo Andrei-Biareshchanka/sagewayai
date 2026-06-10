@@ -41,7 +41,11 @@ async function fetchEmbeddings(texts: string[]): Promise<number[][]> {
 
 async function saveBatch(parables: Parable[], embeddings: number[][]): Promise<void> {
   for (let i = 0; i < parables.length; i++) {
-    const vectorStr = `[${embeddings[i].join(",")}]`;
+    const vector = embeddings[i];
+    if (!vector.every(isFinite)) {
+      throw new Error(`Invalid embedding values for parable ${parables[i].id}`);
+    }
+    const vectorStr = `[${vector.join(",")}]`;
     await prisma.$executeRaw`
       UPDATE "Parable" SET embedding = ${vectorStr}::vector WHERE id = ${parables[i].id}
     `;
