@@ -10,7 +10,7 @@ const MODEL = "voyage-3";
 const BATCH_SIZE = 50;
 
 if (!VOYAGE_API_KEY) {
-  console.error("VOYAGE_API_KEY is not set in .env");
+  process.stderr.write("VOYAGE_API_KEY is not set in .env\n");
   process.exit(1);
 }
 
@@ -49,10 +49,10 @@ async function saveBatch(parables: Parable[], embeddings: number[][]): Promise<v
 }
 
 async function embedBatch(parables: Parable[], index: number, total: number): Promise<void> {
-  console.log(`Batch ${index}: embedding ${parables.length} parables...`);
+  process.stdout.write(`Batch ${index}: embedding ${parables.length} parables...\n`);
   const embeddings = await fetchEmbeddings(parables.map(buildEmbeddingText));
   await saveBatch(parables, embeddings);
-  console.log(`Progress: ${index * BATCH_SIZE}/${total}`);
+  process.stdout.write(`Progress: ${index * BATCH_SIZE}/${total}\n`);
 }
 
 async function main() {
@@ -60,7 +60,7 @@ async function main() {
     select: { id: true, title: true, content: true, moral: true },
   });
 
-  console.log(`Found ${parables.length} parables`);
+  process.stdout.write(`Found ${parables.length} parables\n`);
 
   for (let i = 0; i < parables.length; i += BATCH_SIZE) {
     await embedBatch(parables.slice(i, i + BATCH_SIZE), Math.floor(i / BATCH_SIZE) + 1, parables.length);
@@ -69,9 +69,9 @@ async function main() {
   const result = await prisma.$queryRaw<{ count: bigint }[]>`
     SELECT COUNT(*) as count FROM "Parable" WHERE embedding IS NOT NULL
   `;
-  console.log(`Done! ${result[0].count}/${parables.length} parables have embeddings`);
+  process.stdout.write(`Done! ${result[0].count}/${parables.length} parables have embeddings\n`);
 }
 
 main()
-  .catch(console.error)
+  .catch((err) => process.stderr.write(`${err}\n`))
   .finally(() => prisma.$disconnect());
