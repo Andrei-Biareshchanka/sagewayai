@@ -1,9 +1,4 @@
-import * as dotenv from "dotenv";
-dotenv.config();
-
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import { prisma } from "../src/lib/prisma";
 
 const VOYAGE_API_KEY = process.env.VOYAGE_API_KEY;
 const MODEL = "voyage-3";
@@ -47,7 +42,7 @@ async function saveBatch(parables: Parable[], embeddings: number[][]): Promise<v
     }
     const vectorStr = `[${vector.join(",")}]`;
     await prisma.$executeRaw`
-      UPDATE "Parable" SET embedding = ${vectorStr}::vector WHERE id = ${parables[i].id}
+      UPDATE "Parable" SET embedding = ${vectorStr}::public.vector WHERE id = ${parables[i].id}
     `;
   }
 }
