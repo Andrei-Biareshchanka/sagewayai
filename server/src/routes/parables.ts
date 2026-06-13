@@ -3,6 +3,7 @@ import { z } from 'zod';
 
 import { getDailyParable } from '../lib/daily';
 import { prisma } from '../lib/prisma';
+import { searchParablesBySemantic } from '../services/search';
 
 const parablesRouter = Router();
 
@@ -12,7 +13,6 @@ const listQuerySchema = z.object({
   category: z.string().optional(),
   page:     z.coerce.number().int().min(1).default(1),
   limit:    z.coerce.number().int().min(1).max(100).default(20),
-  lang:     langSchema,
 });
 
 const notFound = (msg: string) => Object.assign(new Error(msg), { status: 404 });
@@ -47,15 +47,35 @@ function localizeParable(parable: RawParable, lang: Lang) {
   return rest;
 }
 
-// /daily must be declared before /:id to avoid "daily" being consumed as :id
+const searchBodySchema = z.object({
+  query: z.string().min(1).max(500),
+  k:     z.coerce.number().int().min(1).max(20).default(5),
+});
+
+// /search and /daily must be declared before /:id
+parablesRouter.post('/search', async (req, res) => {
+  const parsed = searchBodySchema.safeParse(req.body);
+  if (!parsed.success) {
+    throw Object.assign(
+      new Error(parsed.error.issues[0]?.message ?? 'Invalid request body'),
+      { status: 400 },
+    );
+  }
+  const { query, k } = parsed.data;
+  const results = await searchParablesBySemantic(query, k);
+  res.json({ data: results, query, k });
+});
+
 parablesRouter.get('/daily', async (req, res) => {
-  const lang = langSchema.parse(req.query.lang);
+  const langResult = langSchema.safeParse(req.query.lang);
+  const lang = langResult.success ? langResult.data : 'en';
   const parable = await getDailyParable();
   res.json(localizeParable(parable as RawParable, lang));
 });
 
 parablesRouter.get('/:id', async (req, res) => {
-  const lang = langSchema.parse(req.query.lang);
+  const langResult = langSchema.safeParse(req.query.lang);
+  const lang = langResult.success ? langResult.data : 'en';
   const parable = await prisma.parable.findUnique({ where: { id: req.params.id } });
   if (!parable) throw notFound('Parable not found');
   res.json(localizeParable(parable, lang));
@@ -70,7 +90,9 @@ parablesRouter.get('/', async (req, res) => {
     );
   }
 
-  const { category, page, limit, lang } = parsed.data;
+  const { category, page, limit } = parsed.data;
+  const langResult = langSchema.safeParse(req.query.lang);
+  const lang = langResult.success ? langResult.data : 'en';
   const skip = (page - 1) * limit;
 
   let where = {};
