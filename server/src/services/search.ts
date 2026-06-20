@@ -1,3 +1,4 @@
+import { Prisma } from "@prisma/client";
 import { prisma } from "../lib/prisma";
 import { getEmbedding } from "../lib/voyage";
 
@@ -25,6 +26,7 @@ export async function searchParablesBySemantic(
   }
 
   const vectorStr = `[${embedding.join(",")}]`;
+  const safeLimit = Prisma.raw(String(Math.floor(topK)));
 
   return prisma.$queryRaw<ParableSearchResult[]>`
     SELECT id, title, content, moral, source, "readTime", "categoryId",
@@ -32,6 +34,6 @@ export async function searchParablesBySemantic(
     FROM "Parable"
     WHERE embedding IS NOT NULL
     ORDER BY embedding <=> ${vectorStr}::public.vector
-    LIMIT ${topK}
+    LIMIT ${safeLimit}
   `;
 }
