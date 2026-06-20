@@ -1,54 +1,46 @@
 import { Context } from 'grammy';
 import { prisma } from '../lib/prisma';
-import { mainKeyboard } from './start';
+import { buildKeyboard } from '../lib/keyboard';
 
-export async function handleSubscribe(ctx: Context): Promise<void> {
-  const chatId = ctx.chat?.id;
-  if (!chatId) return;
+async function replyWithKeyboard(ctx: Context, text: string, subscribed: boolean): Promise<void> {
+  await ctx.reply(text, { reply_markup: buildKeyboard(subscribed) });
+}
 
-  const username = ctx.from?.username ?? null;
+async function isActiveSubscriber(chatId: number): Promise<boolean> {
+  const sub = await prisma.telegramSubscriber.findUnique({ where: { chatId: BigInt(chatId) } });
+  return sub?.active ?? false;
+}
 
-  const existing = await prisma.telegramSubscriber.findUnique({
-    where: { chatId: BigInt(chatId) },
-  });
-
-  if (existing?.active) {
-    await ctx.reply('You are already subscribed. You will receive a daily parable every morning.', {
-      reply_markup: mainKeyboard,
-    });
-    return;
-  }
-
+async function upsertSubscriber(chatId: number, username: string | null): Promise<void> {
   await prisma.telegramSubscriber.upsert({
     where: { chatId: BigInt(chatId) },
     create: { chatId: BigInt(chatId), username, active: true },
     update: { active: true, username },
   });
+}
 
-  await ctx.reply('Subscribed! You will receive a daily parable every morning at 8:00. 🌿', {
-    reply_markup: mainKeyboard,
-  });
+export async function handleSubscribe(ctx: Context): Promise<void> {
+  const chatId = ctx.chat?.id;
+  if (!chatId) return;
+
+  if (await isActiveSubscriber(chatId)) {
+    await replyWithKeyboard(ctx, 'You are already subscribed. You will receive a daily parable every morning.', true);
+    return;
+  }
+
+  await upsertSubscriber(chatId, ctx.from?.username ?? null);
+  await replyWithKeyboard(ctx, 'Subscribed! You will receive a daily parable every morning at 8:00. 🌿', true);
 }
 
 export async function handleUnsubscribe(ctx: Context): Promise<void> {
   const chatId = ctx.chat?.id;
   if (!chatId) return;
 
-  const existing = await prisma.telegramSubscriber.findUnique({
-    where: { chatId: BigInt(chatId) },
-  });
-
-  if (!existing || !existing.active) {
-    await ctx.reply('You are not subscribed.', { reply_markup: mainKeyboard });
+  if (!(await isActiveSubscriber(chatId))) {
+    await replyWithKeyboard(ctx, 'You are not subscribed.', false);
     return;
   }
 
-  await prisma.telegramSubscriber.update({
-    where: { chatId: BigInt(chatId) },
-    data: { active: false },
-  });
-
-  await ctx.reply('Unsubscribed. You will no longer receive daily parables.', {
-    reply_markup: mainKeyboard,
-  });
+  await prisma.telegramSubscriber.update({ where: { chatId: BigInt(chatId) }, data: { active: false } });
+  await replyWithKeyboard(ctx, 'Unsubscribed. You will no longer receive daily parables.', false);
 }

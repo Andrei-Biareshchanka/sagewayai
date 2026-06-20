@@ -1,6 +1,6 @@
 import 'dotenv/config';
 import { Bot } from 'grammy';
-import { handleStart, mainKeyboard } from './commands/start';
+import { handleStart } from './commands/start';
 import { handleDaily } from './commands/daily';
 import { handleSubscribe, handleUnsubscribe } from './commands/subscribe';
 import { broadcastDailyParable } from './lib/broadcast';
