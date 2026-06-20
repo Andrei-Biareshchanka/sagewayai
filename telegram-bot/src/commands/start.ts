@@ -1,10 +1,17 @@
-import { CommandContext, Context } from 'grammy';
+import { Context } from 'grammy';
+import { Keyboard } from 'grammy';
 
-export async function handleStart(ctx: CommandContext<Context>): Promise<void> {
+const mainKeyboard = new Keyboard()
+  .text('📖 Daily parable').row()
+  .text('🔔 Subscribe').text('🔕 Unsubscribe')
+  .resized()
+  .persistent();
+
+export { mainKeyboard };
+
+export async function handleStart(ctx: Context): Promise<void> {
   await ctx.reply(
-    `Welcome to SagewayAI 🌿\n\nA daily parable that resonates.\n\n` +
-    `Commands:\n` +
-    `/daily — today's parable\n` +
-    `/help — show this message`,
+    'Welcome to SagewayAI 🌿\n\nA daily parable that resonates.',
+    { reply_markup: mainKeyboard },
   );
 }

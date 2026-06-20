@@ -1,4 +1,4 @@
-import { CommandContext, Context } from 'grammy';
+import { Context } from 'grammy';
 import { getDailyParable } from '../lib/daily';
 
 function formatParable(parable: {
@@ -23,7 +23,7 @@ function escapeMarkdown(text: string): string {
   return text.replace(/[_*[\]()~`>#+\-=|{}.!\\]/g, '\\$&');
 }
 
-export async function handleDaily(ctx: CommandContext<Context>): Promise<void> {
+export async function handleDaily(ctx: Context): Promise<void> {
   await ctx.replyWithChatAction('typing');
 
   try {
