@@ -1,0 +1,93 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../node_modules/.prisma/client"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Parable {
+  id         String        @id @default(cuid())
+  title      String
+  content    String        @db.Text
+  moral      String
+  titleRu    String?
+  contentRu  String?       @db.Text
+  moralRu    String?
+  source     String?
+  readTime   Int
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+  category   Category      @relation(fields: [categoryId], references: [id])
+  categoryId String
+  dailies    DailyParable[]
+  favorites  Favorite[]
+  embedding  Unsupported("vector(1024)")?
+
+  @@unique([title, categoryId])
+  @@index([categoryId])
+}
+
+model Category {
+  id            String    @id @default(cuid())
+  name          String
+  slug          String    @unique
+  description   String?
+  color         String?
+  parablesCount Int       @default(0)
+  parables      Parable[]
+}
+
+model DailyParable {
+  id        String   @id @default(cuid())
+  date      DateTime @unique @db.Date
+  parable   Parable  @relation(fields: [parableId], references: [id])
+  parableId String
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+model User {
+  id           String        @id @default(cuid())
+  email        String        @unique
+  passwordHash String
+  role         Role          @default(USER)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  subscription Subscription?
+  favorites    Favorite[]
+}
+
+model Subscription {
+  id                  String   @id @default(cuid())
+  userId              String   @unique
+  user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  active              Boolean  @default(true)
+  categoryPreferences String[]
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+}
+
+model EmailSubscriber {
+  id               String   @id @default(cuid())
+  email            String   @unique
+  active           Boolean  @default(true)
+  lang             String   @default("en")
+  unsubscribeToken String   @unique @default(cuid())
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+model Favorite {
+  userId    String
+  parableId String
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  parable   Parable @relation(fields: [parableId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@id([userId, parableId])
+}
