@@ -1,21 +1,9 @@
 import { Keyboard } from 'grammy';
-import { prisma } from './prisma';
+import { Language, t } from './i18n';
 
-export function buildKeyboard(subscribed: boolean): Keyboard {
-  const keyboard = new Keyboard().text('📖 Daily parable').row();
-
-  if (subscribed) {
-    keyboard.text('🔕 Unsubscribe');
-  } else {
-    keyboard.text('🔔 Subscribe');
-  }
+export function buildKeyboard(subscribed: boolean, language: Language): Keyboard {
+  const keyboard = new Keyboard().text(t(language, 'dailyButton')).row();
+  keyboard.text(subscribed ? t(language, 'unsubscribeButton') : t(language, 'subscribeButton'));
 
   return keyboard.resized().persistent();
-}
-
-export async function getSubscriptionStatus(chatId: number): Promise<boolean> {
-  const subscriber = await prisma.telegramSubscriber.findUnique({
-    where: { chatId: BigInt(chatId) },
-  });
-  return subscriber?.active ?? false;
 }

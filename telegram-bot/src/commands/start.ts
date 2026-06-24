@@ -1,12 +1,17 @@
 import { Context } from 'grammy';
-import { buildKeyboard, getSubscriptionStatus } from '../lib/keyboard';
+import { buildKeyboard } from '../lib/keyboard';
+import { ensureSubscriber } from '../lib/subscriber';
+import { t } from '../lib/i18n';
 
 export async function handleStart(ctx: Context): Promise<void> {
   const chatId = ctx.chat?.id;
-  const subscribed = chatId ? await getSubscriptionStatus(chatId) : false;
+  if (!chatId) return;
 
-  await ctx.reply(
-    'Welcome to SagewayAI 🌿\n\nA daily parable that resonates.',
-    { reply_markup: buildKeyboard(subscribed) },
+  const { subscribed, language } = await ensureSubscriber(
+    chatId,
+    ctx.from?.username ?? null,
+    ctx.from?.language_code,
   );
+
+  await ctx.reply(t(language, 'welcome'), { reply_markup: buildKeyboard(subscribed, language) });
 }
