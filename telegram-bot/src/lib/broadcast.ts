@@ -1,38 +1,20 @@
 import { Bot } from 'grammy';
 import { prisma } from './prisma';
 import { getDailyParable } from './daily';
-
-function formatParable(parable: {
-  title: string;
-  content: string;
-  source?: string | null;
-}): string {
-  const lines: string[] = [
-    `📖 *${escapeMarkdown(parable.title)}*`,
-    '',
-    escapeMarkdown(parable.content),
-  ];
-
-  if (parable.source) {
-    lines.push('', `_— ${escapeMarkdown(parable.source)}_`);
-  }
-
-  return lines.join('\n');
-}
-
-function escapeMarkdown(text: string): string {
-  return text.replace(/[_*[\]()~`>#+\-=|{}.!\\]/g, '\\$&');
-}
+import { formatParable } from './formatParable';
+import { isSupportedLanguage } from './i18n';
 
 export async function broadcastDailyParable(bot: Bot): Promise<void> {
   const parable = await getDailyParable();
-  const message = formatParable(parable);
 
   const subscribers = await prisma.telegramSubscriber.findMany({
     where: { active: true },
   });
 
   for (const subscriber of subscribers) {
+    const language = isSupportedLanguage(subscriber.language) ? subscriber.language : 'en';
+    const message = formatParable(parable, language);
+
     try {
       await bot.api.sendMessage(Number(subscriber.chatId), message, {
         parse_mode: 'MarkdownV2',

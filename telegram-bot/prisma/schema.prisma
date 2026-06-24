@@ -97,5 +97,6 @@ model TelegramSubscriber {
   chatId    BigInt   @unique
   username  String?
   active    Boolean  @default(true)
+  language  String   @default("en")
   createdAt DateTime @default(now())
 }
