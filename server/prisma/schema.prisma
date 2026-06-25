@@ -21,6 +21,7 @@ model Parable {
   category   Category      @relation(fields: [categoryId], references: [id])
   categoryId String
   dailies    DailyParable[]
+  digests    DailyDigest[]
   favorites  Favorite[]
   embedding  Unsupported("vector(1024)")?
 
@@ -38,8 +39,23 @@ model Quote {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   embedding Unsupported("vector(1024)")?
+  digests   DailyDigest[]
 
   @@unique([text, author])
+}
+
+model DailyDigest {
+  id           String   @id @default(cuid())
+  date         DateTime @unique @db.Date
+  quote        Quote    @relation(fields: [quoteId], references: [id])
+  quoteId      String
+  parable      Parable  @relation(fields: [parableId], references: [id])
+  parableId    String
+  conclusionEn String   @db.Text
+  conclusionRu String   @db.Text
+  questionEn   String   @db.Text
+  questionRu   String   @db.Text
+  createdAt    DateTime @default(now())
 }
 
 model Category {
