@@ -9,7 +9,8 @@
     "start": "npx prisma migrate resolve --rolled-back 20260510165057_add_subscriber_lang || true && npx prisma migrate deploy && node dist/index.js",
     "test": "vitest run",
     "test:watch": "vitest",
-    "seed:embeddings": "ts-node --project tsconfig.json scripts/seed-embeddings.ts"
+    "seed:embeddings": "ts-node --project tsconfig.json scripts/seed-embeddings.ts",
+    "generate:quotes": "ts-node --project tsconfig.json scripts/generate-quotes.ts"
   },
   "prisma": {
     "seed": "ts-node prisma/seed.ts"
@@ -19,6 +20,7 @@
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.100.1",
     "@modelcontextprotocol/sdk": "^1.29.0",
     "@prisma/adapter-pg": "^7.6.0",
     "@prisma/client": "^7.6.0",

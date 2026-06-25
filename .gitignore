@@ -16,6 +16,9 @@ node_modules/
 dist/
 dist-ssr/
 
+# Generated content pending manual review
+server/scripts/data/
+
 # Editor — ignore personal settings, but keep shared project settings
 .vscode/*
 !.vscode/settings.json
