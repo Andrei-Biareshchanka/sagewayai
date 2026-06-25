@@ -7,6 +7,7 @@ import {
 } from "./commands/language";
 import { handleOnboardLang, handleOnboardSub } from "./commands/onboarding";
 import { handleSettings } from "./commands/settings";
+import { handleStats } from "./commands/stats";
 import { handleStart } from "./commands/start";
 import { handleSubscribe, handleUnsubscribe } from "./commands/subscribe";
 import { broadcastDailyParable } from "./lib/broadcast";
@@ -23,6 +24,7 @@ bot.command("digest", handleDaily);
 bot.command("start", handleStart);
 bot.command("help", handleStart);
 bot.command("settings", handleSettings);
+bot.command("stats", handleStats);
 bot.command("subscribe", handleSubscribe);
 bot.command("unsubscribe", handleUnsubscribe);
 bot.command("language", handleLanguageCommand);
