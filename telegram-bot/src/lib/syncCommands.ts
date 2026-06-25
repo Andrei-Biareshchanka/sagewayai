@@ -7,6 +7,7 @@ export async function syncUserCommands(ctx: Context, subscribed: boolean, langua
 
   const base = [
     { command: 'digest', description: t(language, 'cmdDigest') },
+    { command: 'settings', description: t(language, 'cmdSettings') },
     { command: 'language', description: t(language, 'cmdLanguage') },
   ];
 

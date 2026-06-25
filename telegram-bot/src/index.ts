@@ -5,6 +5,8 @@ import {
   handleLanguageCallback,
   handleLanguageCommand,
 } from "./commands/language";
+import { handleOnboardLang, handleOnboardSub } from "./commands/onboarding";
+import { handleSettings } from "./commands/settings";
 import { handleStart } from "./commands/start";
 import { handleSubscribe, handleUnsubscribe } from "./commands/subscribe";
 import { broadcastDailyParable } from "./lib/broadcast";
@@ -19,11 +21,14 @@ const bot = new Bot(token);
 bot.command("digest", handleDaily);
 bot.command("start", handleStart);
 bot.command("help", handleStart);
+bot.command("settings", handleSettings);
 bot.command("subscribe", handleSubscribe);
 bot.command("unsubscribe", handleUnsubscribe);
 bot.command("language", handleLanguageCommand);
 
 bot.callbackQuery(/^lang:(en|ru)$/, handleLanguageCallback);
+bot.callbackQuery(/^onboard_lang:(en|ru)$/, handleOnboardLang);
+bot.callbackQuery(/^onboard_sub:(yes|skip)$/, handleOnboardSub);
 
 bot.hears(/^📖/, handleDaily);
 
@@ -35,8 +40,9 @@ scheduleDailyBroadcast(bot);
 
 bot.api.setMyCommands([
   { command: "digest", description: "Daily digest: quote · parable · reflection" },
+  { command: "settings", description: "Your settings" },
   { command: "language", description: "Change language 🇬🇧 🇷🇺" },
-  { command: "subscribe", description: "Receive digest every morning at 8:00" },
+  { command: "subscribe", description: "Receive daily digest every morning" },
   { command: "unsubscribe", description: "Stop daily digest" },
   { command: "help", description: "Show all commands" },
 ]);
@@ -44,8 +50,9 @@ bot.api.setMyCommands([
 bot.api.setMyCommands(
   [
     { command: "digest", description: "Дайджест дня: цитата · притча · вывод" },
+    { command: "settings", description: "Настройки" },
     { command: "language", description: "Изменить язык 🇬🇧 🇷🇺" },
-    { command: "subscribe", description: "Получать дайджест каждое утро в 8:00" },
+    { command: "subscribe", description: "Получать дайджест каждое утро" },
     { command: "unsubscribe", description: "Остановить ежедневный дайджест" },
     { command: "help", description: "Показать все команды" },
   ],

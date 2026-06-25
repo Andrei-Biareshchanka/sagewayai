@@ -7,7 +7,7 @@ const translations = {
     alreadySubscribed:
       "You are already subscribed. You will receive a daily digest every morning.",
     subscribed:
-      "Subscribed! You will receive a daily digest every morning at 8:00. 🌿",
+      "Subscribed! You will receive a daily digest every morning. 🌿",
     notSubscribed: "You are not subscribed.",
     unsubscribed: "Unsubscribed. You will no longer receive the daily digest.",
     dailyError: "Could not load today's wisdom. Please try again later.",
@@ -18,9 +18,18 @@ const translations = {
     labelQuestion: "❓ Question",
     cmdDigest: "Daily digest: quote · parable · reflection",
     cmdLanguage: "Change language 🇬🇧 🇷🇺",
-    cmdSubscribe: "Receive digest every morning at 8:00",
+    cmdSubscribe: "Receive daily digest every morning",
     cmdUnsubscribe: "Stop daily digest",
+    cmdSettings: "Your settings",
     cmdHelp: "Show all commands",
+    onboardChooseLang: "Choose your language to get started:",
+    onboardSubscribeOffer: "Want to receive a daily digest every morning? 🌿",
+    onboardSubscribeYes: "✅ Subscribe",
+    onboardSubscribeLater: "Later",
+    settingsTitle: "⚙️ Settings",
+    settingsLang: "🌐 Language: English 🇬🇧",
+    settingsActive: "📬 Daily digest: active ✅",
+    settingsInactive: "📬 Daily digest: not subscribed",
   },
   ru: {
     welcome:
@@ -29,7 +38,7 @@ const translations = {
     alreadySubscribed:
       "Вы уже подписаны. Вы будете получать дайджест каждое утро.",
     subscribed:
-      "Подписка оформлена! Вы будете получать дайджест каждое утро в 8:00. 🌿",
+      "Подписка оформлена! Вы будете получать дайджест каждое утро. 🌿",
     notSubscribed: "Вы не подписаны.",
     unsubscribed: "Подписка отменена. Вы больше не будете получать дайджест.",
     dailyError: "Не удалось загрузить мудрость дня. Попробуйте позже.",
@@ -40,9 +49,18 @@ const translations = {
     labelQuestion: "❓ Вопрос",
     cmdDigest: "Дайджест дня: цитата · притча · вывод",
     cmdLanguage: "Изменить язык 🇬🇧 🇷🇺",
-    cmdSubscribe: "Получать дайджест каждое утро в 8:00",
+    cmdSubscribe: "Получать дайджест каждое утро",
     cmdUnsubscribe: "Остановить ежедневный дайджест",
+    cmdSettings: "Настройки",
     cmdHelp: "Показать все команды",
+    onboardChooseLang: "Выберите язык для начала:",
+    onboardSubscribeOffer: "Хотите получать дайджест каждое утро? 🌿",
+    onboardSubscribeYes: "✅ Подписаться",
+    onboardSubscribeLater: "Позже",
+    settingsTitle: "⚙️ Настройки",
+    settingsLang: "🌐 Язык: Русский 🇷🇺",
+    settingsActive: "📬 Дайджест: подписан ✅",
+    settingsInactive: "📬 Дайджест: не подписан",
   },
 } as const;
 

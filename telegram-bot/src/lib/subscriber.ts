@@ -22,15 +22,15 @@ export async function ensureSubscriber(
   chatId: number,
   username: string | null,
   languageCode: string | undefined,
-): Promise<SubscriberState> {
+): Promise<SubscriberState & { isNew: boolean }> {
   const subscriber = await prisma.telegramSubscriber.findUnique({ where: { chatId: BigInt(chatId) } });
-  if (subscriber) return toState(subscriber);
+  if (subscriber) return { ...toState(subscriber), isNew: false };
 
   const language = detectLanguage(languageCode);
   await prisma.telegramSubscriber.create({
     data: { chatId: BigInt(chatId), username, active: false, language },
   });
-  return { subscribed: false, language };
+  return { subscribed: false, language, isNew: true };
 }
 
 export async function setActive(chatId: number, username: string | null, active: boolean): Promise<void> {
