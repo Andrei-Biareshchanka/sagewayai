@@ -12,9 +12,10 @@ const translations = {
       "Subscribed! You will receive a daily parable every morning at 8:00. 🌿",
     notSubscribed: "You are not subscribed.",
     unsubscribed: "Unsubscribed. You will no longer receive daily parables.",
-    dailyError: "Could not load today's parable. Please try again later.",
+    dailyError: "Could not load today's wisdom. Please try again later.",
     chooseLanguage: "Choose your language:",
     languageSet: "Language set to English 🇬🇧",
+    revealButton: "💡 Show wise conclusion",
   },
   ru: {
     welcome:
@@ -28,9 +29,10 @@ const translations = {
       "Подписка оформлена! Вы будете получать притчу каждое утро в 8:00. 🌿",
     notSubscribed: "Вы не подписаны.",
     unsubscribed: "Подписка отменена. Вы больше не будете получать притчи.",
-    dailyError: "Не удалось загрузить притчу дня. Попробуйте позже.",
+    dailyError: "Не удалось загрузить мудрость дня. Попробуйте позже.",
     chooseLanguage: "Выберите язык:",
     languageSet: "Язык изменён на русский 🇷🇺",
+    revealButton: "💡 Показать вывод",
   },
 } as const;
 
