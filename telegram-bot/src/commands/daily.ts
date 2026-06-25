@@ -1,6 +1,6 @@
-import { Context, InlineKeyboard } from 'grammy';
+import { Context } from 'grammy';
 import { fetchDailyDigest } from '../lib/digestApi';
-import { formatDigestTeaser } from '../lib/formatDigest';
+import { formatDigest } from '../lib/formatDigest';
 import { getSubscriberState } from '../lib/subscriber';
 import { Language, t } from '../lib/i18n';
 
@@ -17,10 +17,8 @@ export async function handleDaily(ctx: Context): Promise<void> {
 
   try {
     const digest = await fetchDailyDigest(language);
-    const keyboard = new InlineKeyboard().text(t(language, 'revealButton'), 'digest:reveal');
-    await ctx.reply(formatDigestTeaser(digest.quote, digest.parable), {
+    await ctx.reply(formatDigest(digest, t(language, 'revealHint')), {
       parse_mode: 'MarkdownV2',
-      reply_markup: keyboard,
     });
   } catch {
     await ctx.reply(t(language, 'dailyError'));

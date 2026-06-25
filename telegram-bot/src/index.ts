@@ -1,7 +1,6 @@
 import "dotenv/config";
 import { Bot } from "grammy";
 import { handleDaily } from "./commands/daily";
-import { handleDigestReveal } from "./commands/digestReveal";
 import {
   handleLanguageCallback,
   handleLanguageCommand,
@@ -17,15 +16,14 @@ if (!token) {
 
 const bot = new Bot(token);
 
+bot.command("digest", handleDaily);
 bot.command("start", handleStart);
 bot.command("help", handleStart);
-bot.command("daily", handleDaily);
 bot.command("subscribe", handleSubscribe);
 bot.command("unsubscribe", handleUnsubscribe);
 bot.command("language", handleLanguageCommand);
 
 bot.callbackQuery(/^lang:(en|ru)$/, handleLanguageCallback);
-bot.callbackQuery("digest:reveal", handleDigestReveal);
 
 bot.hears(/^📖/, handleDaily);
 bot.hears(/^🔔/, handleSubscribe);
@@ -38,22 +36,19 @@ bot.catch((err) => {
 scheduleDailyBroadcast(bot);
 
 bot.api.setMyCommands([
-  { command: "daily", description: "Today's parable" },
-  {
-    command: "subscribe",
-    description: "Receive a parable every morning at 8:00",
-  },
-  { command: "unsubscribe", description: "Stop daily parables" },
-  { command: "language", description: "Change language" },
+  { command: "digest", description: "Daily digest: quote · parable · reflection" },
+  { command: "subscribe", description: "Receive digest every morning at 8:00" },
+  { command: "unsubscribe", description: "Stop daily digest" },
+  { command: "language", description: "Change language 🇬🇧 🇷🇺" },
   { command: "help", description: "Show all commands" },
 ]);
 
 bot.api.setMyCommands(
   [
-    { command: "daily", description: "Притча дня" },
-    { command: "subscribe", description: "Получать притчу каждое утро в 8:00" },
-    { command: "unsubscribe", description: "Остановить ежедневные притчи" },
-    { command: "language", description: "Изменить язык" },
+    { command: "digest", description: "Дайджест дня: цитата · притча · вывод" },
+    { command: "subscribe", description: "Получать дайджест каждое утро в 8:00" },
+    { command: "unsubscribe", description: "Остановить ежедневный дайджест" },
+    { command: "language", description: "Изменить язык 🇬🇧 🇷🇺" },
     { command: "help", description: "Показать все команды" },
   ],
   { language_code: "ru" },
