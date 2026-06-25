@@ -8,7 +8,8 @@ import { getEmbeddings } from "../src/lib/voyage";
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
 const prisma = new PrismaClient({ adapter });
 
-const BATCH_SIZE = 50;
+const BATCH_SIZE = 10;
+const BATCH_DELAY_MS = 21_000;
 
 if (!process.env.VOYAGE_API_KEY) {
   process.stderr.write("VOYAGE_API_KEY is not set in .env\n");
@@ -41,6 +42,10 @@ async function embedBatch(parables: Parable[], index: number, total: number): Pr
   process.stdout.write(`Progress: ${index * BATCH_SIZE}/${total}\n`);
 }
 
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 async function main() {
   const parables = await prisma.parable.findMany({
     select: { id: true, title: true, content: true, moral: true },
@@ -49,6 +54,7 @@ async function main() {
   process.stdout.write(`Found ${parables.length} parables\n`);
 
   for (let i = 0; i < parables.length; i += BATCH_SIZE) {
+    if (i > 0) await sleep(BATCH_DELAY_MS);
     await embedBatch(parables.slice(i, i + BATCH_SIZE), Math.floor(i / BATCH_SIZE) + 1, parables.length);
   }
 
