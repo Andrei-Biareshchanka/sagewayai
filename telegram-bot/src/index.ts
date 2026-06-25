@@ -42,7 +42,7 @@ bot.api.setMyCommands([
   { command: "digest", description: "Daily digest: quote · parable · reflection" },
   { command: "settings", description: "Your settings" },
   { command: "language", description: "Change language 🇬🇧 🇷🇺" },
-  { command: "subscribe", description: "Receive daily digest every morning" },
+  { command: "subscribe", description: "Receive daily digest every day" },
   { command: "unsubscribe", description: "Stop daily digest" },
   { command: "help", description: "Show all commands" },
 ]);
@@ -52,7 +52,7 @@ bot.api.setMyCommands(
     { command: "digest", description: "Дайджест дня: цитата · притча · вывод" },
     { command: "settings", description: "Настройки" },
     { command: "language", description: "Изменить язык 🇬🇧 🇷🇺" },
-    { command: "subscribe", description: "Получать дайджест каждое утро" },
+    { command: "subscribe", description: "Получать дайджест ежедневно" },
     { command: "unsubscribe", description: "Остановить ежедневный дайджест" },
     { command: "help", description: "Показать все команды" },
   ],
