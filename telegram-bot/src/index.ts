@@ -26,8 +26,6 @@ bot.command("language", handleLanguageCommand);
 bot.callbackQuery(/^lang:(en|ru)$/, handleLanguageCallback);
 
 bot.hears(/^📖/, handleDaily);
-bot.hears(/^🔔/, handleSubscribe);
-bot.hears(/^🔕/, handleUnsubscribe);
 
 bot.catch((err) => {
   process.stderr.write(`Bot error: ${err}\n`);
@@ -37,18 +35,18 @@ scheduleDailyBroadcast(bot);
 
 bot.api.setMyCommands([
   { command: "digest", description: "Daily digest: quote · parable · reflection" },
+  { command: "language", description: "Change language 🇬🇧 🇷🇺" },
   { command: "subscribe", description: "Receive digest every morning at 8:00" },
   { command: "unsubscribe", description: "Stop daily digest" },
-  { command: "language", description: "Change language 🇬🇧 🇷🇺" },
   { command: "help", description: "Show all commands" },
 ]);
 
 bot.api.setMyCommands(
   [
     { command: "digest", description: "Дайджест дня: цитата · притча · вывод" },
+    { command: "language", description: "Изменить язык 🇬🇧 🇷🇺" },
     { command: "subscribe", description: "Получать дайджест каждое утро в 8:00" },
     { command: "unsubscribe", description: "Остановить ежедневный дайджест" },
-    { command: "language", description: "Изменить язык 🇬🇧 🇷🇺" },
     { command: "help", description: "Показать все команды" },
   ],
   { language_code: "ru" },

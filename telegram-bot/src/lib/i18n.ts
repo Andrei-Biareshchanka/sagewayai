@@ -4,8 +4,6 @@ const translations = {
   en: {
     welcome: "Welcome to SagewayAI 🌿\n\nA daily digest: quote · parable · reflection.",
     dailyButton: "📖 Daily digest",
-    subscribeButton: "🔔 Subscribe",
-    unsubscribeButton: "🔕 Unsubscribe",
     alreadySubscribed:
       "You are already subscribed. You will receive a daily digest every morning.",
     subscribed:
@@ -16,13 +14,16 @@ const translations = {
     chooseLanguage: "Choose your language:",
     languageSet: "Language set to English 🇬🇧",
     revealHint: "👆 Tap the blurred text below to reveal the wisdom",
+    cmdDigest: "Daily digest: quote · parable · reflection",
+    cmdLanguage: "Change language 🇬🇧 🇷🇺",
+    cmdSubscribe: "Receive digest every morning at 8:00",
+    cmdUnsubscribe: "Stop daily digest",
+    cmdHelp: "Show all commands",
   },
   ru: {
     welcome:
       "Добро пожаловать в SagewayAI 🌿\n\nЕжедневный дайджест: цитата · притча · вывод.",
     dailyButton: "📖 Дайджест дня",
-    subscribeButton: "🔔 Подписаться",
-    unsubscribeButton: "🔕 Отписаться",
     alreadySubscribed:
       "Вы уже подписаны. Вы будете получать дайджест каждое утро.",
     subscribed:
@@ -33,6 +34,11 @@ const translations = {
     chooseLanguage: "Выберите язык:",
     languageSet: "Язык изменён на русский 🇷🇺",
     revealHint: "👆 Нажмите на размытый текст ниже, чтобы открыть вывод",
+    cmdDigest: "Дайджест дня: цитата · притча · вывод",
+    cmdLanguage: "Изменить язык 🇬🇧 🇷🇺",
+    cmdSubscribe: "Получать дайджест каждое утро в 8:00",
+    cmdUnsubscribe: "Остановить ежедневный дайджест",
+    cmdHelp: "Показать все команды",
   },
 } as const;
 
