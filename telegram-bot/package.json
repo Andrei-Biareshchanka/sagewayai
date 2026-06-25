@@ -17,7 +17,8 @@
     "@prisma/client": "^7.6.0",
     "dotenv": "^17.4.0",
     "grammy": "^1.36.3",
-    "pg": "^8.20.0"
+    "pg": "^8.20.0",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@types/node": "^25.5.0",

@@ -1,6 +1,7 @@
 import "dotenv/config";
 import { Bot } from "grammy";
 import { handleDaily } from "./commands/daily";
+import { handleDigestReveal } from "./commands/digestReveal";
 import {
   handleLanguageCallback,
   handleLanguageCommand,
@@ -24,6 +25,7 @@ bot.command("unsubscribe", handleUnsubscribe);
 bot.command("language", handleLanguageCommand);
 
 bot.callbackQuery(/^lang:(en|ru)$/, handleLanguageCallback);
+bot.callbackQuery("digest:reveal", handleDigestReveal);
 
 bot.hears(/^📖/, handleDaily);
 bot.hears(/^🔔/, handleSubscribe);
