@@ -1,23 +1,18 @@
+import { Digest } from './digestApi';
 import { escapeMarkdown } from './markdown';
 
-type DigestQuote = { text: string; author: string };
-type DigestParable = { title: string; content: string };
-
-export function formatDigestTeaser(quote: DigestQuote, parable: DigestParable): string {
+export function formatDigest(digest: Digest, revealHint: string): string {
   return [
-    `💬 _${escapeMarkdown(quote.text)}_`,
-    `— ${escapeMarkdown(quote.author)}`,
+    `💬 _${escapeMarkdown(digest.quote.text)}_`,
+    `— ${escapeMarkdown(digest.quote.author)}`,
     '',
-    `📖 *${escapeMarkdown(parable.title)}*`,
+    `📖 *${escapeMarkdown(digest.parable.title)}*`,
     '',
-    escapeMarkdown(parable.content),
-  ].join('\n');
-}
-
-export function formatDigestReveal(conclusion: string, question: string): string {
-  return [
-    `💡 ${escapeMarkdown(conclusion)}`,
+    escapeMarkdown(digest.parable.content),
     '',
-    `❓ _${escapeMarkdown(question)}_`,
+    `_${escapeMarkdown(revealHint)}_`,
+    '',
+    `||💡 ${escapeMarkdown(digest.conclusion)}||`,
+    `||❓ ${escapeMarkdown(digest.question)}||`,
   ].join('\n');
 }

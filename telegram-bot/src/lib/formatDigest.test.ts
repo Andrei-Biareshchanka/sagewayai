@@ -1,40 +1,34 @@
 import { describe, it, expect } from 'vitest';
-import { formatDigestTeaser, formatDigestReveal } from './formatDigest';
+import { formatDigest } from './formatDigest';
 
-describe('formatDigestTeaser', () => {
-  it('formats quote and parable', () => {
-    const result = formatDigestTeaser(
-      { text: 'Difficulties strengthen the mind.', author: 'Seneca' },
-      { title: 'The Mountain Climber', content: 'A climber faced a steep ridge.' },
-    );
+const digest = {
+  date: '2026-06-25',
+  quote: { text: 'Difficulties strengthen the mind.', author: 'Seneca' },
+  parable: { title: 'The Mountain Climber', content: 'A climber faced a steep ridge.' },
+  conclusion: 'Growth comes from the climb, not the summit.',
+  question: 'What climb are you avoiding right now?',
+};
+
+describe('formatDigest', () => {
+  it('formats quote, parable and spoiler sections', () => {
+    const result = formatDigest(digest, 'Tap to reveal');
 
     expect(result).toContain('Difficulties strengthen the mind\\.');
     expect(result).toContain('— Seneca');
     expect(result).toContain('📖 *The Mountain Climber*');
     expect(result).toContain('A climber faced a steep ridge\\.');
+    expect(result).toContain('_Tap to reveal_');
+    expect(result).toContain('||💡 Growth comes from the climb, not the summit\\.||');
+    expect(result).toContain('||❓ What climb are you avoiding right now?||');
   });
 
   it('escapes markdown special characters', () => {
-    const result = formatDigestTeaser(
-      { text: 'Quote (with) special.chars!', author: 'Author' },
-      { title: 'Title.', content: 'Content!' },
+    const result = formatDigest(
+      { ...digest, parable: { title: 'Title.', content: 'Content (with) special!' } },
+      'Hint',
     );
 
-    expect(result).toContain('\\(with\\)');
-    expect(result).toContain('special\\.chars\\!');
     expect(result).toContain('Title\\.');
-    expect(result).toContain('Content\\!');
-  });
-});
-
-describe('formatDigestReveal', () => {
-  it('formats conclusion and question', () => {
-    const result = formatDigestReveal(
-      'Growth comes from the climb, not the summit.',
-      'What climb are you avoiding right now?',
-    );
-
-    expect(result).toContain('💡 Growth comes from the climb, not the summit\\.');
-    expect(result).toContain('❓ _What climb are you avoiding right now?_');
+    expect(result).toContain('Content \\(with\\) special\\!');
   });
 });
