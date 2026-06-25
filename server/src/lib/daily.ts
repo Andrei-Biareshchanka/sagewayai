@@ -3,7 +3,7 @@ import { prisma } from "./prisma";
 
 const UNIQUE_CONSTRAINT_ERROR = "P2002";
 
-function getTodayDate(): Date {
+export function getTodayDate(): Date {
   return new Date(new Date().toISOString().split("T")[0] as string);
 }
 
