@@ -17,7 +17,12 @@ export async function handleDaily(ctx: Context): Promise<void> {
 
   try {
     const digest = await fetchDailyDigest(language);
-    await ctx.reply(formatDigest(digest, t(language, 'revealHint')), {
+    const labels = {
+      revealHint: t(language, 'revealHint'),
+      labelReflection: t(language, 'labelReflection'),
+      labelQuestion: t(language, 'labelQuestion'),
+    };
+    await ctx.reply(formatDigest(digest, labels), {
       parse_mode: 'MarkdownV2',
     });
   } catch {

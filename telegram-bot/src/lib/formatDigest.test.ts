@@ -9,23 +9,38 @@ const digest = {
   question: 'What climb are you avoiding right now?',
 };
 
+const labels = {
+  revealHint: 'Tap to reveal',
+  labelReflection: '💡 Reflection',
+  labelQuestion: '❓ Question',
+};
+
 describe('formatDigest', () => {
-  it('formats quote, parable and spoiler sections', () => {
-    const result = formatDigest(digest, 'Tap to reveal');
+  it('formats quote, parable, hidden reflection and visible question', () => {
+    const result = formatDigest(digest, labels);
 
     expect(result).toContain('Difficulties strengthen the mind\\.');
     expect(result).toContain('— Seneca');
     expect(result).toContain('📖 *The Mountain Climber*');
     expect(result).toContain('A climber faced a steep ridge\\.');
     expect(result).toContain('_Tap to reveal_');
-    expect(result).toContain('||💡 Growth comes from the climb, not the summit\\.||');
-    expect(result).toContain('||❓ What climb are you avoiding right now?||');
+    expect(result).toContain('*💡 Reflection*');
+    expect(result).toContain('||Growth comes from the climb, not the summit\\.||');
+    expect(result).toContain('*❓ Question*');
+    expect(result).toContain('What climb are you avoiding right now?');
+  });
+
+  it('question is not wrapped in spoiler tags', () => {
+    const result = formatDigest(digest, labels);
+
+    expect(result).not.toContain('||❓');
+    expect(result).not.toContain('right now?||');
   });
 
   it('escapes markdown special characters', () => {
     const result = formatDigest(
       { ...digest, parable: { title: 'Title.', content: 'Content (with) special!' } },
-      'Hint',
+      labels,
     );
 
     expect(result).toContain('Title\\.');

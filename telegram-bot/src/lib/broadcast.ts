@@ -25,7 +25,12 @@ export async function broadcastDailyParable(bot: Bot): Promise<void> {
     const digest = await getDigestCached(digestCache, language);
 
     try {
-      await bot.api.sendMessage(Number(subscriber.chatId), formatDigest(digest, t(language, 'revealHint')), {
+      const labels = {
+        revealHint: t(language, 'revealHint'),
+        labelReflection: t(language, 'labelReflection'),
+        labelQuestion: t(language, 'labelQuestion'),
+      };
+      await bot.api.sendMessage(Number(subscriber.chatId), formatDigest(digest, labels), {
         parse_mode: 'MarkdownV2',
       });
     } catch {

@@ -1,7 +1,13 @@
 import { Digest } from './digestApi';
 import { escapeMarkdown } from './markdown';
 
-export function formatDigest(digest: Digest, revealHint: string): string {
+export interface DigestLabels {
+  revealHint: string;
+  labelReflection: string;
+  labelQuestion: string;
+}
+
+export function formatDigest(digest: Digest, labels: DigestLabels): string {
   return [
     `💬 _${escapeMarkdown(digest.quote.text)}_`,
     `— ${escapeMarkdown(digest.quote.author)}`,
@@ -10,9 +16,12 @@ export function formatDigest(digest: Digest, revealHint: string): string {
     '',
     escapeMarkdown(digest.parable.content),
     '',
-    `_${escapeMarkdown(revealHint)}_`,
+    `_${escapeMarkdown(labels.revealHint)}_`,
     '',
-    `||💡 ${escapeMarkdown(digest.conclusion)}||`,
-    `||❓ ${escapeMarkdown(digest.question)}||`,
+    `*${escapeMarkdown(labels.labelReflection)}*`,
+    `||${escapeMarkdown(digest.conclusion)}||`,
+    '',
+    `*${escapeMarkdown(labels.labelQuestion)}*`,
+    escapeMarkdown(digest.question),
   ].join('\n');
 }
