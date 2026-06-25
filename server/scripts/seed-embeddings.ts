@@ -2,14 +2,15 @@ import * as dotenv from "dotenv";
 dotenv.config();
 
 import { PrismaClient } from "@prisma/client";
+import { PrismaPg } from "@prisma/adapter-pg";
+import { getEmbeddings } from "../src/lib/voyage";
 
-const prisma = new PrismaClient();
+const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
+const prisma = new PrismaClient({ adapter });
 
-const VOYAGE_API_KEY = process.env.VOYAGE_API_KEY;
-const MODEL = "voyage-3";
 const BATCH_SIZE = 50;
 
-if (!VOYAGE_API_KEY) {
+if (!process.env.VOYAGE_API_KEY) {
   process.stderr.write("VOYAGE_API_KEY is not set in .env\n");
   process.exit(1);
 }
@@ -18,25 +19,6 @@ type Parable = { id: string; title: string; content: string; moral: string };
 
 function buildEmbeddingText(parable: Parable): string {
   return `${parable.title}. ${parable.content} ${parable.moral}`;
-}
-
-async function fetchEmbeddings(texts: string[]): Promise<number[][]> {
-  const response = await fetch("https://api.voyageai.com/v1/embeddings", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${VOYAGE_API_KEY}`,
-    },
-    body: JSON.stringify({ input: texts, model: MODEL, input_type: "document" }),
-  });
-
-  if (!response.ok) {
-    const error = await response.text();
-    throw new Error(`Voyage AI API error ${response.status}: ${error}`);
-  }
-
-  const data = (await response.json()) as { data: { embedding: number[] }[] };
-  return data.data.map((item) => item.embedding);
 }
 
 async function saveBatch(parables: Parable[], embeddings: number[][]): Promise<void> {
@@ -54,7 +36,7 @@ async function saveBatch(parables: Parable[], embeddings: number[][]): Promise<v
 
 async function embedBatch(parables: Parable[], index: number, total: number): Promise<void> {
   process.stdout.write(`Batch ${index}: embedding ${parables.length} parables...\n`);
-  const embeddings = await fetchEmbeddings(parables.map(buildEmbeddingText));
+  const embeddings = await getEmbeddings(parables.map(buildEmbeddingText), "document");
   await saveBatch(parables, embeddings);
   process.stdout.write(`Progress: ${index * BATCH_SIZE}/${total}\n`);
 }

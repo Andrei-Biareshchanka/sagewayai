@@ -28,6 +28,20 @@ model Parable {
   @@index([categoryId])
 }
 
+model Quote {
+  id        String   @id @default(cuid())
+  text      String   @db.Text
+  textRu    String?  @db.Text
+  author    String
+  authorRu  String?
+  theme     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  embedding Unsupported("vector(1024)")?
+
+  @@unique([text, author])
+}
+
 model Category {
   id            String    @id @default(cuid())
   name          String
