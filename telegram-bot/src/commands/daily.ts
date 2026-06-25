@@ -25,7 +25,7 @@ export async function handleDaily(ctx: Context): Promise<void> {
     };
     await ctx.reply(formatDigest(digest, labels), {
       parse_mode: 'MarkdownV2',
-      reply_markup: buildShareKeyboard(language),
+      reply_markup: buildShareKeyboard(language, digest.quote),
     });
   } catch {
     await ctx.reply(t(language, 'dailyError'));

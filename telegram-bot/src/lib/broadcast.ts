@@ -33,7 +33,7 @@ export async function broadcastDailyParable(bot: Bot): Promise<void> {
       };
       await bot.api.sendMessage(Number(subscriber.chatId), formatDigest(digest, labels), {
         parse_mode: 'MarkdownV2',
-        reply_markup: buildShareKeyboard(language),
+        reply_markup: buildShareKeyboard(language, digest.quote),
       });
     } catch {
       await prisma.telegramSubscriber.update({
