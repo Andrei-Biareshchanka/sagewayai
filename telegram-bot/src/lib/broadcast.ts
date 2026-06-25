@@ -2,6 +2,7 @@ import { Bot } from 'grammy';
 import { prisma } from './prisma';
 import { Digest, fetchDailyDigest } from './digestApi';
 import { formatDigest } from './formatDigest';
+import { buildShareKeyboard } from './keyboard';
 import { isSupportedLanguage, Language, t } from './i18n';
 
 async function getDigestCached(cache: Map<Language, Digest>, language: Language): Promise<Digest> {
@@ -32,6 +33,7 @@ export async function broadcastDailyParable(bot: Bot): Promise<void> {
       };
       await bot.api.sendMessage(Number(subscriber.chatId), formatDigest(digest, labels), {
         parse_mode: 'MarkdownV2',
+        reply_markup: buildShareKeyboard(language),
       });
     } catch {
       await prisma.telegramSubscriber.update({

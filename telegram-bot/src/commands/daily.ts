@@ -1,6 +1,7 @@
 import { Context } from 'grammy';
 import { fetchDailyDigest } from '../lib/digestApi';
 import { formatDigest } from '../lib/formatDigest';
+import { buildShareKeyboard } from '../lib/keyboard';
 import { getSubscriberState } from '../lib/subscriber';
 import { Language, t } from '../lib/i18n';
 
@@ -24,6 +25,7 @@ export async function handleDaily(ctx: Context): Promise<void> {
     };
     await ctx.reply(formatDigest(digest, labels), {
       parse_mode: 'MarkdownV2',
+      reply_markup: buildShareKeyboard(language),
     });
   } catch {
     await ctx.reply(t(language, 'dailyError'));

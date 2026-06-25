@@ -10,6 +10,7 @@ import { handleSettings } from "./commands/settings";
 import { handleStart } from "./commands/start";
 import { handleSubscribe, handleUnsubscribe } from "./commands/subscribe";
 import { broadcastDailyParable } from "./lib/broadcast";
+import { setBotUsername } from "./lib/botInfo";
 
 const token = process.env["TELEGRAM_BOT_TOKEN"];
 if (!token) {
@@ -59,8 +60,11 @@ bot.api.setMyCommands(
   { language_code: "ru" },
 );
 
-bot.start();
-process.stdout.write("SagewayAI bot is running...\n");
+bot.init().then(() => {
+  setBotUsername(bot.botInfo.username);
+  bot.start();
+  process.stdout.write("SagewayAI bot is running...\n");
+});
 
 function scheduleDailyBroadcast(bot: Bot): void {
   const now = new Date();
