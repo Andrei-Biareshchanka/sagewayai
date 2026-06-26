@@ -35,6 +35,13 @@ const translations = {
     settingsLang: "🌐 Language: English 🇬🇧",
     settingsActive: "📬 Daily digest: active ✅",
     settingsInactive: "📬 Daily digest: not subscribed",
+    situationButton: "🎯 By situation",
+    situationPrompt: "Describe your situation — I'll find a quote, parable and reflection that fits it.\n\nType it and press Send 👆\n\n_(1 request per day, up to 800 characters)_",
+    situationLoading: "Searching for wisdom for your situation...",
+    situationError: "Could not find wisdom for your situation. Please try again later.",
+    situationRateLimitPrefix: "⏳ Next request available in",
+    situationTooShort: "Too short ({current} chars). Write at least {min} characters.",
+    situationTooLong: "Too long ({current} chars). Shorten to {max} characters or less.",
   },
   ru: {
     welcome:
@@ -71,6 +78,13 @@ const translations = {
     settingsLang: "🌐 Язык: Русский 🇷🇺",
     settingsActive: "📬 Дайджест: подписан ✅",
     settingsInactive: "📬 Дайджест: не подписан",
+    situationButton: "🎯 По ситуации",
+    situationPrompt: "Опиши свою ситуацию — я найду цитату, притчу и вывод, которые подойдут именно к ней.\n\nНапечатай и нажми Отправить 👆\n\n_(1 запрос в день, до 800 символов)_",
+    situationLoading: "Ищу мудрость для твоей ситуации...",
+    situationError: "Не удалось найти мудрость для твоей ситуации. Попробуй позже.",
+    situationRateLimitPrefix: "⏳ Следующий запрос будет доступен через",
+    situationTooShort: "Слишком коротко ({current} симв.). Напиши хотя бы {min} символов.",
+    situationTooLong: "Слишком длинно ({current} симв.). Сократи до {max} символов.",
   },
 } as const;
 
