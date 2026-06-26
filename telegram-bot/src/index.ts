@@ -6,6 +6,7 @@ import {
   handleLanguageCommand,
 } from "./commands/language";
 import { handleOnboardLang, handleOnboardSub } from "./commands/onboarding";
+import { handleHelp } from "./commands/help";
 import { handleSettings } from "./commands/settings";
 import { handleStats } from "./commands/stats";
 import { handleStart } from "./commands/start";
@@ -22,7 +23,7 @@ const bot = new Bot(token);
 
 bot.command("digest", handleDaily);
 bot.command("start", handleStart);
-bot.command("help", handleStart);
+bot.command("help", handleHelp);
 bot.command("settings", handleSettings);
 bot.command("stats", handleStats);
 bot.command("subscribe", handleSubscribe);
