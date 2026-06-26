@@ -42,7 +42,7 @@ export async function handleSituationButton(ctx: Context): Promise<void> {
   }
 
   waitingForSituation.set(chatId, true);
-  await ctx.reply(t(language, 'situationPrompt'), { parse_mode: 'MarkdownV2' });
+  await ctx.reply(t(language, 'situationPrompt'));
 }
 
 export function isWaitingForSituation(chatId: number): boolean {
