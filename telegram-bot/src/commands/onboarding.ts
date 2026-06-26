@@ -41,7 +41,10 @@ export async function handleOnboardSub(ctx: Context): Promise<void> {
   if (action === 'yes') {
     await setActive(chatId, ctx.from?.username ?? null, true);
     await Promise.all([
-      ctx.reply(t(language, 'subscribed'), { reply_markup: buildKeyboard(language) }),
+      ctx.reply(t(language, 'onboardDone'), {
+        parse_mode: 'MarkdownV2',
+        reply_markup: buildKeyboard(language),
+      }),
       syncUserCommands(ctx, true, language),
     ]);
 
@@ -58,7 +61,10 @@ export async function handleOnboardSub(ctx: Context): Promise<void> {
     }
   } else {
     await Promise.all([
-      ctx.reply(t(language, 'welcome'), { reply_markup: buildKeyboard(language) }),
+      ctx.reply(t(language, 'onboardLater'), {
+        parse_mode: 'MarkdownV2',
+        reply_markup: buildKeyboard(language),
+      }),
       syncUserCommands(ctx, false, language),
     ]);
   }
