@@ -1,6 +1,7 @@
 import "dotenv/config";
 import { Bot } from "grammy";
 import { handleDaily } from "./commands/daily";
+import { handleSituationButton, handleSituationText, isWaitingForSituation } from "./commands/situation";
 import {
   handleLanguageCallback,
   handleLanguageCommand,
@@ -35,6 +36,16 @@ bot.callbackQuery(/^onboard_lang:(en|ru)$/, handleOnboardLang);
 bot.callbackQuery(/^onboard_sub:(yes|skip)$/, handleOnboardSub);
 
 bot.hears(/^📖/, handleDaily);
+bot.hears(/^🎯/, handleSituationButton);
+
+bot.on('message:text', async (ctx, next) => {
+  const chatId = ctx.chat?.id;
+  if (chatId && isWaitingForSituation(chatId)) {
+    await handleSituationText(ctx);
+    return;
+  }
+  return next();
+});
 
 bot.catch((err) => {
   process.stderr.write(`Bot error: ${err}\n`);

@@ -48,3 +48,18 @@ export async function setLanguage(chatId: number, username: string | null, langu
     update: { language },
   });
 }
+
+export async function getSituationUsedAt(chatId: number): Promise<Date | null> {
+  const row = await prisma.telegramSubscriber.findUnique({
+    where: { chatId: BigInt(chatId) },
+    select: { situationUsedAt: true },
+  });
+  return row?.situationUsedAt ?? null;
+}
+
+export async function setSituationUsedAt(chatId: number): Promise<void> {
+  await prisma.telegramSubscriber.update({
+    where: { chatId: BigInt(chatId) },
+    data: { situationUsedAt: new Date() },
+  });
+}

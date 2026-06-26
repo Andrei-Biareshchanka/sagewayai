@@ -122,10 +122,11 @@ model Favorite {
 }
 
 model TelegramSubscriber {
-  id        String   @id @default(cuid())
-  chatId    BigInt   @unique
-  username  String?
-  active    Boolean  @default(true)
-  language  String   @default("en")
-  createdAt DateTime @default(now())
+  id               String    @id @default(cuid())
+  chatId           BigInt    @unique
+  username         String?
+  active           Boolean   @default(true)
+  language         String    @default("en")
+  situationUsedAt  DateTime?
+  createdAt        DateTime  @default(now())
 }

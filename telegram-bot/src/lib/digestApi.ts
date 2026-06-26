@@ -31,3 +31,22 @@ export async function fetchDailyDigest(language: Language): Promise<Digest> {
   }
   return result.data;
 }
+
+const situationDigestSchema = digestSchema.omit({ date: true });
+
+export async function fetchSituationDigest(situation: string, language: Language): Promise<Digest> {
+  const response = await fetch(`${API_URL}/api/digest/situation`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ situation, lang: language }),
+  });
+  if (!response.ok) {
+    throw new Error(`Situation API error ${response.status}`);
+  }
+
+  const result = situationDigestSchema.safeParse(await response.json());
+  if (!result.success) {
+    throw new Error(`Invalid situation digest response: ${result.error.issues[0]?.message}`);
+  }
+  return { ...result.data, date: new Date().toISOString() };
+}

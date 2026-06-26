@@ -4,7 +4,11 @@ import { Language, t } from './i18n';
 import { getBotUsername } from './botInfo';
 
 export function buildKeyboard(language: Language): Keyboard {
-  return new Keyboard().text(t(language, 'dailyButton')).resized().persistent();
+  return new Keyboard()
+    .text(t(language, 'dailyButton'))
+    .text(t(language, 'situationButton'))
+    .resized()
+    .persistent();
 }
 
 export function buildShareKeyboard(language: Language, digest: Digest): InlineKeyboard {
