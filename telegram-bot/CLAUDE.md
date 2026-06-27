@@ -16,14 +16,14 @@ telegram-bot/          ← this project (grammY, polling mode)
     ↕ HTTP
 server/ (port 3001)    ← Express + Prisma backend
     ↕
-PostgreSQL             ← shared DB: DailyDigest, Quote, Parable, TelegramSubscriber
+PostgreSQL             ← shared DB: DailyDigest, Quote, Parable, TelegramSubscriber, BotEvent
     +
 pgvector               ← cosine similarity for quote→parable matching
     +
 Claude Sonnet 4.6      ← generates reflection + question (once/day, cached in DB)
 ```
 
-**Deploy:** Railway (polling mode, not webhook)
+**Deploy:** Railway (polling mode, not webhook). On each deploy `prisma db push` runs automatically before the bot starts.
 
 ## Key files
 
@@ -31,16 +31,17 @@ Claude Sonnet 4.6      ← generates reflection + question (once/day, cached in 
 |---|---|
 | `src/index.ts` | Bot entry point — registers commands, callbacks, starts polling |
 | `src/commands/daily.ts` | `/digest` command handler |
-| `src/commands/start.ts` | `/start` — onboarding vs returning user |
+| `src/commands/start.ts` | `/start` — onboarding vs returning user, referral parsing |
 | `src/commands/onboarding.ts` | New user flow: language → subscribe offer → first digest |
 | `src/commands/subscribe.ts` | `/subscribe` and `/unsubscribe` handlers |
-| `src/commands/settings.ts` | `/settings` — show language + subscription status |
-| `src/commands/stats.ts` | `/stats` — admin-only subscriber analytics |
+| `src/commands/settings.ts` | `/settings` — language, subscription status, referral count |
+| `src/commands/stats.ts` | `/stats` — admin-only analytics dashboard |
 | `src/commands/situation.ts` | "🎯 For my situation" button — rate-limit check, prompt, text handler |
+| `src/lib/analytics.ts` | `trackEvent()` — fire-and-forget event tracking to BotEvent table |
 | `src/lib/digestApi.ts` | HTTP client to `GET /api/digest/daily?lang=` and `POST /api/digest/situation` |
 | `src/lib/formatDigest.ts` | Formats digest as MarkdownV2 with spoiler on reflection |
 | `src/lib/broadcast.ts` | Daily broadcast to all active subscribers |
-| `src/lib/keyboard.ts` | Reply keyboard + share inline keyboard |
+| `src/lib/keyboard.ts` | Reply keyboard + share inline keyboard (with referral link) |
 | `src/lib/syncCommands.ts` | Per-user dynamic slash menu via `setMyCommands` |
 | `src/lib/i18n.ts` | All EN/RU strings — single source of truth |
 | `src/lib/botInfo.ts` | Stores bot username after `bot.init()` |
@@ -52,19 +53,19 @@ Claude Sonnet 4.6      ← generates reflection + question (once/day, cached in 
 | Command | Visibility | What it does |
 |---|---|---|
 | `/digest` | Public | Daily digest with share button |
-| `/settings` | Public | Shows language and subscription status |
+| `/settings` | Public | Shows language, subscription status, referral count |
 | `/language` | Public | Change language EN/RU |
 | `/subscribe` | Public | Subscribe to daily digest |
 | `/unsubscribe` | Public | Unsubscribe |
 | `/help` | Public | Shows all commands |
-| `/stats` | Admin only | Subscriber analytics (requires `ADMIN_CHAT_ID` env) |
+| `/stats` | Admin only | Full analytics dashboard (requires `ADMIN_CHAT_ID` env) |
 
 ## Keyboard buttons
 
 | Button | What it does |
 |---|---|
 | 📖 Daily digest / Дайджест дня | Same as `/digest` |
-| 🎯 For my situation / Под мою ситуацию | Prompts user to describe their situation, then returns a digest tailored to it via `POST /api/digest/situation`. Rate-limited to 1 request per 24h per user. |
+| 🎯 For my situation / Под мою ситуацию | Prompts user to describe their situation (with examples), returns a digest tailored to it via `POST /api/digest/situation`. Rate-limited to 1 request per 24h per user. |
 
 ## Digest format (MarkdownV2)
 
@@ -89,7 +90,60 @@ visible question
 
 - Reflection is hidden with Telegram spoiler tags (`||text||`)
 - Question is always visible
-- Share button includes quote + parable + question (no reflection) + bot link
+- Share button includes quote + parable + question (no reflection) + referral bot link
+
+## Analytics
+
+All events are tracked in the `BotEvent` table via `trackEvent()` in `src/lib/analytics.ts`. Always fire-and-forget — never blocks the main flow.
+
+### Event types (`BotEventType`)
+
+| Event | Trigger | Meta |
+|---|---|---|
+| `start` | New user ran `/start` | `{ source: 'organic' \| 'referral' \| string }` |
+| `digest_opened` | User received a digest (command or broadcast) | — |
+| `situation_used` | Tapped "🎯 For my situation" button | — |
+| `situation_result` | Received situation digest successfully | — |
+| `subscribe` | Subscribed via `/subscribe` or onboarding | — |
+| `unsubscribe` | Unsubscribed via `/unsubscribe` | — |
+| `language_changed` | Changed language | `{ from: string, to: string }` |
+| `referral` | Credited to referrer when new user joins via their share link | `{ newUserId: string }` |
+
+### Referral system
+
+Share button embeds `?start=ref_{chatId}` in the bot link. When a new user opens the bot via that link, `/start ref_{chatId}` is sent — the bot stores `referredBy` on the new subscriber and fires a `referral` event crediting the original sharer. Users see their referral count in `/settings`.
+
+### /stats dashboard (admin only)
+
+```
+📊 Bot stats
+
+👥 Total: N
+✅ Active: N
+❌ Inactive: N
+🆕 New this week: N
+
+🌐 By language:
+  EN: N
+  RU: N
+
+📊 Activity (last 7 days):
+  — digests opened: N
+  — situation searches: N
+  — new subscriptions: N
+  — unsubscriptions: N
+
+🔄 Retention:
+  — D1: N%
+  — D7: N%
+
+📥 New user sources (this week):
+  — organic: N
+  — referral: N
+```
+
+**D1** — users who started yesterday, active today.
+**D7** — users who started 7 days ago, active in the last 7 days.
 
 ## i18n
 
@@ -117,19 +171,20 @@ Runs daily at 8:00 server time via `setTimeout` + `setInterval` in `src/index.ts
 ## What's been built (as of 2026-06-27)
 
 - [x] Daily digest: quote + parable + spoiler reflection + visible question
-- [x] Onboarding flow: language → subscribe offer → first digest
-- [x] `/settings` command
-- [x] Subscribe/unsubscribe via slash commands only (not keyboard buttons)
+- [x] Onboarding flow: language → subscribe offer → first digest + situation button hint
+- [x] `/settings` command with referral count
+- [x] Subscribe/unsubscribe via slash commands
 - [x] Dynamic per-user slash menu
-- [x] Share button with digest preview (quote + parable + question)
+- [x] Share button with referral link (`?start=ref_{chatId}`)
 - [x] EN/RU bilingual — all content and UI
-- [x] `/stats` admin command
+- [x] `/stats` admin dashboard — subscribers, activity, retention, sources
 - [x] Daily broadcast to all active subscribers
 - [x] "🎯 For my situation" button — situation-based digest, rate-limited 1/day
+- [x] Event tracking — BotEvent table, 8 event types, fire-and-forget
+- [x] Referral system — share link → referredBy stored → credited in /stats and /settings
 
 ## Potential next features
 
-- Referral tracking (`?start=ref_{userId}` in share link)
 - Digest reactions (❤️ 💡 🙏) — needs `DigestReaction` table
 - Timezone preferences for broadcast delivery
 - Category preferences — filter parable categories
