@@ -11,7 +11,7 @@ export function buildKeyboard(language: Language): Keyboard {
     .persistent();
 }
 
-export function buildShareKeyboard(language: Language, digest: Digest): InlineKeyboard {
+export function buildShareKeyboard(language: Language, digest: Digest, chatId?: number): InlineKeyboard {
   const shareText = [
     `💬 "${digest.quote.text}"`,
     `— ${digest.quote.author}`,
@@ -24,7 +24,10 @@ export function buildShareKeyboard(language: Language, digest: Digest): InlineKe
     t(language, 'shareTagline'),
   ].join('\n');
 
-  const url = encodeURIComponent(`https://t.me/${getBotUsername()}`);
+  const botLink = chatId
+    ? `https://t.me/${getBotUsername()}?start=ref_${chatId}`
+    : `https://t.me/${getBotUsername()}`;
+  const url = encodeURIComponent(botLink);
   const text = encodeURIComponent(shareText);
   const shareUrl = `https://t.me/share/url?url=${url}&text=${text}`;
   return new InlineKeyboard().url(t(language, 'shareButton'), shareUrl);

@@ -4,6 +4,7 @@ import { Digest, fetchDailyDigest } from './digestApi';
 import { formatDigest } from './formatDigest';
 import { buildShareKeyboard } from './keyboard';
 import { isSupportedLanguage, Language, t } from './i18n';
+import { trackEvent } from './analytics';
 
 async function getDigestCached(cache: Map<Language, Digest>, language: Language): Promise<Digest> {
   const cached = cache.get(language);
@@ -24,6 +25,7 @@ export async function broadcastDailyParable(bot: Bot): Promise<void> {
   for (const subscriber of subscribers) {
     const language = isSupportedLanguage(subscriber.language) ? subscriber.language : 'en';
     const digest = await getDigestCached(digestCache, language);
+    const chatIdNumber = Number(subscriber.chatId);
 
     try {
       const labels = {
@@ -31,10 +33,11 @@ export async function broadcastDailyParable(bot: Bot): Promise<void> {
         labelReflection: t(language, 'labelReflection'),
         labelQuestion: t(language, 'labelQuestion'),
       };
-      await bot.api.sendMessage(Number(subscriber.chatId), formatDigest(digest, labels), {
+      await bot.api.sendMessage(chatIdNumber, formatDigest(digest, labels), {
         parse_mode: 'MarkdownV2',
-        reply_markup: buildShareKeyboard(language, digest),
+        reply_markup: buildShareKeyboard(language, digest, chatIdNumber),
       });
+      trackEvent(subscriber.chatId, 'digest_opened');
     } catch {
       await prisma.telegramSubscriber.update({
         where: { id: subscriber.id },

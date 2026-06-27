@@ -4,6 +4,7 @@ import { formatDigest } from '../lib/formatDigest';
 import { buildShareKeyboard } from '../lib/keyboard';
 import { getSubscriberState } from '../lib/subscriber';
 import { Language, t } from '../lib/i18n';
+import { trackEvent } from '../lib/analytics';
 
 async function resolveLanguage(ctx: Context): Promise<Language> {
   const chatId = ctx.chat?.id;
@@ -13,6 +14,7 @@ async function resolveLanguage(ctx: Context): Promise<Language> {
 }
 
 export async function handleDaily(ctx: Context): Promise<void> {
+  const chatId = ctx.chat?.id;
   await ctx.replyWithChatAction('typing');
   const language = await resolveLanguage(ctx);
 
@@ -25,8 +27,9 @@ export async function handleDaily(ctx: Context): Promise<void> {
     };
     await ctx.reply(formatDigest(digest, labels), {
       parse_mode: 'MarkdownV2',
-      reply_markup: buildShareKeyboard(language, digest),
+      reply_markup: buildShareKeyboard(language, digest, chatId),
     });
+    if (chatId) trackEvent(BigInt(chatId), 'digest_opened');
   } catch {
     await ctx.reply(t(language, 'dailyError'));
   }
