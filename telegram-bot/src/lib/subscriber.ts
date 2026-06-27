@@ -63,3 +63,14 @@ export async function setSituationUsedAt(chatId: number): Promise<void> {
     data: { situationUsedAt: new Date() },
   });
 }
+
+export async function setReferredBy(chatId: number, referrerId: bigint): Promise<void> {
+  await prisma.telegramSubscriber.update({
+    where: { chatId: BigInt(chatId) },
+    data: { referredBy: referrerId },
+  });
+}
+
+export async function getReferralCount(chatId: number): Promise<number> {
+  return prisma.telegramSubscriber.count({ where: { referredBy: BigInt(chatId) } });
+}

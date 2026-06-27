@@ -4,6 +4,7 @@ import { fetchSituationDigest } from '../lib/digestApi';
 import { formatDigest } from '../lib/formatDigest';
 import { t } from '../lib/i18n';
 import { getSubscriberState, getSituationUsedAt, setSituationUsedAt } from '../lib/subscriber';
+import { trackEvent } from '../lib/analytics';
 
 const RATE_LIMIT_MS = 24 * 60 * 60 * 1000;
 const MIN_LENGTH = 20;
@@ -42,6 +43,7 @@ export async function handleSituationButton(ctx: Context): Promise<void> {
   }
 
   waitingForSituation.set(chatId, true);
+  trackEvent(BigInt(chatId), 'situation_used');
   await ctx.reply(t(language, 'situationPrompt'));
 }
 
@@ -79,6 +81,7 @@ export async function handleSituationText(ctx: Context): Promise<void> {
     await ctx.api.sendChatAction(chatId, 'typing');
     const digest = await fetchSituationDigest(text, language);
     await setSituationUsedAt(chatId);
+    trackEvent(BigInt(chatId), 'situation_result');
 
     const labels = {
       revealHint: t(language, 'revealHint'),
@@ -89,7 +92,7 @@ export async function handleSituationText(ctx: Context): Promise<void> {
     await ctx.api.deleteMessage(chatId, loadingMsg.message_id);
     await ctx.reply(formatDigest(digest, labels), {
       parse_mode: 'MarkdownV2',
-      reply_markup: buildShareKeyboard(language, digest),
+      reply_markup: buildShareKeyboard(language, digest, chatId),
     });
   } catch {
     await ctx.api.deleteMessage(chatId, loadingMsg.message_id);
