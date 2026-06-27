@@ -32,6 +32,14 @@
           {
             "type": "agent",
             "if": "Bash(git commit*)",
+            "statusMessage": "claude-md-check: checking if CLAUDE.md needs updating...",
+            "timeout": 30,
+            "allowedTools": ["Bash"],
+            "prompt": "Before this git commit runs, quickly check if CLAUDE.md needs updating.\n\nIMPORTANT: If Bash tools are unavailable, immediately output: {\"continue\": true, \"hookSpecificOutput\": {\"hookEventName\": \"PreToolUse\", \"additionalContext\": \"claude-md-check: skipped (tools unavailable)\"}}\n\n1. Run: git diff --cached --name-only\n   Save the list of staged files.\n\n2. Check if any of these significant file patterns are staged:\n   - telegram-bot/src/commands/*.ts (new or modified command)\n   - telegram-bot/src/lib/*.ts (new or modified lib)\n   - telegram-bot/prisma/schema.prisma (schema change)\n   - server/src/routes/*.ts (new or modified route)\n   - server/prisma/schema.prisma (schema change)\n   - Any new file added (git diff --cached --diff-filter=A)\n\n3. If significant files ARE staged but NO CLAUDE.md file is staged:\n   - Determine which CLAUDE.md is relevant (telegram-bot/CLAUDE.md or server/CLAUDE.md or root CLAUDE.md)\n   - Output ONLY: {\"continue\": true, \"hookSpecificOutput\": {\"hookEventName\": \"PreToolUse\", \"additionalContext\": \"claude-md-check: CLAUDE.md was not updated — consider updating it if this change adds/removes features, commands, env vars, or files\"}}\n\n4. If CLAUDE.md is staged OR no significant files changed:\n   - Output ONLY: {\"continue\": true, \"hookSpecificOutput\": {\"hookEventName\": \"PreToolUse\", \"additionalContext\": \"claude-md-check: ok\"}}"
+          },
+          {
+            "type": "agent",
+            "if": "Bash(git commit*)",
             "statusMessage": "sagewayai-reviewer: checking staged changes...",
             "timeout": 120,
             "allowedTools": ["Bash", "Read"],
@@ -42,6 +50,14 @@
       {
         "matcher": "Bash",
         "hooks": [
+          {
+            "type": "agent",
+            "if": "Bash(gh pr create*)",
+            "statusMessage": "claude-md-check: verifying CLAUDE.md is up to date...",
+            "timeout": 60,
+            "allowedTools": ["Bash", "Read"],
+            "prompt": "Before this PR is created, verify that the relevant CLAUDE.md files reflect the changes on this branch.\n\nIMPORTANT: If tools are unavailable, immediately output: {\"continue\": true, \"hookSpecificOutput\": {\"hookEventName\": \"PreToolUse\", \"additionalContext\": \"claude-md-check: skipped (tools unavailable)\"}}\n\n1. Run: git diff main...HEAD --name-only\n   Identify which areas changed:\n   - telegram-bot/src/commands/ → commands or keyboard buttons\n   - telegram-bot/src/lib/ → lib helpers\n   - telegram-bot/prisma/schema.prisma → DB models\n   - telegram-bot/Dockerfile or package.json → deploy or stack\n   - server/src/routes/ → API endpoints\n   - server/prisma/schema.prisma → DB models\n\n2. If no significant files changed (only tests, config, i18n strings, minor fixes) — output ONLY:\n   {\"continue\": true, \"hookSpecificOutput\": {\"hookEventName\": \"PreToolUse\", \"additionalContext\": \"claude-md-check: no CLAUDE.md update needed\"}}\n\n3. If significant files changed:\n   a. Read the relevant CLAUDE.md (telegram-bot/CLAUDE.md and/or server/CLAUDE.md)\n   b. Check if CLAUDE.md was also modified in this branch: look for CLAUDE.md in the file list from step 1\n   c. If CLAUDE.md was updated — verify it mentions the new files, commands, models, or env vars from the diff\n   d. Build a list of specific things that appear missing or outdated\n\n4. If CLAUDE.md is missing or incomplete:\n   Output ONLY: {\"continue\": true, \"hookSpecificOutput\": {\"hookEventName\": \"PreToolUse\", \"additionalContext\": \"claude-md-check: CLAUDE.md may need updating. Suggested additions:\\n<bullet list of specific things to add>\"}}\n\n5. If CLAUDE.md looks up to date:\n   Output ONLY: {\"continue\": true, \"hookSpecificOutput\": {\"hookEventName\": \"PreToolUse\", \"additionalContext\": \"claude-md-check: CLAUDE.md looks up to date\"}}"
+          },
           {
             "type": "agent",
             "if": "Bash(gh pr create*)",
