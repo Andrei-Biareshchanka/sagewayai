@@ -36,7 +36,8 @@ Claude Sonnet 4.6      ← generates reflection + question (once/day, cached in 
 | `src/commands/subscribe.ts` | `/subscribe` and `/unsubscribe` handlers |
 | `src/commands/settings.ts` | `/settings` — show language + subscription status |
 | `src/commands/stats.ts` | `/stats` — admin-only subscriber analytics |
-| `src/lib/digestApi.ts` | HTTP client to `GET /api/digest/daily?lang=` |
+| `src/commands/situation.ts` | "🎯 For my situation" button — rate-limit check, prompt, text handler |
+| `src/lib/digestApi.ts` | HTTP client to `GET /api/digest/daily?lang=` and `POST /api/digest/situation` |
 | `src/lib/formatDigest.ts` | Formats digest as MarkdownV2 with spoiler on reflection |
 | `src/lib/broadcast.ts` | Daily broadcast to all active subscribers |
 | `src/lib/keyboard.ts` | Reply keyboard + share inline keyboard |
@@ -57,6 +58,13 @@ Claude Sonnet 4.6      ← generates reflection + question (once/day, cached in 
 | `/unsubscribe` | Public | Unsubscribe |
 | `/help` | Public | Shows all commands |
 | `/stats` | Admin only | Subscriber analytics (requires `ADMIN_CHAT_ID` env) |
+
+## Keyboard buttons
+
+| Button | What it does |
+|---|---|
+| 📖 Daily digest / Дайджест дня | Same as `/digest` |
+| 🎯 For my situation / Под мою ситуацию | Prompts user to describe their situation, then returns a digest tailored to it via `POST /api/digest/situation`. Rate-limited to 1 request per 24h per user. |
 
 ## Digest format (MarkdownV2)
 
@@ -106,7 +114,7 @@ Runs daily at 8:00 server time via `setTimeout` + `setInterval` in `src/index.ts
 | `SAGEWAYAI_API_URL` | Yes | Main server URL (default: `http://localhost:3001`) |
 | `ADMIN_CHAT_ID` | No | Your Telegram chat ID — enables `/stats` command |
 
-## What's been built (as of 2026-06-26)
+## What's been built (as of 2026-06-27)
 
 - [x] Daily digest: quote + parable + spoiler reflection + visible question
 - [x] Onboarding flow: language → subscribe offer → first digest
@@ -117,11 +125,11 @@ Runs daily at 8:00 server time via `setTimeout` + `setInterval` in `src/index.ts
 - [x] EN/RU bilingual — all content and UI
 - [x] `/stats` admin command
 - [x] Daily broadcast to all active subscribers
+- [x] "🎯 For my situation" button — situation-based digest, rate-limited 1/day
 
 ## Potential next features
 
 - Referral tracking (`?start=ref_{userId}` in share link)
 - Digest reactions (❤️ 💡 🙏) — needs `DigestReaction` table
-- `/find` — search parable by situation (RAG via `/api/parables/search`)
 - Timezone preferences for broadcast delivery
 - Category preferences — filter parable categories

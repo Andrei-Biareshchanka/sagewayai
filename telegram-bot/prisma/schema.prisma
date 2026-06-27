@@ -129,5 +129,17 @@ model TelegramSubscriber {
   active           Boolean   @default(true)
   language         String    @default("en")
   situationUsedAt  DateTime?
+  referredBy       BigInt?
   createdAt        DateTime  @default(now())
+}
+
+model BotEvent {
+  id        Int      @id @default(autoincrement())
+  userId    BigInt
+  event     String
+  meta      Json?
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([event, createdAt])
 }
