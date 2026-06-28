@@ -20,11 +20,25 @@ function copyRecursive(src, dest) {
   }
 }
 
+if (!fs.existsSync(SRC)) {
+  console.error(`ERROR: Prisma generated client not found at ${SRC}`);
+  console.error('Run "prisma generate" first.');
+  process.exit(1);
+}
+
 copyRecursive(SRC, DEST);
 
-const pkgPath = path.join(DEST, 'package.json');
-const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf-8'));
+// Read package.json from SRC (not DEST) — Prisma may or may not generate one on Linux.
+// Always write a valid package.json to DEST with the stable package name.
+const srcPkgPath = path.join(SRC, 'package.json');
+const destPkgPath = path.join(DEST, 'package.json');
+
+const pkg = fs.existsSync(srcPkgPath)
+  ? JSON.parse(fs.readFileSync(srcPkgPath, 'utf-8'))
+  : { main: 'index.js', types: 'index.d.ts' };
+
 pkg.name = '@prisma/generated-client';
-fs.writeFileSync(pkgPath, JSON.stringify(pkg, null, 2));
+
+fs.writeFileSync(destPkgPath, JSON.stringify(pkg, null, 2));
 
 console.log('✔ Prisma client published to node_modules/@prisma/generated-client');
