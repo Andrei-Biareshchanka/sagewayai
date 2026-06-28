@@ -130,3 +130,11 @@ model TelegramSubscriber {
   situationUsedAt  DateTime?
   createdAt        DateTime  @default(now())
 }
+
+model SituationRequest {
+  id     String   @id @default(cuid())
+  ip     String
+  usedAt DateTime @default(now())
+
+  @@index([ip, usedAt])
+}

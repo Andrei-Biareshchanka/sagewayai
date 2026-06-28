@@ -65,6 +65,30 @@ digestRouter.post('/situation', async (req, res) => {
   }
   const { situation, lang } = bodyResult.data;
 
+  const ip =
+    (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() ??
+    req.socket.remoteAddress ??
+    'unknown';
+
+  const since = new Date(Date.now() - 24 * 60 * 60 * 1000);
+  const last = await prisma.situationRequest.findFirst({
+    where: { ip, usedAt: { gte: since } },
+  });
+
+  if (last) {
+    const msLeft = last.usedAt.getTime() + 86_400_000 - Date.now();
+    const hoursLeft = Math.floor(msLeft / 3_600_000);
+    const minutesLeft = Math.floor((msLeft % 3_600_000) / 60_000);
+    res.status(429).json({
+      error: 'rate_limited',
+      message: `Следующий запрос через ${hoursLeft}ч ${minutesLeft}м`,
+      retryAfter: msLeft,
+    });
+    return;
+  }
+
+  await prisma.situationRequest.create({ data: { ip } });
+
   const embedding = await getEmbedding(situation, 'query');
   const vector = `[${embedding.join(',')}]`;
 

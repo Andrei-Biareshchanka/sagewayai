@@ -83,3 +83,9 @@ const app = createApp();
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
+
+setInterval(async () => {
+  await prisma.situationRequest.deleteMany({
+    where: { usedAt: { lt: new Date(Date.now() - 172_800_000) } },
+  });
+}, 86_400_000);
