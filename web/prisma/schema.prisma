@@ -1,0 +1,141 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Parable {
+  id         String        @id @default(cuid())
+  title      String
+  content    String        @db.Text
+  moral      String
+  titleRu    String?
+  contentRu  String?       @db.Text
+  moralRu    String?
+  source     String?
+  readTime   Int
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+  category   Category      @relation(fields: [categoryId], references: [id])
+  categoryId String
+  dailies    DailyParable[]
+  digests    DailyDigest[]
+  favorites  Favorite[]
+  embedding  Unsupported("vector(1024)")?
+
+  @@unique([title, categoryId])
+  @@index([categoryId])
+}
+
+model Quote {
+  id        String   @id @default(cuid())
+  text      String   @db.Text
+  textRu    String?  @db.Text
+  author    String
+  authorRu  String?
+  theme     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  embedding Unsupported("vector(1024)")?
+  digests   DailyDigest[]
+
+  @@unique([text, author])
+}
+
+model DailyDigest {
+  id           String   @id @default(cuid())
+  date         DateTime @unique @db.Date
+  quote        Quote    @relation(fields: [quoteId], references: [id])
+  quoteId      String
+  parable      Parable  @relation(fields: [parableId], references: [id])
+  parableId    String
+  conclusionEn String   @db.Text
+  conclusionRu String   @db.Text
+  questionEn   String   @db.Text
+  questionRu   String   @db.Text
+  createdAt    DateTime @default(now())
+}
+
+model Category {
+  id            String    @id @default(cuid())
+  name          String
+  slug          String    @unique
+  description   String?
+  color         String?
+  parablesCount Int       @default(0)
+  parables      Parable[]
+}
+
+model DailyParable {
+  id        String   @id @default(cuid())
+  date      DateTime @unique @db.Date
+  parable   Parable  @relation(fields: [parableId], references: [id])
+  parableId String
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+model User {
+  id           String        @id @default(cuid())
+  email        String        @unique
+  passwordHash String
+  role         Role          @default(USER)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  subscription Subscription?
+  favorites    Favorite[]
+}
+
+model Subscription {
+  id                  String   @id @default(cuid())
+  userId              String   @unique
+  user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  active              Boolean  @default(true)
+  categoryPreferences String[]
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+}
+
+model EmailSubscriber {
+  id               String   @id @default(cuid())
+  email            String   @unique
+  active           Boolean  @default(true)
+  lang             String   @default("en")
+  unsubscribeToken String   @unique @default(cuid())
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+model Favorite {
+  userId    String
+  parableId String
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  parable   Parable @relation(fields: [parableId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@id([userId, parableId])
+}
+
+model TelegramSubscriber {
+  id              String    @id @default(cuid())
+  chatId          BigInt    @unique
+  username        String?
+  active          Boolean   @default(true)
+  language        String    @default("en")
+  situationUsedAt DateTime?
+  createdAt       DateTime  @default(now())
+}
+
+model SituationRequest {
+  id     String   @id @default(cuid())
+  ip     String
+  usedAt DateTime @default(now())
+
+  @@index([ip, usedAt])
+}

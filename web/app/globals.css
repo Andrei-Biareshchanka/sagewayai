@@ -1,0 +1,26 @@
+@import "tailwindcss";
+@config "../tailwind.config.ts";
+
+:root {
+  --color-sage: #5C9E65;
+  --color-sage-light: #EBF5EC;
+  --color-sage-pill: #DFF0E1;
+  --color-sage-pill-hover: #CEEBD1;
+  --color-sage-dark: #3E7048;
+  --color-sage-muted: #94BF9A;
+  --color-amber: #E8A33D;
+  --color-amber-light: #FBF0DF;
+  --color-canvas: #FAFAF8;
+  --color-ink: #1A1A1A;
+  --color-muted: #6B7280;
+  --color-border: rgba(0, 0, 0, 0.08);
+  --color-border-medium: rgba(0, 0, 0, 0.15);
+  --color-border-subtle: rgba(0, 0, 0, 0.06);
+}
+
+body {
+  font-family: var(--font-plus-jakarta), var(--font-inter), sans-serif;
+  background-color: var(--color-canvas);
+  color: var(--color-ink);
+  line-height: 1.7;
+}
