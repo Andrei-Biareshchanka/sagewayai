@@ -1,0 +1,8 @@
+.next
+node_modules
+.env.local
+app/generated/
+public/sitemap*.xml
+public/robots.txt
+sagewayai-web@*
+tsconfig.tsbuildinfo
