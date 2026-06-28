@@ -3,6 +3,7 @@
 This file provides guidance to Claude Code when working with the **web** (Next.js SEO site) of SagewayAI.
 
 > Coding style, naming, and TypeScript conventions: see **[CONVENTIONS.md](../CONVENTIONS.md)**.
+> Git & commit rules: see **[CLAUDE.md](../CLAUDE.md)** (root).
 
 ## Purpose
 
@@ -37,34 +38,39 @@ npm run type-check # tsc --noEmit
 ```
 web/
 ├── app/
-│   ├── layout.tsx              # Root layout — Inter + Lora fonts via next/font, metadata
-│   ├── page.tsx                # Home: SituationSearch + daily DigestBlock
+│   ├── layout.tsx              # Root layout — fonts, metadata, LanguageProvider wrapper
+│   ├── page.tsx                # Home: CTABlock + daily HomeDailyDigest
 │   ├── globals.css             # Tailwind v4 import + CSS color variables
 │   ├── generated/
 │   │   └── prisma/             # Generated Prisma Client (gitignored, rebuilt on predev)
 │   ├── d/
 │   │   └── [slug]/
 │   │       ├── page.tsx               # Digest page (SSG, revalidate 86400)
-│   │       └── DigestPageContent.tsx  # Client wrapper for RU/EN language toggle
+│   │       └── DigestPageContent.tsx  # Client wrapper — bilingual content, reads from LanguageContext
 │   └── api/
 │       ├── og/
 │       │   └── route.tsx       # Edge: OG image 1200x630 — NOTE: .tsx not .ts (JSX inside)
 │       └── situation/
 │           └── route.ts        # Proxy to Express /api/digest/situation (forwards real IP)
 ├── components/
-│   ├── Navbar.tsx              # Sticky header — logo + Telegram link
-│   ├── Footer.tsx              # © 2026 SagewayAI
-│   ├── CTAButton.tsx           # "Get it in Telegram" button (uses NEXT_PUBLIC_BOT_URL)
-│   ├── DigestBlock.tsx         # Reusable block: quote + parable + reflection + question
-│   ├── SituationSearch.tsx     # Client component: search form with cookie-based rate limit
-│   └── LanguageToggle.tsx      # Client component: RU / EN toggle buttons
+│   ├── Navbar.tsx              # 'use client' — logo + LanguageToggle (reads/sets LanguageContext)
+│   ├── Footer.tsx              # © 2026 SagewayAI · slogan — no Telegram link (it's in CTABlock)
+│   ├── CTAButton.tsx           # Simple Telegram link button (legacy — prefer CTABlock)
+│   ├── CTABlock.tsx            # 'use client' — full CTA section: headline + 4 bullets + button
+│   ├── DigestBlock.tsx         # 'use client' — quote + parable + reflection + question; reads lang from context
+│   ├── HomeDailyDigest.tsx     # 'use client' — bilingual wrapper for homepage digest, reads lang from context
+│   ├── SituationSearch.tsx     # 'use client' — wisdom search form with cookie-based rate limit
+│   └── LanguageToggle.tsx      # 'use client' — custom RU/EN dropdown (presentational, controlled)
+├── contexts/
+│   └── LanguageContext.tsx     # Lang type, LanguageProvider, useLanguage() hook
 ├── lib/
 │   ├── prisma.ts               # Singleton PrismaClient with PrismaPg adapter
+│   ├── brand.ts                # Centralized color + font constants (use for ImageResponse inline styles)
 │   ├── slug.ts                 # generateSlug(title) via transliteration library
 │   └── formatTime.ts           # formatCountdown(ms) → "23h 45m"
 ├── prisma/
 │   └── schema.prisma           # Copy of server/prisma/schema.prisma (read access only)
-├── prisma.config.ts            # Prisma 7 config — no dotenv/config (Next.js loads .env.local)
+├── prisma.config.ts            # Prisma 7 config — no dotenv import (Next.js loads .env.local)
 ├── next.config.ts              # serverExternalPackages: ['@prisma/client', 'pg']
 ├── tailwind.config.ts          # extend: colors, fontFamily, borderRadius
 ├── postcss.config.mjs          # @tailwindcss/postcss plugin (Tailwind v4)
@@ -72,19 +78,48 @@ web/
 └── vercel.json                 # buildCommand: prisma generate && next build
 ```
 
-## Critical: Prisma 7 + Turbopack compatibility
+## Language switching architecture
 
-This setup required significant debugging. Read carefully before changing anything here.
+Language state lives in **`contexts/LanguageContext.tsx`** — single source of truth.
+
+```
+LanguageProvider (app/layout.tsx body)
+  └── Navbar.tsx          → reads { lang, setLang } → renders LanguageToggle
+  └── DigestBlock.tsx     → reads { lang } → switches labels (Мудрость дня / Daily Wisdom etc.)
+  └── HomeDailyDigest.tsx → reads { lang } → picks RU or EN content fields
+  └── DigestPageContent.tsx → reads { lang } → switches all bilingual fields + date locale
+  └── CTABlock.tsx        → reads { lang } → bilingual headline, bullets, button text
+  └── SituationSearch.tsx → reads { lang } → bilingual UI + sends lang to API
+```
+
+**Rule:** never add a local `lang` state to a component — always use `useLanguage()` from context.
+
+`LanguageToggle` is a **presentational** component — receives `lang` + `onChange` as props. Only `Navbar` wires it to the context.
+
+## Key components
+
+### DigestBlock
+Client component. Accepts single-language `DigestData`. Reads `lang` from context for **labels only** (Мудрость дня, Размышление, Вопрос, Читать полностью). Content itself stays in whatever language was passed — doesn't re-fetch on lang change.
+
+### HomeDailyDigest
+Client wrapper used on the homepage. Receives bilingual data from the server component (`page.tsx`) and picks the correct language fields based on `useLanguage()`. Renders `DigestBlock`.
+
+### CTABlock
+Full conversion block: headline, 4 content bullets (цитата → притча → рефлексия → вопрос), centered Telegram button. Used at the bottom of `/` and `/d/[slug]`. Fully bilingual.
+
+### DigestPageContent
+Renders the full digest page. Reads `lang` from context. Switches: quote, parable, conclusion, question, breadcrumbs, section labels, date locale (`ru` / `enUS`), and related card titles (server passes both `parableTitleRu` and `parableTitleEn`).
+
+## Critical: Prisma 7 + Turbopack compatibility
 
 ### What does NOT work (do not revert to these)
 
 | What | Why it breaks |
 |------|---------------|
 | `provider = "prisma-client-js"` in schema | Prisma 7 throws "Could not resolve @prisma/client" |
-| `import 'dotenv/config'` in prisma.config.ts | `dotenv` is not installed in web/ — Next.js loads `.env.local` automatically |
+| `import 'dotenv/config'` in prisma.config.ts | `dotenv` not installed — Next.js loads `.env.local` automatically |
 | `new PrismaClient()` without adapter | Invalid in Prisma 7 — adapter is always required |
 | `"type": "module"` in package.json | Breaks Prisma CLI module resolution |
-| `next@latest` / `next@^16` | 16.2.9 is a broken Windows backport build — missing `metadata/` directory |
 | `app/api/og/route.ts` | Must be `.tsx` — the file contains JSX (ImageResponse) |
 
 ### Correct configuration
@@ -100,29 +135,12 @@ generator client {
 **next.config.ts:**
 ```ts
 serverExternalPackages: ['@prisma/client', 'pg']
-// Tells Turbopack not to bundle these — loads from node_modules at runtime
 ```
 
 **lib/prisma.ts:**
 ```ts
 import { PrismaClient } from '../app/generated/prisma'; // NOT from '@prisma/client'
-import { PrismaPg } from '@prisma/adapter-pg';          // required adapter
-```
-
-**prisma.config.ts:**
-```ts
-import { defineConfig } from 'prisma/config'; // no dotenv import
-export default defineConfig({
-  schema: 'prisma/schema.prisma',
-  datasource: { url: process.env['DATABASE_URL'] },
-});
-```
-
-### After any schema.prisma change
-
-```bash
-npx prisma generate
-# Regenerates client to app/generated/prisma/ (gitignored)
+import { PrismaPg } from '@prisma/adapter-pg';
 ```
 
 ## Environment variables
@@ -154,108 +172,64 @@ npm run dev   # automatically runs prisma generate via predev script
 ## Routes
 
 ### GET /
-Server component. Renders:
-1. `SituationSearch` — wisdom search form (client component, top of page)
-2. `DigestBlock` — today's digest fetched from DB (server-rendered, RU by default)
-
-Data: `prisma.dailyDigest.findFirst({ where: { date: { gte: startOfToday } }, include: { quote, parable } })`  
-Fallback: most recent digest if today has none.
+Server component. Fetches bilingual daily digest from DB. Renders:
+1. `HomeDailyDigest` — bilingual digest (switches language via context)
+2. `CTABlock` — Telegram subscription CTA (at the bottom)
 
 ### GET /d/[slug]
-SSG digest page. `revalidate = 86400`.
+SSG digest page. `revalidate = 86400`. Slug generated from `parable.title` (English) via `generateSlug()`.
 
-Slug is generated from `parable.title` (English) via `generateSlug()`.  
-Page defaults to RU, `LanguageToggle` in `DigestPageContent` switches to EN client-side.
-
-`generateStaticParams` → fetches all DailyDigest records → returns array of slugs.
+Server passes **both RU and EN** fields to `DigestPageContent` for all content, quotes, and related card titles.
 
 Includes JSON-LD Article schema and full OpenGraph metadata.
 
 ### POST /api/situation
-Proxy to Express backend. Reads real user IP from `x-forwarded-for` header and forwards it to Express for IP-based rate limiting. The Express server writes to `SituationRequest` table.
-
-Client (`SituationSearch`) posts to this Next.js route — not directly to Express. This keeps `SAGEWAYAI_API_URL` server-side only.
+Proxy to Express backend. Reads real user IP from `x-forwarded-for`, forwards it for IP-based rate limiting.
 
 ### GET /api/og
-Edge runtime (`export const runtime = 'edge'`). Accepts `?title=...&lang=ru|en`.  
-Returns 1200×630 OG image with sage-green accent bar.
+Edge runtime. Accepts `?title=...&lang=ru|en`. Returns 1200×630 OG image. Uses `colors` from `lib/brand.ts` (CSS variables don't work in ImageResponse inline styles).
 
 ## Rate limiting
 
-**Client-side (cookie):** `SituationSearch` checks cookie `swai_situation_used_at`.  
-If `Date.now() - cookieValue < 86400000` — blocks locally, shows countdown timer.  
-Cookie name: `swai_situation_used_at`, `max-age=86400`, `SameSite=Lax`.
+**Client-side (cookie):** `SituationSearch` checks cookie `swai_situation_used_at` (24h cooldown).
 
-**Server-side (IP + DB):** Express `POST /api/digest/situation` checks `SituationRequest` table by IP for the last 24h. Returns 429 with `{ error: 'rate_limited', retryAfter: msLeft }`.
+**Server-side (IP + DB):** Express checks `SituationRequest` table by IP. Returns 429 with `retryAfter` ms.
 
 ## Design system
 
-Colors derived from the brand logotype (`/public/sageway-logotype.svg`).
-Defined as CSS variables in `globals.css` + Tailwind `extend.colors`:
+Colors from brand logotype, defined as CSS variables in `globals.css` + `tailwind.config.ts` + `lib/brand.ts`:
 
 ```
-sage:           #5C9E65  — primary green (from "Sage" in logotype)
-sage-light:     #EBF5EC  — section backgrounds
-sage-pill:      #DFF0E1  — tags, category pills
-sage-pill-hover:#CEEBD1  — pill hover state
-sage-dark:      #3E7048  — hover / pressed states
-sage-muted:     #94BF9A  — subtle green (from "AI" in logotype)
-amber:          #E8A33D  — accent (from "way" in logotype)
-amber-light:    #FBF0DF  — amber tinted backgrounds
-canvas:         #FAFAF8  — page background (confirmed in favicon)
+sage:           #5C9E65  — primary green
+sage-light:     #EBF5EC  — section backgrounds, CTA block bg
+sage-pill:      #DFF0E1  — tags, pills
+sage-pill-hover:#CEEBD1  — pill hover
+sage-dark:      #3E7048  — hover/pressed
+sage-muted:     #94BF9A  — subtle green
+amber:          #E8A33D  — accent
+amber-light:    #FBF0DF  — amber backgrounds
+canvas:         #FAFAF8  — page background
 ink:            #1A1A1A  — body text
 muted:          #6B7280  — secondary text
-border:         rgba(0,0,0,0.08)
 ```
 
-Fonts (loaded via `next/font/google`, injected as CSS variables on `<html>`):
-- `--font-plus-jakarta` → `font-sans` primary (Plus Jakarta Sans, Latin — matches logotype)
-- `--font-inter` → `font-sans` fallback (Inter, Cyrillic subset — Russian content)
+**`lib/brand.ts`** — use this for any hardcoded color values (e.g., ImageResponse, inline styles). Never scatter hex values across components.
+
+Fonts (loaded via `next/font/google`):
+- `--font-plus-jakarta` → `font-sans` primary (Plus Jakarta Sans, Latin)
+- `--font-inter` → `font-sans` fallback (Inter, Cyrillic subset)
 - `--font-lora` → `font-serif` (headings, parable body, quotes)
 
-Font stack for `font-sans`: `var(--font-plus-jakarta), var(--font-inter), sans-serif`
-Latin text → Plus Jakarta Sans. Cyrillic text → falls back to Inter automatically.
-
 Reader max-width: `680px`. Page max-width: `1200px`.
-
-## Changes made to server/
-
-These changes were made to `server/` when creating the web project:
-
-1. **`server/prisma/schema.prisma`** — added model:
-   ```prisma
-   model SituationRequest {
-     id     String   @id @default(cuid())
-     ip     String
-     usedAt DateTime @default(now())
-     @@index([ip, usedAt])
-   }
-   ```
-
-2. **`server/src/routes/digest.ts`** — added IP rate limiting before Claude API call in `POST /situation`
-
-3. **`server/src/index.ts`** — added daily cron that deletes `SituationRequest` records older than 48h
-
-**Migration required after pull:**
-```bash
-cd server
-npx prisma migrate dev --name add_situation_request
-```
 
 ## Deployment (Vercel)
 
 `vercel.json`:
 ```json
-{
-  "buildCommand": "prisma generate && next build",
-  "installCommand": "npm install",
-  "outputDirectory": ".next"
-}
+{ "buildCommand": "prisma generate && next build" }
 ```
 
 Environment variables to set on Vercel:
 - `DATABASE_URL` — production PostgreSQL connection string
 - `SAGEWAYAI_API_URL` — deployed Express server URL (Railway)
 - `NEXT_PUBLIC_BOT_URL` — `https://t.me/sagewayai_bot`
-
-`next-sitemap` runs via `postbuild` script and generates `public/sitemap.xml` + `public/robots.txt` (both gitignored, generated at build time).
