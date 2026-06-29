@@ -4335,6 +4335,7 @@ export namespace Prisma {
   export type DailyDigestMinAggregateOutputType = {
     id: string | null
     date: Date | null
+    slug: string | null
     quoteId: string | null
     parableId: string | null
     conclusionEn: string | null
@@ -4347,6 +4348,7 @@ export namespace Prisma {
   export type DailyDigestMaxAggregateOutputType = {
     id: string | null
     date: Date | null
+    slug: string | null
     quoteId: string | null
     parableId: string | null
     conclusionEn: string | null
@@ -4359,6 +4361,7 @@ export namespace Prisma {
   export type DailyDigestCountAggregateOutputType = {
     id: number
     date: number
+    slug: number
     quoteId: number
     parableId: number
     conclusionEn: number
@@ -4373,6 +4376,7 @@ export namespace Prisma {
   export type DailyDigestMinAggregateInputType = {
     id?: true
     date?: true
+    slug?: true
     quoteId?: true
     parableId?: true
     conclusionEn?: true
@@ -4385,6 +4389,7 @@ export namespace Prisma {
   export type DailyDigestMaxAggregateInputType = {
     id?: true
     date?: true
+    slug?: true
     quoteId?: true
     parableId?: true
     conclusionEn?: true
@@ -4397,6 +4402,7 @@ export namespace Prisma {
   export type DailyDigestCountAggregateInputType = {
     id?: true
     date?: true
+    slug?: true
     quoteId?: true
     parableId?: true
     conclusionEn?: true
@@ -4482,6 +4488,7 @@ export namespace Prisma {
   export type DailyDigestGroupByOutputType = {
     id: string
     date: Date
+    slug: string | null
     quoteId: string
     parableId: string
     conclusionEn: string
@@ -4511,6 +4518,7 @@ export namespace Prisma {
   export type DailyDigestSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     date?: boolean
+    slug?: boolean
     quoteId?: boolean
     parableId?: boolean
     conclusionEn?: boolean
@@ -4525,6 +4533,7 @@ export namespace Prisma {
   export type DailyDigestSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     date?: boolean
+    slug?: boolean
     quoteId?: boolean
     parableId?: boolean
     conclusionEn?: boolean
@@ -4539,6 +4548,7 @@ export namespace Prisma {
   export type DailyDigestSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     date?: boolean
+    slug?: boolean
     quoteId?: boolean
     parableId?: boolean
     conclusionEn?: boolean
@@ -4553,6 +4563,7 @@ export namespace Prisma {
   export type DailyDigestSelectScalar = {
     id?: boolean
     date?: boolean
+    slug?: boolean
     quoteId?: boolean
     parableId?: boolean
     conclusionEn?: boolean
@@ -4562,7 +4573,7 @@ export namespace Prisma {
     createdAt?: boolean
   }
 
-  export type DailyDigestOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "date" | "quoteId" | "parableId" | "conclusionEn" | "conclusionRu" | "questionEn" | "questionRu" | "createdAt", ExtArgs["result"]["dailyDigest"]>
+  export type DailyDigestOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "date" | "slug" | "quoteId" | "parableId" | "conclusionEn" | "conclusionRu" | "questionEn" | "questionRu" | "createdAt", ExtArgs["result"]["dailyDigest"]>
   export type DailyDigestInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     quote?: boolean | QuoteDefaultArgs<ExtArgs>
     parable?: boolean | ParableDefaultArgs<ExtArgs>
@@ -4585,6 +4596,7 @@ export namespace Prisma {
     scalars: $Extensions.GetPayloadResult<{
       id: string
       date: Date
+      slug: string | null
       quoteId: string
       parableId: string
       conclusionEn: string
@@ -5019,6 +5031,7 @@ export namespace Prisma {
   interface DailyDigestFieldRefs {
     readonly id: FieldRef<"DailyDigest", 'String'>
     readonly date: FieldRef<"DailyDigest", 'DateTime'>
+    readonly slug: FieldRef<"DailyDigest", 'String'>
     readonly quoteId: FieldRef<"DailyDigest", 'String'>
     readonly parableId: FieldRef<"DailyDigest", 'String'>
     readonly conclusionEn: FieldRef<"DailyDigest", 'String'>
@@ -13941,6 +13954,7 @@ export namespace Prisma {
   export const DailyDigestScalarFieldEnum: {
     id: 'id',
     date: 'date',
+    slug: 'slug',
     quoteId: 'quoteId',
     parableId: 'parableId',
     conclusionEn: 'conclusionEn',
@@ -14344,6 +14358,7 @@ export namespace Prisma {
     NOT?: DailyDigestWhereInput | DailyDigestWhereInput[]
     id?: StringFilter<"DailyDigest"> | string
     date?: DateTimeFilter<"DailyDigest"> | Date | string
+    slug?: StringNullableFilter<"DailyDigest"> | string | null
     quoteId?: StringFilter<"DailyDigest"> | string
     parableId?: StringFilter<"DailyDigest"> | string
     conclusionEn?: StringFilter<"DailyDigest"> | string
@@ -14358,6 +14373,7 @@ export namespace Prisma {
   export type DailyDigestOrderByWithRelationInput = {
     id?: SortOrder
     date?: SortOrder
+    slug?: SortOrderInput | SortOrder
     quoteId?: SortOrder
     parableId?: SortOrder
     conclusionEn?: SortOrder
@@ -14372,6 +14388,8 @@ export namespace Prisma {
   export type DailyDigestWhereUniqueInput = Prisma.AtLeast<{
     id?: string
     date?: Date | string
+    slug?: string
+    parableId_quoteId?: DailyDigestParableIdQuoteIdCompoundUniqueInput
     AND?: DailyDigestWhereInput | DailyDigestWhereInput[]
     OR?: DailyDigestWhereInput[]
     NOT?: DailyDigestWhereInput | DailyDigestWhereInput[]
@@ -14384,11 +14402,12 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"DailyDigest"> | Date | string
     quote?: XOR<QuoteScalarRelationFilter, QuoteWhereInput>
     parable?: XOR<ParableScalarRelationFilter, ParableWhereInput>
-  }, "id" | "date">
+  }, "id" | "date" | "slug" | "parableId_quoteId">
 
   export type DailyDigestOrderByWithAggregationInput = {
     id?: SortOrder
     date?: SortOrder
+    slug?: SortOrderInput | SortOrder
     quoteId?: SortOrder
     parableId?: SortOrder
     conclusionEn?: SortOrder
@@ -14407,6 +14426,7 @@ export namespace Prisma {
     NOT?: DailyDigestScalarWhereWithAggregatesInput | DailyDigestScalarWhereWithAggregatesInput[]
     id?: StringWithAggregatesFilter<"DailyDigest"> | string
     date?: DateTimeWithAggregatesFilter<"DailyDigest"> | Date | string
+    slug?: StringNullableWithAggregatesFilter<"DailyDigest"> | string | null
     quoteId?: StringWithAggregatesFilter<"DailyDigest"> | string
     parableId?: StringWithAggregatesFilter<"DailyDigest"> | string
     conclusionEn?: StringWithAggregatesFilter<"DailyDigest"> | string
@@ -15063,6 +15083,7 @@ export namespace Prisma {
   export type DailyDigestCreateInput = {
     id?: string
     date: Date | string
+    slug?: string | null
     conclusionEn: string
     conclusionRu: string
     questionEn: string
@@ -15075,6 +15096,7 @@ export namespace Prisma {
   export type DailyDigestUncheckedCreateInput = {
     id?: string
     date: Date | string
+    slug?: string | null
     quoteId: string
     parableId: string
     conclusionEn: string
@@ -15087,6 +15109,7 @@ export namespace Prisma {
   export type DailyDigestUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     date?: DateTimeFieldUpdateOperationsInput | Date | string
+    slug?: NullableStringFieldUpdateOperationsInput | string | null
     conclusionEn?: StringFieldUpdateOperationsInput | string
     conclusionRu?: StringFieldUpdateOperationsInput | string
     questionEn?: StringFieldUpdateOperationsInput | string
@@ -15099,6 +15122,7 @@ export namespace Prisma {
   export type DailyDigestUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     date?: DateTimeFieldUpdateOperationsInput | Date | string
+    slug?: NullableStringFieldUpdateOperationsInput | string | null
     quoteId?: StringFieldUpdateOperationsInput | string
     parableId?: StringFieldUpdateOperationsInput | string
     conclusionEn?: StringFieldUpdateOperationsInput | string
@@ -15111,6 +15135,7 @@ export namespace Prisma {
   export type DailyDigestCreateManyInput = {
     id?: string
     date: Date | string
+    slug?: string | null
     quoteId: string
     parableId: string
     conclusionEn: string
@@ -15123,6 +15148,7 @@ export namespace Prisma {
   export type DailyDigestUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
     date?: DateTimeFieldUpdateOperationsInput | Date | string
+    slug?: NullableStringFieldUpdateOperationsInput | string | null
     conclusionEn?: StringFieldUpdateOperationsInput | string
     conclusionRu?: StringFieldUpdateOperationsInput | string
     questionEn?: StringFieldUpdateOperationsInput | string
@@ -15133,6 +15159,7 @@ export namespace Prisma {
   export type DailyDigestUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
     date?: DateTimeFieldUpdateOperationsInput | Date | string
+    slug?: NullableStringFieldUpdateOperationsInput | string | null
     quoteId?: StringFieldUpdateOperationsInput | string
     parableId?: StringFieldUpdateOperationsInput | string
     conclusionEn?: StringFieldUpdateOperationsInput | string
@@ -15826,6 +15853,11 @@ export namespace Prisma {
     author: string
   }
 
+  export type DailyDigestParableIdQuoteIdCompoundUniqueInput = {
+    parableId: string
+    quoteId: string
+  }
+
   export type QuoteCountOrderByAggregateInput = {
     id?: SortOrder
     text?: SortOrder
@@ -15872,6 +15904,7 @@ export namespace Prisma {
   export type DailyDigestCountOrderByAggregateInput = {
     id?: SortOrder
     date?: SortOrder
+    slug?: SortOrder
     quoteId?: SortOrder
     parableId?: SortOrder
     conclusionEn?: SortOrder
@@ -15884,6 +15917,7 @@ export namespace Prisma {
   export type DailyDigestMaxOrderByAggregateInput = {
     id?: SortOrder
     date?: SortOrder
+    slug?: SortOrder
     quoteId?: SortOrder
     parableId?: SortOrder
     conclusionEn?: SortOrder
@@ -15896,6 +15930,7 @@ export namespace Prisma {
   export type DailyDigestMinOrderByAggregateInput = {
     id?: SortOrder
     date?: SortOrder
+    slug?: SortOrder
     quoteId?: SortOrder
     parableId?: SortOrder
     conclusionEn?: SortOrder

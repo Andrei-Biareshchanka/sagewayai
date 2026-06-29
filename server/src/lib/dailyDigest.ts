@@ -3,6 +3,7 @@ import { prisma } from './prisma';
 import { getTodayDate } from './daily';
 import { findParableForQuote } from '../services/digest';
 import { generateReflection } from './anthropic';
+import { buildDigestSlug } from './slug';
 
 const UNIQUE_CONSTRAINT_ERROR = 'P2002';
 
@@ -56,10 +57,12 @@ async function createDigestForToday(today: Date): Promise<DigestWithRelations> {
   const quote = await pickNextQuote();
   const parable = await findParableForQuote(quote.id);
   const reflections = await buildReflections(quote, parable);
+  const slug = await buildDigestSlug(prisma, parable.title, quote.author, quote.theme ?? null);
 
   return prisma.dailyDigest.create({
     data: {
       date: today,
+      slug,
       quoteId: quote.id,
       parableId: parable.id,
       ...reflections,
