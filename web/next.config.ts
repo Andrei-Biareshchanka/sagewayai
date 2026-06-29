@@ -1,19 +1,14 @@
 import type { NextConfig } from 'next';
-import path from 'path';
-
-// Absolute path to the Prisma 7 generated client (resolved at build time).
-// Used in the webpack externals function so Node.js handles the module at
-// runtime instead of webpack — Node.js supports the #imports field natively
-// while webpack does not.
-const PRISMA_GENERATED = path.resolve('./app/generated/prisma');
 
 const config: NextConfig = {
   serverExternalPackages: ['pg'],
   images: {
     remotePatterns: [{ protocol: 'https', hostname: 'sagewayai.com' }],
   },
+  // Include all Prisma-generated files in every serverless function bundle.
+  // This ensures WASM and runtime files survive static file tracing on Vercel.
   outputFileTracingIncludes: {
-    '/**': ['./app/generated/prisma/**'],
+    '/**': ['./node_modules/@prisma/generated-client/**'],
   },
   webpack(webpackConfig, { isServer }) {
     if (isServer) {
@@ -26,14 +21,16 @@ const config: NextConfig = {
       ) as unknown[];
 
       webpackConfig.externals = [
-        // Must be first so it intercepts before Next.js's own externals try
-        // to resolve the package (which fails on Prisma 7's #imports exports).
+        // Intercept @prisma/generated-client before webpack resolution.
+        // Webpack emits require('@prisma/generated-client') — a package name,
+        // not an absolute path — so Node.js resolves it from node_modules at
+        // runtime inside the serverless function (populated by publish-prisma.js).
         (
           ctx: { request?: string },
           callback: (err?: Error | null, result?: string) => void,
         ) => {
           if (ctx.request === '@prisma/generated-client') {
-            callback(null, `commonjs ${PRISMA_GENERATED}`);
+            callback(null, 'commonjs @prisma/generated-client');
             return;
           }
           callback();
@@ -44,5 +41,4 @@ const config: NextConfig = {
     return webpackConfig;
   },
 };
-
 export default config;

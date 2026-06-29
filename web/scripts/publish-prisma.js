@@ -1,6 +1,7 @@
-// Copies the compiled Prisma 7 generated client from app/generated/prisma
-// into node_modules/@prisma/generated-client so Next.js can externalize it
-// via serverExternalPackages (webpack skips bundling, Node.js handles #imports natively).
+// Copies the Prisma 7 generated client from app/generated/prisma to
+// node_modules/@prisma/generated-client so the webpack externals function
+// can emit require('@prisma/generated-client') — a package name, not an
+// absolute path — which survives Vercel's serverless function deployment.
 const fs = require('fs');
 const path = require('path');
 
@@ -28,17 +29,11 @@ if (!fs.existsSync(SRC)) {
 
 copyRecursive(SRC, DEST);
 
-// Read package.json from SRC (not DEST) — Prisma may or may not generate one on Linux.
-// Always write a valid package.json to DEST with the stable package name.
-const srcPkgPath = path.join(SRC, 'package.json');
-const destPkgPath = path.join(DEST, 'package.json');
-
-const pkg = fs.existsSync(srcPkgPath)
-  ? JSON.parse(fs.readFileSync(srcPkgPath, 'utf-8'))
-  : { main: 'index.js', types: 'index.d.ts' };
-
-pkg.name = '@prisma/generated-client';
-
-fs.writeFileSync(destPkgPath, JSON.stringify(pkg, null, 2));
+// Write a minimal package.json — no complex exports/imports fields that
+// confuse webpack. Node.js only needs main to require() the package.
+fs.writeFileSync(
+  path.join(DEST, 'package.json'),
+  JSON.stringify({ name: '@prisma/generated-client', main: 'index.js', types: 'index.d.ts' }, null, 2),
+);
 
 console.log('✔ Prisma client published to node_modules/@prisma/generated-client');
