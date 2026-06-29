@@ -32,7 +32,7 @@ Next.js App Router SEO site with three goals:
 
 ```bash
 npm run dev        # predev: prisma generate → next dev (Turbopack)
-npm run build      # prisma generate → next build → next-sitemap
+npm run build      # prisma generate → next build
 npm start          # next start
 npm run type-check # tsc --noEmit
 ```
