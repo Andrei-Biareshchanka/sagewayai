@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { Inter, Lora, Plus_Jakarta_Sans } from 'next/font/google';
+import { GoogleAnalytics } from '@next/third-parties/google';
 import { LanguageProvider } from '@/contexts/LanguageContext';
 import './globals.css';
 
@@ -58,6 +59,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="flex min-h-screen flex-col">
         <LanguageProvider>{children}</LanguageProvider>
       </body>
+      {process.env.NEXT_PUBLIC_GA_ID && (
+        <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID} />
+      )}
     </html>
   );
 }

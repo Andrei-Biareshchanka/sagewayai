@@ -14,13 +14,14 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
-    "next": "15.3.9",
-    "react": "^19",
-    "react-dom": "^19",
+    "@next/third-parties": "^16.2.9",
     "@prisma/adapter-pg": "^7.6.0",
     "@prisma/client": "^7.6.0",
-    "pg": "^8",
     "date-fns": "^4",
+    "next": "15.3.9",
+    "pg": "^8",
+    "react": "^19",
+    "react-dom": "^19",
     "transliteration": "^2"
   },
   "devDependencies": {

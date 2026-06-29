@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import { startOfDay } from 'date-fns';
 import { prisma } from '@/lib/prisma';
 import { generateSlug } from '@/lib/slug';
@@ -7,6 +8,26 @@ import { HomeDailyDigest } from '@/components/HomeDailyDigest';
 import { CTABlock } from '@/components/CTABlock';
 
 export const revalidate = 3600;
+
+export const metadata: Metadata = {
+  title: 'SagewayAI — мудрость каждый день',
+  description: 'Дайджест дня: цитата, притча, рефлексия и вопрос для размышления. Найдите мудрость для вашей ситуации.',
+  alternates: {
+    canonical: 'https://sagewayai.com',
+  },
+  openGraph: {
+    title: 'SagewayAI — мудрость каждый день',
+    description: 'Дайджест дня: цитата, притча, рефлексия и вопрос для размышления.',
+    url: 'https://sagewayai.com',
+    images: [
+      {
+        url: '/api/og?title=SagewayAI&lang=ru',
+        width: 1200,
+        height: 630,
+      },
+    ],
+  },
+};
 
 async function getDailyDigest() {
   const today = startOfDay(new Date());
