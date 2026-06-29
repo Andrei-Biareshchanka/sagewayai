@@ -8,7 +8,7 @@
   "scripts": {
     "predev": "prisma generate",
     "dev": "next dev",
-    "build": "prisma generate && node scripts/publish-prisma.js && next build",
+    "build": "prisma generate && next build",
     "start": "next start",
     "postbuild": "next-sitemap",
     "type-check": "tsc --noEmit"
