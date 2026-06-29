@@ -55,6 +55,16 @@ Review the current changes (or specified files) against SagewayAI architecture r
 - Never log sensitive fields (passwords, tokens)
 - Validate all external input at route boundaries with Zod
 
+### Next.js / web (if web/ files changed)
+
+- Import Prisma from `../app/generated/prisma` — never from `@prisma/client` directly
+- Always use `PrismaClient` with `PrismaPg` adapter — never `new PrismaClient()` without adapter
+- Language state must come from `useLanguage()` context — never local `lang` state in components
+- `LanguageToggle` is presentational — only `Navbar` wires it to context
+- `lib/brand.ts` for all hardcoded colors (OG images, inline styles) — no scattered hex values
+- Server Components fetch data; Client Components render UI — don't fetch in client components
+- `app/api/og/route` must stay `.tsx` (contains JSX)
+
 ### Tests (if present)
 
 - Mock only `src/lib/prisma` — never mock route handlers or Express itself
