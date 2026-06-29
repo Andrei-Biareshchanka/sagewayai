@@ -10,8 +10,7 @@
     "dev": "next dev",
     "build": "prisma generate && next build",
     "start": "next start",
-    "postbuild": "next-sitemap",
-    "type-check": "tsc --noEmit"
+"type-check": "tsc --noEmit"
   },
   "dependencies": {
     "@next/third-parties": "^16.2.9",
@@ -33,7 +32,6 @@
     "@types/pg": "^8",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "next-sitemap": "^4",
     "prisma": "^7.6.0",
     "tailwindcss": "^4",
     "typescript": "^5"
