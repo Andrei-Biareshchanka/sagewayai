@@ -21,8 +21,9 @@ SagewayAI — a parable library organized by category. Every day a new random pa
 
 ```
 sagewayai/
-├── client/          # React + Vite frontend  →  see client/CLAUDE.md
+├── web/             # Next.js frontend (Vercel)  →  see web/CLAUDE.md
 ├── server/          # Express + Prisma backend  →  see server/CLAUDE.md
+├── telegram-bot/    # Telegram bot
 └── docker-compose.yml  # PostgreSQL 16 on :5432
 ```
 
