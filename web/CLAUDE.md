@@ -188,7 +188,11 @@ Server component. Fetches bilingual daily digest from DB. Renders:
 2. `CTABlock` — Telegram subscription CTA (at the bottom)
 
 ### GET /d/[slug]
-SSG digest page. `revalidate = 86400`. Slug generated from `parable.title` (English) via `generateSlug()`.
+SSG digest page. `revalidate = 86400`. Slug is read directly from `DailyDigest.slug` in the DB — it is generated and stored by the server at digest creation time (format: `{parable-title}-{author}-{theme}`).
+
+`generateStaticParams` queries `prisma.dailyDigest.findMany({ select: { slug: true }, where: { slug: { not: null } } })` — uses DB slugs, no runtime generation.
+
+`app/sitemap.ts` also reads slugs directly from DB.
 
 Server passes **both RU and EN** fields to `DigestPageContent` for all content, quotes, and related card titles.
 
