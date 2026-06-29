@@ -7,12 +7,18 @@ const config: NextConfig = {
     remotePatterns: [{ protocol: 'https', hostname: 'sagewayai.com' }],
   },
   webpack(webpackConfig) {
-    // Prisma 7 with provider="prisma-client" emits only .ts source on Linux
-    // (no pre-compiled .js), so we can't externalize the package — Node.js
-    // can't load .ts files at runtime. Instead, bundle it directly: the alias
-    // without an extension lets webpack resolve index.ts or index.js.
+    // Prisma 7 "prisma-client" provider on Linux emits .ts source files only
+    // (no pre-compiled index.js). @prisma/client is intentionally empty in
+    // Prisma 7 — runtime ships inside the generated output directory.
+    //
+    // Fix: bundle both entry points directly from the generated directory.
+    // client.ts exists on all platforms; runtime/client.js is pre-compiled
+    // CJS and also exists on all platforms.
+    const generated = path.resolve('./app/generated/prisma');
     webpackConfig.resolve.alias['@prisma/generated-client'] =
-      path.resolve('./app/generated/prisma/index');
+      path.join(generated, 'client');
+    webpackConfig.resolve.alias['@prisma/client/runtime/client'] =
+      path.join(generated, 'runtime', 'client');
     return webpackConfig;
   },
 };
