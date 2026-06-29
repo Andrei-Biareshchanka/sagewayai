@@ -6,7 +6,6 @@ import Link from 'next/link';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { colors } from '@/lib/brand';
 import { CTABlock } from '@/components/CTABlock';
-import { generateSlug } from '@/lib/slug';
 
 interface BilingualDigest {
   date: Date;

@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 import { startOfDay } from 'date-fns';
 import { prisma } from '@/lib/prisma';
-import { generateSlug } from '@/lib/slug';
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 import { HomeDailyDigest } from '@/components/HomeDailyDigest';
@@ -70,7 +69,7 @@ export default async function HomePage() {
               questionRu: digest.questionRu,
               questionEn: digest.questionEn,
             }}
-            slug={generateSlug(digest.parable.title)}
+            slug={digest.slug ?? ''}
           />
         )}
 

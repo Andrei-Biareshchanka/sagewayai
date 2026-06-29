@@ -1,34 +1,29 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
-import { generateSlug } from '@/lib/slug';
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 import { DigestPageContent } from './DigestPageContent';
 
 export const revalidate = 86400;
 
-async function getAllDigests() {
-  return prisma.dailyDigest.findMany({
-    include: { parable: true },
+export async function generateStaticParams() {
+  const digests = await prisma.dailyDigest.findMany({
+    select: { slug: true },
+    where: { slug: { not: null } },
     orderBy: { date: 'desc' },
   });
-}
-
-export async function generateStaticParams() {
-  const digests = await getAllDigests();
-  return digests.map((d) => ({ slug: generateSlug(d.parable.title) }));
+  return digests.map((d) => ({ slug: d.slug as string }));
 }
 
 async function getDigestBySlug(slug: string) {
-  const digests = await prisma.dailyDigest.findMany({
+  return prisma.dailyDigest.findUnique({
+    where: { slug },
     include: {
       quote: true,
       parable: { include: { category: true } },
     },
-    orderBy: { date: 'desc' },
   });
-  return digests.find((d) => generateSlug(d.parable.title) === slug) ?? null;
 }
 
 type PageProps = { params: Promise<{ slug: string }> };
@@ -68,16 +63,16 @@ export default async function DigestPage({ params }: PageProps) {
   const digest = await getDigestBySlug(slug);
   if (!digest) notFound();
 
-  const allDigests = await getAllDigests();
-  const related = allDigests
-    .filter((d) => generateSlug(d.parable.title) !== slug)
-    .slice(0, 3)
-    .map((d) => ({
-      date: d.date,
-      parableTitleRu: d.parable.titleRu ?? d.parable.title,
-      parableTitleEn: d.parable.title,
-      slug: generateSlug(d.parable.title),
-    }));
+  const related = await prisma.dailyDigest.findMany({
+    where: { slug: { not: slug } },
+    select: {
+      date: true,
+      slug: true,
+      parable: { select: { title: true, titleRu: true } },
+    },
+    orderBy: { date: 'desc' },
+    take: 3,
+  });
 
   const parableTitle = digest.parable.titleRu ?? digest.parable.title;
   const description = (digest.parable.contentRu ?? digest.parable.content).slice(0, 160);
@@ -123,7 +118,12 @@ export default async function DigestPage({ params }: PageProps) {
             questionRu: digest.questionRu,
             questionEn: digest.questionEn,
           }}
-          related={related}
+          related={related.map((d) => ({
+            date: d.date,
+            parableTitleRu: d.parable.titleRu ?? d.parable.title,
+            parableTitleEn: d.parable.title,
+            slug: d.slug as string,
+          }))}
         />
       </main>
       <Footer />
