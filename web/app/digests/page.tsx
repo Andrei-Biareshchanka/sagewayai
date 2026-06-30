@@ -49,6 +49,15 @@ async function getDigestsPage(page: number) {
   return { digests, totalPages: Math.max(1, Math.ceil(total / PAGE_SIZE)) };
 }
 
+function toDigestSummaries(digests: Awaited<ReturnType<typeof getDigestsPage>>['digests']) {
+  return digests.map((d) => ({
+    date: d.date,
+    slug: d.slug as string,
+    titleEn: d.titleEn ?? d.parable.title,
+    titleRu: d.titleRu ?? d.parable.titleRu ?? d.parable.title,
+  }));
+}
+
 export default async function DigestsArchivePage({ searchParams }: PageProps) {
   const { page: rawPage } = await searchParams;
   const page = parsePage(rawPage);
@@ -59,12 +68,7 @@ export default async function DigestsArchivePage({ searchParams }: PageProps) {
       <Navbar />
       <main className="flex-1 max-w-[1200px] mx-auto px-4 sm:px-6 py-12">
         <DigestsArchiveContent
-          digests={digests.map((d) => ({
-            date: d.date,
-            slug: d.slug as string,
-            titleEn: d.titleEn ?? d.parable.title,
-            titleRu: d.titleRu ?? d.parable.titleRu ?? d.parable.title,
-          }))}
+          digests={toDigestSummaries(digests)}
           page={page}
           totalPages={totalPages}
         />
