@@ -1,6 +1,7 @@
 import { Context } from 'grammy';
 import { getSubscriberState, getReferralCount } from '../lib/subscriber';
 import { t } from '../lib/i18n';
+import { buildKeyboard } from '../lib/keyboard';
 
 export async function handleSettings(ctx: Context): Promise<void> {
   const chatId = ctx.chat?.id;
@@ -23,5 +24,5 @@ export async function handleSettings(ctx: Context): Promise<void> {
     referralLine,
   ];
 
-  await ctx.reply(lines.join('\n'));
+  await ctx.reply(lines.join('\n'), { reply_markup: buildKeyboard(language) });
 }

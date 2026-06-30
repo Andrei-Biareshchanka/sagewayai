@@ -3,7 +3,7 @@ export type Language = "en" | "ru";
 const translations = {
   en: {
     welcome: "Welcome to SagewayAI 🌿\n\nA daily digest: quote · parable · reflection.",
-    dailyButton: "📖 Daily digest",
+    shareLink: "📤 Share",
     alreadySubscribed:
       "You are already subscribed. You will receive a daily digest every day.",
     subscribed:
@@ -46,7 +46,7 @@ const translations = {
   ru: {
     welcome:
       "Добро пожаловать в SagewayAI 🌿\n\nЕжедневный дайджест: цитата · притча · вывод.",
-    dailyButton: "📖 Дайджест дня",
+    shareLink: "📤 Поделиться",
     alreadySubscribed:
       "Вы уже подписаны. Вы будете получать дайджест ежедневно.",
     subscribed:

@@ -137,7 +137,9 @@ model TelegramSubscriber {
 model SituationRequest {
   id     String   @id @default(cuid())
   ip     String
+  chatId String?
   usedAt DateTime @default(now())
 
   @@index([ip, usedAt])
+  @@index([chatId, usedAt])
 }

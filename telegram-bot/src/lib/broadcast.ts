@@ -2,7 +2,7 @@ import { Bot } from 'grammy';
 import { prisma } from './prisma';
 import { Digest, fetchDailyDigest } from './digestApi';
 import { formatDigest } from './formatDigest';
-import { buildShareKeyboard } from './keyboard';
+import { buildKeyboard, buildShareUrl } from './keyboard';
 import { isSupportedLanguage, Language, t } from './i18n';
 import { trackEvent } from './analytics';
 
@@ -32,10 +32,12 @@ export async function broadcastDailyParable(bot: Bot): Promise<void> {
         revealHint: t(language, 'revealHint'),
         labelReflection: t(language, 'labelReflection'),
         labelQuestion: t(language, 'labelQuestion'),
+        shareLabel: t(language, 'shareLink'),
+        shareUrl: buildShareUrl(language, digest, chatIdNumber),
       };
       await bot.api.sendMessage(chatIdNumber, formatDigest(digest, labels), {
         parse_mode: 'MarkdownV2',
-        reply_markup: buildShareKeyboard(language, digest, chatIdNumber),
+        reply_markup: buildKeyboard(language),
       });
       trackEvent(subscriber.chatId, 'digest_opened');
     } catch {
