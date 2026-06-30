@@ -20,12 +20,13 @@ vi.mock('../services/digest', () => ({
 
 vi.mock('./anthropic', () => ({
   generateReflection: vi.fn(),
+  generateDigestTitle: vi.fn(),
 }));
 
 import { getDailyDigest } from './dailyDigest';
 import { prisma } from './prisma';
 import { findParableForQuote } from '../services/digest';
-import { generateReflection } from './anthropic';
+import { generateReflection, generateDigestTitle } from './anthropic';
 
 const mockPrisma = prisma as unknown as {
   dailyDigest: {
@@ -40,6 +41,7 @@ const mockPrisma = prisma as unknown as {
 
 const mockFindParableForQuote = findParableForQuote as ReturnType<typeof vi.fn>;
 const mockGenerateReflection = generateReflection as ReturnType<typeof vi.fn>;
+const mockGenerateDigestTitle = generateDigestTitle as ReturnType<typeof vi.fn>;
 
 const MOCK_QUOTE = {
   id: 'quote-1',
@@ -99,6 +101,7 @@ describe('getDailyDigest', () => {
     mockGenerateReflection
       .mockResolvedValueOnce({ conclusion: 'EN conclusion', question: 'EN question?' })
       .mockResolvedValueOnce({ conclusion: 'RU conclusion', question: 'RU question?' });
+    mockGenerateDigestTitle.mockResolvedValue('Test Title');
     mockPrisma.dailyDigest.create.mockResolvedValue(MOCK_DIGEST_ROW);
 
     const result = await getDailyDigest();
@@ -118,6 +121,7 @@ describe('getDailyDigest', () => {
     mockPrisma.quote.findMany.mockResolvedValue([MOCK_QUOTE]);
     mockFindParableForQuote.mockResolvedValue(MOCK_PARABLE_MATCH);
     mockGenerateReflection.mockResolvedValue({ conclusion: 'c', question: 'q?' });
+    mockGenerateDigestTitle.mockResolvedValue('Test Title');
 
     const p2002 = new Prisma.PrismaClientKnownRequestError('Unique constraint failed', {
       code: 'P2002',
@@ -136,6 +140,7 @@ describe('getDailyDigest', () => {
     mockPrisma.quote.findMany.mockResolvedValue([MOCK_QUOTE]);
     mockFindParableForQuote.mockResolvedValue(MOCK_PARABLE_MATCH);
     mockGenerateReflection.mockResolvedValue({ conclusion: 'c', question: 'q?' });
+    mockGenerateDigestTitle.mockResolvedValue('Test Title');
 
     const dbError = new Prisma.PrismaClientKnownRequestError('Connection lost', {
       code: 'P1001',

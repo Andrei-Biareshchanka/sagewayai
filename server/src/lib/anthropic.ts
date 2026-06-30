@@ -10,6 +10,61 @@ const reflectionSchema = z.object({
 
 export type Reflection = z.infer<typeof reflectionSchema>;
 
+const TITLE_INSTRUCTION_EN =
+  'Write ONE short evocative page title (4–7 words) capturing the unique connection between this quote and parable. No generic phrases, no quotes or punctuation at the end. Essay/book chapter tone. Respond with ONLY the title.';
+
+const TITLE_INSTRUCTION_RU =
+  'Напиши ОДИН короткий выразительный заголовок (4–7 слов), передающий уникальную связь между цитатой и притчей. Без общих фраз, без кавычек. Тон эссе или главы книги. Ответь ТОЛЬКО заголовком.';
+
+function buildTitleContext(
+  quoteText: string,
+  author: string,
+  parableTitle: string,
+  moral: string,
+  theme: string | null,
+  language: 'en' | 'ru',
+): string {
+  return language === 'ru'
+    ? `Цитата: "${quoteText}" — ${author}\nПритча: "${parableTitle}". Мораль: ${moral}${theme ? `\nТема: ${theme}` : ''}`
+    : `Quote: "${quoteText}" — ${author}\nParable: "${parableTitle}". Moral: ${moral}${theme ? `\nTheme: ${theme}` : ''}`;
+}
+
+function buildTitlePrompt(
+  quoteText: string,
+  author: string,
+  parableTitle: string,
+  moral: string,
+  theme: string | null,
+  language: 'en' | 'ru',
+): string {
+  const instruction = language === 'ru' ? TITLE_INSTRUCTION_RU : TITLE_INSTRUCTION_EN;
+  const context = buildTitleContext(quoteText, author, parableTitle, moral, theme, language);
+  return `${instruction}\n\n${context}`;
+}
+
+function extractTitle(response: Anthropic.Message): string {
+  const block = response.content[0];
+  if (block?.type !== 'text') throw new Error(`Unexpected response block type: ${block?.type}`);
+  return block.text.trim().replace(/^["«]|["»]$/g, '').trim();
+}
+
+export async function generateDigestTitle(
+  quoteText: string,
+  author: string,
+  parableTitle: string,
+  moral: string,
+  theme: string | null,
+  language: 'en' | 'ru',
+): Promise<string> {
+  const response = await getClient().messages.create({
+    model: MODEL,
+    max_tokens: 50,
+    temperature: 0.8,
+    messages: [{ role: 'user', content: buildTitlePrompt(quoteText, author, parableTitle, moral, theme, language) }],
+  });
+  return extractTitle(response);
+}
+
 function getClient(): Anthropic {
   const apiKey = process.env['ANTHROPIC_API_KEY'];
   if (!apiKey) throw new Error('ANTHROPIC_API_KEY is not set');

@@ -33,8 +33,11 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const digest = await getDigestBySlug(slug);
   if (!digest) return {};
 
-  const title = digest.parable.titleRu ?? digest.parable.title;
-  const description = (digest.parable.contentRu ?? digest.parable.content).slice(0, 160);
+  const title =
+    digest.titleRu ?? digest.titleEn ?? digest.parable.titleRu ?? digest.parable.title;
+  const quoteSnippet = (digest.quote.textRu ?? digest.quote.text).slice(0, 80);
+  const moral = digest.parable.moralRu ?? digest.parable.moral;
+  const description = `«${quoteSnippet}» — ${moral}`.slice(0, 160);
 
   return {
     title: `${title} | SagewayAI`,

@@ -2,7 +2,7 @@ import { DailyDigest, Parable, Prisma, Quote } from '@prisma/client';
 import { prisma } from './prisma';
 import { getTodayDate } from './daily';
 import { findParableForQuote } from '../services/digest';
-import { generateReflection } from './anthropic';
+import { generateReflection, generateDigestTitle } from './anthropic';
 import { buildDigestSlug } from './slug';
 
 const UNIQUE_CONSTRAINT_ERROR = 'P2002';
@@ -36,11 +36,20 @@ function buildParableText(title: string, content: string, moral: string): string
 }
 
 async function buildReflections(quote: Quote, parable: Awaited<ReturnType<typeof findParableForQuote>>) {
-  const [en, ru] = await Promise.all([
+  const [en, ru, titleEn, titleRu] = await Promise.all([
     generateReflection(quote.text, buildParableText(parable.title, parable.content, parable.moral), 'en'),
     generateReflection(
       quote.textRu ?? quote.text,
       buildParableText(parable.title, parable.content, parable.moral),
+      'ru',
+    ),
+    generateDigestTitle(quote.text, quote.author, parable.title, parable.moral, quote.theme ?? null, 'en'),
+    generateDigestTitle(
+      quote.textRu ?? quote.text,
+      quote.authorRu ?? quote.author,
+      parable.title,
+      parable.moral,
+      quote.theme ?? null,
       'ru',
     ),
   ]);
@@ -50,6 +59,8 @@ async function buildReflections(quote: Quote, parable: Awaited<ReturnType<typeof
     questionEn: en.question,
     conclusionRu: ru.conclusion,
     questionRu: ru.question,
+    titleEn,
+    titleRu,
   };
 }
 
