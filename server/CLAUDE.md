@@ -68,14 +68,24 @@ After schema change: `npx prisma migrate dev --name <name>` then `npx prisma gen
 | `DailyDigest` | `id`, `date` (unique), `slug?` (unique), `quoteId`, `parableId`, `conclusionEn/Ru`, `questionEn/Ru` |
 | `SituationRequest` | `id`, `ip`, `chatId?`, `usedAt` — rate limit table for `/api/digest/situation`. Web uses IP, Telegram bot passes `chatId` so each bot user has an independent 24h limit (all bot requests share one Railway IP). |
 
+Constraints: `DailyDigest` has `@@unique([parableId, quoteId])` — same parable+quote pair can only appear once ever.
+
 Seed categories: Wisdom, Motivation, Leadership, Journey, Loss, Risk, Trust, Meaning
 
-## Daily parable logic (`src/lib/daily.ts`)
+## Daily digest logic (`src/lib/dailyDigest.ts`)
 
-Each day a random parable is selected and stored in `DailyParable`. On request:
-1. Check if today's date has a record in `DailyParable`
-2. If yes — return that parable
-3. If no — pick random `Parable`, create `DailyParable` record, return it
+Each day a quote+parable pair is selected and stored in `DailyDigest`. On request:
+1. Check if today's date has a record in `DailyDigest`
+2. If yes — return it
+3. If no — pick next quote (unused first, then LRU), find best matching parable via vector similarity (excluding parables already paired with this quote), generate EN+RU reflections via Claude, generate slug, create record
+
+### Slug format (`src/lib/slug.ts`)
+
+`buildDigestSlug(prisma, parableTitle, author, theme)` — generates `{parable-title}-{author}-{theme}` (all lowercased, special chars stripped). If the base slug is taken, appends `-2`, `-3`, etc. until unique. Theme is always included when present on the quote.
+
+### Parable exclusion (`src/services/digest.ts`)
+
+`findParableForQuote(quoteId)` excludes parables already paired with this quote using vector similarity (`<=>`) with a safe `Prisma.sql` + `Prisma.join` parameterized query. This prevents the same parable from repeating with the same quote across different digests.
 
 ## Request validation
 

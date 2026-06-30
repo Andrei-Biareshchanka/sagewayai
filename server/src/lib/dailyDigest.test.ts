@@ -111,8 +111,9 @@ describe('getDailyDigest', () => {
 
   it('handles race condition (P2002) by reading the already-created record', async () => {
     mockPrisma.dailyDigest.findUnique
-      .mockResolvedValueOnce(null)
-      .mockResolvedValueOnce(MOCK_DIGEST_ROW);
+      .mockResolvedValueOnce(null)          // findDigestForDate: no digest yet
+      .mockResolvedValueOnce(null)          // buildDigestSlug: base slug not taken
+      .mockResolvedValueOnce(MOCK_DIGEST_ROW); // findDigestForDate retry after P2002
 
     mockPrisma.quote.findMany.mockResolvedValue([MOCK_QUOTE]);
     mockFindParableForQuote.mockResolvedValue(MOCK_PARABLE_MATCH);
@@ -127,7 +128,7 @@ describe('getDailyDigest', () => {
     const result = await getDailyDigest();
 
     expect(result).toEqual(MOCK_DIGEST_ROW);
-    expect(mockPrisma.dailyDigest.findUnique).toHaveBeenCalledTimes(2);
+    expect(mockPrisma.dailyDigest.findUnique).toHaveBeenCalledTimes(3);
   });
 
   it('rethrows non-P2002 errors', async () => {
