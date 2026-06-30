@@ -41,7 +41,10 @@ src/
 ├── services/          # business logic (no Express types)
 └── lib/
     ├── prisma.ts      # shared PrismaClient instance
-    └── daily.ts       # daily parable selection logic
+    ├── daily.ts       # daily parable selection logic
+    └── anthropic.ts   # Claude API helpers: generateReflection(), generateDigestTitle()
+scripts/
+└── generate-digest-titles.ts  # backfill: generates titleEn/titleRu for existing digests
 ```
 
 ## Prisma notes
@@ -65,7 +68,7 @@ After schema change: `npx prisma migrate dev --name <name>` then `npx prisma gen
 | `Parable` | `id`, `title`, `content`, `moral`, `source?`, `readTime`, `categoryId` |
 | `Category` | `id`, `name`, `slug`, `color?`, `parablesCount` |
 | `DailyParable` | `id`, `parableId`, `date` (unique per day) |
-| `DailyDigest` | `id`, `date` (unique), `slug?` (unique), `quoteId`, `parableId`, `conclusionEn/Ru`, `questionEn/Ru` |
+| `DailyDigest` | `id`, `date` (unique), `slug?` (unique), `titleEn?`, `titleRu?`, `quoteId`, `parableId`, `conclusionEn/Ru`, `questionEn/Ru` |
 | `SituationRequest` | `id`, `ip`, `chatId?`, `usedAt` — rate limit table for `/api/digest/situation`. Web uses IP, Telegram bot passes `chatId` so each bot user has an independent 24h limit (all bot requests share one Railway IP). |
 
 Constraints: `DailyDigest` has `@@unique([parableId, quoteId])` — same parable+quote pair can only appear once ever.
@@ -77,7 +80,11 @@ Seed categories: Wisdom, Motivation, Leadership, Journey, Loss, Risk, Trust, Mea
 Each day a quote+parable pair is selected and stored in `DailyDigest`. On request:
 1. Check if today's date has a record in `DailyDigest`
 2. If yes — return it
-3. If no — pick next quote (unused first, then LRU), find best matching parable via vector similarity (excluding parables already paired with this quote), generate EN+RU reflections via Claude, generate slug, create record
+3. If no — pick next quote (unused first, then LRU), find best matching parable via vector similarity (excluding parables already paired with this quote), generate EN+RU reflections **and AI titles** via Claude in parallel, generate slug, create record
+
+### AI titles (`src/lib/anthropic.ts`)
+
+`generateDigestTitle(quoteText, author, parableTitle, moral, theme, language)` — calls Claude (`max_tokens: 50, temperature: 0.8`) to produce a 4-7 word evocative page title capturing the unique connection between the specific quote and parable. Titles are unique across digests even when parables repeat, because they reflect the quote+parable combination. Generated in both `'en'` and `'ru'` in parallel alongside reflections and stored as `titleEn`/`titleRu` on `DailyDigest`.
 
 ### Slug format (`src/lib/slug.ts`)
 

@@ -198,6 +198,8 @@ Server passes **both RU and EN** fields to `DigestPageContent` for all content, 
 
 Includes JSON-LD Article schema and full OpenGraph metadata.
 
+`generateMetadata` uses `digest.titleRu ?? digest.titleEn` (AI-generated, stored in DB) as the page `<title>`, falling back to the parable title. Description is built from the quote snippet + parable moral for unique, content-rich SEO snippets per page.
+
 ### POST /api/situation
 Proxy to Express backend. Reads real user IP from `x-forwarded-for`, forwards it for IP-based rate limiting.
 
