@@ -17,6 +17,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: 'daily',
       priority: 1,
     },
+    {
+      url: 'https://sagewayai.com/digests',
+      lastModified: new Date(),
+      changeFrequency: 'daily',
+      priority: 0.6,
+    },
     ...digests.map((d) => ({
       url: `https://sagewayai.com/d/${d.slug}`,
       lastModified: d.date,

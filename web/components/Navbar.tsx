@@ -26,7 +26,15 @@ export function Navbar() {
             className="h-[30px] w-auto"
           />
         </Link>
-        <LanguageToggle lang={lang} onChange={setLang} />
+        <div className="flex items-center gap-4">
+          <Link
+            href="/digests"
+            className="font-sans text-sm text-muted hover:text-ink transition-colors"
+          >
+            {lang === 'ru' ? 'Архив' : 'Archive'}
+          </Link>
+          <LanguageToggle lang={lang} onChange={setLang} />
+        </div>
       </nav>
     </header>
   );
