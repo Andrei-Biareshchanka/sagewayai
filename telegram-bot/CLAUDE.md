@@ -64,8 +64,9 @@ Claude Sonnet 4.6      ← generates reflection + question (once/day, cached in 
 
 | Button | What it does |
 |---|---|
-| 📖 Daily digest / Дайджест дня | Same as `/digest` |
 | 🎯 For my situation / Под мою ситуацию | Prompts user to describe their situation (with examples), returns a digest tailored to it via `POST /api/digest/situation`. Rate-limited to 1 request per 24h per user. |
+
+**Keyboard sync strategy:** `buildKeyboard` is attached to every bot reply that does not already use an `InlineKeyboard`. The broadcast digest is sent daily to all subscribers with `reply_markup: buildKeyboard` — this auto-refreshes the keyboard for all users without any action on their part. Future keyboard changes propagate automatically.
 
 ## Digest format (MarkdownV2)
 
@@ -85,12 +86,13 @@ parable content
 *❓ Question*
 visible question
 
-[🔗 Share]  ← inline button, opens Telegram share sheet
+[📤 Share](https://t.me/share/url?...)  ← inline text link inside message
 ```
 
 - Reflection is hidden with Telegram spoiler tags (`||text||`)
 - Question is always visible
-- Share button includes quote + parable + question (no reflection) + referral bot link
+- Share link is embedded as a MarkdownV2 inline link (not an InlineKeyboard button) so the `reply_markup` slot stays free for `buildKeyboard`
+- Share link includes quote + parable + question (no reflection) + referral bot link
 
 ## Analytics
 

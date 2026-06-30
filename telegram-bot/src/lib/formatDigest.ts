@@ -5,10 +5,12 @@ export interface DigestLabels {
   revealHint: string;
   labelReflection: string;
   labelQuestion: string;
+  shareLabel?: string;
+  shareUrl?: string;
 }
 
 export function formatDigest(digest: Digest, labels: DigestLabels): string {
-  return [
+  const lines = [
     `💬 _${escapeMarkdown(digest.quote.text)}_`,
     `— ${escapeMarkdown(digest.quote.author)}`,
     '',
@@ -23,5 +25,11 @@ export function formatDigest(digest: Digest, labels: DigestLabels): string {
     '',
     `*${escapeMarkdown(labels.labelQuestion)}*`,
     escapeMarkdown(digest.question),
-  ].join('\n');
+  ];
+
+  if (labels.shareLabel && labels.shareUrl) {
+    lines.push('', `[${escapeMarkdown(labels.shareLabel)}](${labels.shareUrl})`);
+  }
+
+  return lines.join('\n');
 }

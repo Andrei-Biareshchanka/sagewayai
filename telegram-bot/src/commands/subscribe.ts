@@ -3,9 +3,10 @@ import { getSubscriberState, setActive } from '../lib/subscriber';
 import { Language, t, TranslationKey } from '../lib/i18n';
 import { syncUserCommands } from '../lib/syncCommands';
 import { trackEvent } from '../lib/analytics';
+import { buildKeyboard } from '../lib/keyboard';
 
 async function reply(ctx: Context, key: TranslationKey, language: Language): Promise<void> {
-  await ctx.reply(t(language, key));
+  await ctx.reply(t(language, key), { reply_markup: buildKeyboard(language) });
 }
 
 export async function handleSubscribe(ctx: Context): Promise<void> {

@@ -65,6 +65,8 @@ After schema change: `npx prisma migrate dev --name <name>` then `npx prisma gen
 | `Parable` | `id`, `title`, `content`, `moral`, `source?`, `readTime`, `categoryId` |
 | `Category` | `id`, `name`, `slug`, `color?`, `parablesCount` |
 | `DailyParable` | `id`, `parableId`, `date` (unique per day) |
+| `DailyDigest` | `id`, `date` (unique), `slug?` (unique), `quoteId`, `parableId`, `conclusionEn/Ru`, `questionEn/Ru` |
+| `SituationRequest` | `id`, `ip`, `chatId?`, `usedAt` — rate limit table for `/api/digest/situation`. Web uses IP, Telegram bot passes `chatId` so each bot user has an independent 24h limit (all bot requests share one Railway IP). |
 
 Seed categories: Wisdom, Motivation, Leadership, Journey, Loss, Risk, Trust, Meaning
 

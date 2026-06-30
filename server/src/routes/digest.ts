@@ -52,6 +52,7 @@ digestRouter.get('/daily', async (req, res) => {
 const situationBodySchema = z.object({
   situation: z.string().min(10).max(1000),
   lang: z.enum(['en', 'ru']).default('en'),
+  chatId: z.string().optional(),
 });
 
 type ParableRow = { id: string; title: string; titleRu: string | null; content: string; contentRu: string | null };
@@ -63,7 +64,7 @@ digestRouter.post('/situation', async (req, res) => {
     res.status(400).json({ error: bodyResult.error.issues[0]?.message });
     return;
   }
-  const { situation, lang } = bodyResult.data;
+  const { situation, lang, chatId } = bodyResult.data;
 
   const ip =
     (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() ??
@@ -71,9 +72,10 @@ digestRouter.post('/situation', async (req, res) => {
     'unknown';
 
   const since = new Date(Date.now() - 24 * 60 * 60 * 1000);
-  const last = await prisma.situationRequest.findFirst({
-    where: { ip, usedAt: { gte: since } },
-  });
+
+  const last = chatId
+    ? await prisma.situationRequest.findFirst({ where: { chatId, usedAt: { gte: since } } })
+    : await prisma.situationRequest.findFirst({ where: { ip, usedAt: { gte: since } } });
 
   if (last) {
     const msLeft = last.usedAt.getTime() + 86_400_000 - Date.now();
@@ -87,7 +89,7 @@ digestRouter.post('/situation', async (req, res) => {
     return;
   }
 
-  await prisma.situationRequest.create({ data: { ip } });
+  await prisma.situationRequest.create({ data: { ip, chatId } });
 
   const embedding = await getEmbedding(situation, 'query');
   const vector = `[${embedding.join(',')}]`;

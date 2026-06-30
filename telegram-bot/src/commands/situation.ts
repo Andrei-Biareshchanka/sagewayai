@@ -1,5 +1,5 @@
 import { Context } from 'grammy';
-import { buildShareKeyboard } from '../lib/keyboard';
+import { buildKeyboard, buildShareUrl } from '../lib/keyboard';
 import { fetchSituationDigest } from '../lib/digestApi';
 import { formatDigest } from '../lib/formatDigest';
 import { t } from '../lib/i18n';
@@ -37,14 +37,16 @@ export async function handleSituationButton(ctx: Context): Promise<void> {
     if (elapsed < RATE_LIMIT_MS) {
       const remaining = RATE_LIMIT_MS - elapsed;
       const timeStr = formatTimeRemaining(remaining, language);
-      await ctx.reply(`${t(language, 'situationRateLimitPrefix')} ${timeStr}`);
+      await ctx.reply(`${t(language, 'situationRateLimitPrefix')} ${timeStr}`, {
+        reply_markup: buildKeyboard(language),
+      });
       return;
     }
   }
 
   waitingForSituation.set(chatId, true);
   trackEvent(BigInt(chatId), 'situation_used');
-  await ctx.reply(t(language, 'situationPrompt'));
+  await ctx.reply(t(language, 'situationPrompt'), { reply_markup: buildKeyboard(language) });
 }
 
 export function isWaitingForSituation(chatId: number): boolean {
@@ -62,7 +64,7 @@ export async function handleSituationText(ctx: Context): Promise<void> {
     const msg = t(language, 'situationTooShort')
       .replace('{current}', String(text.length))
       .replace('{min}', String(MIN_LENGTH));
-    await ctx.reply(msg);
+    await ctx.reply(msg, { reply_markup: buildKeyboard(language) });
     return;
   }
 
@@ -70,7 +72,7 @@ export async function handleSituationText(ctx: Context): Promise<void> {
     const msg = t(language, 'situationTooLong')
       .replace('{current}', String(text.length))
       .replace('{max}', String(MAX_LENGTH));
-    await ctx.reply(msg);
+    await ctx.reply(msg, { reply_markup: buildKeyboard(language) });
     return;
   }
 
@@ -79,7 +81,7 @@ export async function handleSituationText(ctx: Context): Promise<void> {
 
   try {
     await ctx.api.sendChatAction(chatId, 'typing');
-    const digest = await fetchSituationDigest(text, language);
+    const digest = await fetchSituationDigest(text, language, chatId);
     await setSituationUsedAt(chatId);
     trackEvent(BigInt(chatId), 'situation_result');
 
@@ -87,15 +89,17 @@ export async function handleSituationText(ctx: Context): Promise<void> {
       revealHint: t(language, 'revealHint'),
       labelReflection: t(language, 'labelReflection'),
       labelQuestion: t(language, 'labelQuestion'),
+      shareLabel: t(language, 'shareLink'),
+      shareUrl: buildShareUrl(language, digest, chatId),
     };
 
     await ctx.api.deleteMessage(chatId, loadingMsg.message_id);
     await ctx.reply(formatDigest(digest, labels), {
       parse_mode: 'MarkdownV2',
-      reply_markup: buildShareKeyboard(language, digest, chatId),
+      reply_markup: buildKeyboard(language),
     });
   } catch {
     await ctx.api.deleteMessage(chatId, loadingMsg.message_id);
-    await ctx.reply(t(language, 'situationError'));
+    await ctx.reply(t(language, 'situationError'), { reply_markup: buildKeyboard(language) });
   }
 }

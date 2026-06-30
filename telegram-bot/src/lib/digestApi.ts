@@ -34,11 +34,11 @@ export async function fetchDailyDigest(language: Language): Promise<Digest> {
 
 const situationDigestSchema = digestSchema.omit({ date: true });
 
-export async function fetchSituationDigest(situation: string, language: Language): Promise<Digest> {
+export async function fetchSituationDigest(situation: string, language: Language, chatId: number): Promise<Digest> {
   const response = await fetch(`${API_URL}/api/digest/situation`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ situation, lang: language }),
+    body: JSON.stringify({ situation, lang: language, chatId: String(chatId) }),
   });
   if (!response.ok) {
     throw new Error(`Situation API error ${response.status}`);
