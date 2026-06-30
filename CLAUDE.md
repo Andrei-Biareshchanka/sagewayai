@@ -92,6 +92,7 @@ See **[CONVENTIONS.md](./CONVENTIONS.md)** for the full coding style guide.
 | Command | Purpose |
 |---------|---------|
 | `/sagewayai-reviewer` | Architecture-aware code review — checks TypeScript, Zod, Prisma patterns, error handling |
+| `/schema-sync-check` | Checks `server/`, `web/`, `telegram-bot/` Prisma schemas for drift on shared models — these three point at one database, so a field added in one and missed in another can break or crash the others |
 | `/parable-formatter` | Validate and format a new parable before adding to the database |
 | `/new-parable [category]` | Scaffold a new parable interactively, validates with parable-formatter, appends to seed.ts |
 | `/new-migration <name>` | Create a Prisma migration with confirmation and error guidance |
@@ -137,9 +138,13 @@ Configured in `.claude/settings.json` (committed):
 | Trigger | What runs |
 |---------|-----------|
 | Edit `server/prisma/seed.ts` | `parable-formatter` validates all parables in the file |
+| `git commit` | `schema-sync-check` checks staged Prisma schema changes for drift across server/web/telegram-bot — blocks on drift |
 | `git commit` | `sagewayai-reviewer` checks staged diff — blocks on violations |
+| `gh pr create` | `schema-sync-check` checks branch's Prisma schema changes for drift across server/web/telegram-bot — blocks on drift |
 | `gh pr create` | `sagewayai-reviewer` checks full branch diff — blocks on violations |
 | `gh pr create` | `security-reviewer` scans for vulnerabilities — blocks on critical, warns on lesser issues |
+
+`schema-sync-check` exists because `server/`, `web/`, and `telegram-bot/` each keep their own `prisma/schema.prisma` pointing at the **same shared database**. telegram-bot runs `prisma db push` automatically on every deploy — if a shared model (e.g. `DailyDigest`) gains a field in one schema but not the others, the next push from the lagging package either drops that column or fails and takes the service down (this happened to the bot on 2026-06-30 when `slug`/`titleEn`/`titleRu` were added to `DailyDigest` in `server/` but not `telegram-bot/`). See `.claude/commands/schema-sync-check.md`.
 
 ## Current phase
 
