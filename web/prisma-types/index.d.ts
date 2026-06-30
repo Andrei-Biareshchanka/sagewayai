@@ -4336,6 +4336,8 @@ export namespace Prisma {
     id: string | null
     date: Date | null
     slug: string | null
+    titleEn: string | null
+    titleRu: string | null
     quoteId: string | null
     parableId: string | null
     conclusionEn: string | null
@@ -4349,6 +4351,8 @@ export namespace Prisma {
     id: string | null
     date: Date | null
     slug: string | null
+    titleEn: string | null
+    titleRu: string | null
     quoteId: string | null
     parableId: string | null
     conclusionEn: string | null
@@ -4362,6 +4366,8 @@ export namespace Prisma {
     id: number
     date: number
     slug: number
+    titleEn: number
+    titleRu: number
     quoteId: number
     parableId: number
     conclusionEn: number
@@ -4377,6 +4383,8 @@ export namespace Prisma {
     id?: true
     date?: true
     slug?: true
+    titleEn?: true
+    titleRu?: true
     quoteId?: true
     parableId?: true
     conclusionEn?: true
@@ -4390,6 +4398,8 @@ export namespace Prisma {
     id?: true
     date?: true
     slug?: true
+    titleEn?: true
+    titleRu?: true
     quoteId?: true
     parableId?: true
     conclusionEn?: true
@@ -4403,6 +4413,8 @@ export namespace Prisma {
     id?: true
     date?: true
     slug?: true
+    titleEn?: true
+    titleRu?: true
     quoteId?: true
     parableId?: true
     conclusionEn?: true
@@ -4489,6 +4501,8 @@ export namespace Prisma {
     id: string
     date: Date
     slug: string | null
+    titleEn: string | null
+    titleRu: string | null
     quoteId: string
     parableId: string
     conclusionEn: string
@@ -4519,6 +4533,8 @@ export namespace Prisma {
     id?: boolean
     date?: boolean
     slug?: boolean
+    titleEn?: boolean
+    titleRu?: boolean
     quoteId?: boolean
     parableId?: boolean
     conclusionEn?: boolean
@@ -4534,6 +4550,8 @@ export namespace Prisma {
     id?: boolean
     date?: boolean
     slug?: boolean
+    titleEn?: boolean
+    titleRu?: boolean
     quoteId?: boolean
     parableId?: boolean
     conclusionEn?: boolean
@@ -4549,6 +4567,8 @@ export namespace Prisma {
     id?: boolean
     date?: boolean
     slug?: boolean
+    titleEn?: boolean
+    titleRu?: boolean
     quoteId?: boolean
     parableId?: boolean
     conclusionEn?: boolean
@@ -4564,6 +4584,8 @@ export namespace Prisma {
     id?: boolean
     date?: boolean
     slug?: boolean
+    titleEn?: boolean
+    titleRu?: boolean
     quoteId?: boolean
     parableId?: boolean
     conclusionEn?: boolean
@@ -4573,7 +4595,7 @@ export namespace Prisma {
     createdAt?: boolean
   }
 
-  export type DailyDigestOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "date" | "slug" | "quoteId" | "parableId" | "conclusionEn" | "conclusionRu" | "questionEn" | "questionRu" | "createdAt", ExtArgs["result"]["dailyDigest"]>
+  export type DailyDigestOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "date" | "slug" | "titleEn" | "titleRu" | "quoteId" | "parableId" | "conclusionEn" | "conclusionRu" | "questionEn" | "questionRu" | "createdAt", ExtArgs["result"]["dailyDigest"]>
   export type DailyDigestInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     quote?: boolean | QuoteDefaultArgs<ExtArgs>
     parable?: boolean | ParableDefaultArgs<ExtArgs>
@@ -4597,6 +4619,8 @@ export namespace Prisma {
       id: string
       date: Date
       slug: string | null
+      titleEn: string | null
+      titleRu: string | null
       quoteId: string
       parableId: string
       conclusionEn: string
@@ -5032,6 +5056,8 @@ export namespace Prisma {
     readonly id: FieldRef<"DailyDigest", 'String'>
     readonly date: FieldRef<"DailyDigest", 'DateTime'>
     readonly slug: FieldRef<"DailyDigest", 'String'>
+    readonly titleEn: FieldRef<"DailyDigest", 'String'>
+    readonly titleRu: FieldRef<"DailyDigest", 'String'>
     readonly quoteId: FieldRef<"DailyDigest", 'String'>
     readonly parableId: FieldRef<"DailyDigest", 'String'>
     readonly conclusionEn: FieldRef<"DailyDigest", 'String'>
@@ -13955,6 +13981,8 @@ export namespace Prisma {
     id: 'id',
     date: 'date',
     slug: 'slug',
+    titleEn: 'titleEn',
+    titleRu: 'titleRu',
     quoteId: 'quoteId',
     parableId: 'parableId',
     conclusionEn: 'conclusionEn',
@@ -14359,6 +14387,8 @@ export namespace Prisma {
     id?: StringFilter<"DailyDigest"> | string
     date?: DateTimeFilter<"DailyDigest"> | Date | string
     slug?: StringNullableFilter<"DailyDigest"> | string | null
+    titleEn?: StringNullableFilter<"DailyDigest"> | string | null
+    titleRu?: StringNullableFilter<"DailyDigest"> | string | null
     quoteId?: StringFilter<"DailyDigest"> | string
     parableId?: StringFilter<"DailyDigest"> | string
     conclusionEn?: StringFilter<"DailyDigest"> | string
@@ -14374,6 +14404,8 @@ export namespace Prisma {
     id?: SortOrder
     date?: SortOrder
     slug?: SortOrderInput | SortOrder
+    titleEn?: SortOrderInput | SortOrder
+    titleRu?: SortOrderInput | SortOrder
     quoteId?: SortOrder
     parableId?: SortOrder
     conclusionEn?: SortOrder
@@ -14393,6 +14425,8 @@ export namespace Prisma {
     AND?: DailyDigestWhereInput | DailyDigestWhereInput[]
     OR?: DailyDigestWhereInput[]
     NOT?: DailyDigestWhereInput | DailyDigestWhereInput[]
+    titleEn?: StringNullableFilter<"DailyDigest"> | string | null
+    titleRu?: StringNullableFilter<"DailyDigest"> | string | null
     quoteId?: StringFilter<"DailyDigest"> | string
     parableId?: StringFilter<"DailyDigest"> | string
     conclusionEn?: StringFilter<"DailyDigest"> | string
@@ -14408,6 +14442,8 @@ export namespace Prisma {
     id?: SortOrder
     date?: SortOrder
     slug?: SortOrderInput | SortOrder
+    titleEn?: SortOrderInput | SortOrder
+    titleRu?: SortOrderInput | SortOrder
     quoteId?: SortOrder
     parableId?: SortOrder
     conclusionEn?: SortOrder
@@ -14427,6 +14463,8 @@ export namespace Prisma {
     id?: StringWithAggregatesFilter<"DailyDigest"> | string
     date?: DateTimeWithAggregatesFilter<"DailyDigest"> | Date | string
     slug?: StringNullableWithAggregatesFilter<"DailyDigest"> | string | null
+    titleEn?: StringNullableWithAggregatesFilter<"DailyDigest"> | string | null
+    titleRu?: StringNullableWithAggregatesFilter<"DailyDigest"> | string | null
     quoteId?: StringWithAggregatesFilter<"DailyDigest"> | string
     parableId?: StringWithAggregatesFilter<"DailyDigest"> | string
     conclusionEn?: StringWithAggregatesFilter<"DailyDigest"> | string
@@ -15084,6 +15122,8 @@ export namespace Prisma {
     id?: string
     date: Date | string
     slug?: string | null
+    titleEn?: string | null
+    titleRu?: string | null
     conclusionEn: string
     conclusionRu: string
     questionEn: string
@@ -15097,6 +15137,8 @@ export namespace Prisma {
     id?: string
     date: Date | string
     slug?: string | null
+    titleEn?: string | null
+    titleRu?: string | null
     quoteId: string
     parableId: string
     conclusionEn: string
@@ -15110,6 +15152,8 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     date?: DateTimeFieldUpdateOperationsInput | Date | string
     slug?: NullableStringFieldUpdateOperationsInput | string | null
+    titleEn?: NullableStringFieldUpdateOperationsInput | string | null
+    titleRu?: NullableStringFieldUpdateOperationsInput | string | null
     conclusionEn?: StringFieldUpdateOperationsInput | string
     conclusionRu?: StringFieldUpdateOperationsInput | string
     questionEn?: StringFieldUpdateOperationsInput | string
@@ -15123,6 +15167,8 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     date?: DateTimeFieldUpdateOperationsInput | Date | string
     slug?: NullableStringFieldUpdateOperationsInput | string | null
+    titleEn?: NullableStringFieldUpdateOperationsInput | string | null
+    titleRu?: NullableStringFieldUpdateOperationsInput | string | null
     quoteId?: StringFieldUpdateOperationsInput | string
     parableId?: StringFieldUpdateOperationsInput | string
     conclusionEn?: StringFieldUpdateOperationsInput | string
@@ -15136,6 +15182,8 @@ export namespace Prisma {
     id?: string
     date: Date | string
     slug?: string | null
+    titleEn?: string | null
+    titleRu?: string | null
     quoteId: string
     parableId: string
     conclusionEn: string
@@ -15149,6 +15197,8 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     date?: DateTimeFieldUpdateOperationsInput | Date | string
     slug?: NullableStringFieldUpdateOperationsInput | string | null
+    titleEn?: NullableStringFieldUpdateOperationsInput | string | null
+    titleRu?: NullableStringFieldUpdateOperationsInput | string | null
     conclusionEn?: StringFieldUpdateOperationsInput | string
     conclusionRu?: StringFieldUpdateOperationsInput | string
     questionEn?: StringFieldUpdateOperationsInput | string
@@ -15160,6 +15210,8 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     date?: DateTimeFieldUpdateOperationsInput | Date | string
     slug?: NullableStringFieldUpdateOperationsInput | string | null
+    titleEn?: NullableStringFieldUpdateOperationsInput | string | null
+    titleRu?: NullableStringFieldUpdateOperationsInput | string | null
     quoteId?: StringFieldUpdateOperationsInput | string
     parableId?: StringFieldUpdateOperationsInput | string
     conclusionEn?: StringFieldUpdateOperationsInput | string
@@ -15905,6 +15957,8 @@ export namespace Prisma {
     id?: SortOrder
     date?: SortOrder
     slug?: SortOrder
+    titleEn?: SortOrder
+    titleRu?: SortOrder
     quoteId?: SortOrder
     parableId?: SortOrder
     conclusionEn?: SortOrder
@@ -15918,6 +15972,8 @@ export namespace Prisma {
     id?: SortOrder
     date?: SortOrder
     slug?: SortOrder
+    titleEn?: SortOrder
+    titleRu?: SortOrder
     quoteId?: SortOrder
     parableId?: SortOrder
     conclusionEn?: SortOrder
@@ -15931,6 +15987,8 @@ export namespace Prisma {
     id?: SortOrder
     date?: SortOrder
     slug?: SortOrder
+    titleEn?: SortOrder
+    titleRu?: SortOrder
     quoteId?: SortOrder
     parableId?: SortOrder
     conclusionEn?: SortOrder

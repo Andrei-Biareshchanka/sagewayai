@@ -48,6 +48,8 @@ model DailyDigest {
   id           String   @id @default(cuid())
   date         DateTime @unique @db.Date
   slug         String?  @unique
+  titleEn      String?
+  titleRu      String?
   quote        Quote    @relation(fields: [quoteId], references: [id])
   quoteId      String
   parable      Parable  @relation(fields: [parableId], references: [id])
