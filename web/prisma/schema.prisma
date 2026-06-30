@@ -8,18 +8,18 @@ datasource db {
 }
 
 model Parable {
-  id         String        @id @default(cuid())
+  id         String                       @id @default(cuid())
   title      String
-  content    String        @db.Text
+  content    String                       @db.Text
   moral      String
   titleRu    String?
-  contentRu  String?       @db.Text
+  contentRu  String?                      @db.Text
   moralRu    String?
   source     String?
   readTime   Int
-  createdAt  DateTime      @default(now())
-  updatedAt  DateTime      @updatedAt
-  category   Category      @relation(fields: [categoryId], references: [id])
+  createdAt  DateTime                     @default(now())
+  updatedAt  DateTime                     @updatedAt
+  category   Category                     @relation(fields: [categoryId], references: [id])
   categoryId String
   dailies    DailyParable[]
   digests    DailyDigest[]
@@ -31,14 +31,14 @@ model Parable {
 }
 
 model Quote {
-  id        String   @id @default(cuid())
-  text      String   @db.Text
-  textRu    String?  @db.Text
+  id        String                       @id @default(cuid())
+  text      String                       @db.Text
+  textRu    String?                      @db.Text
   author    String
   authorRu  String?
   theme     String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime                     @default(now())
+  updatedAt DateTime                     @updatedAt
   embedding Unsupported("vector(1024)")?
   digests   DailyDigest[]
 
@@ -120,8 +120,8 @@ model EmailSubscriber {
 model Favorite {
   userId    String
   parableId String
-  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  parable   Parable @relation(fields: [parableId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  parable   Parable  @relation(fields: [parableId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
 
   @@id([userId, parableId])
@@ -134,13 +134,16 @@ model TelegramSubscriber {
   active          Boolean   @default(true)
   language        String    @default("en")
   situationUsedAt DateTime?
+  referredBy      BigInt?
   createdAt       DateTime  @default(now())
 }
 
 model SituationRequest {
   id     String   @id @default(cuid())
   ip     String
+  chatId String?
   usedAt DateTime @default(now())
 
   @@index([ip, usedAt])
+  @@index([chatId, usedAt])
 }
