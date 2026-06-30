@@ -10,6 +10,25 @@ const reflectionSchema = z.object({
 
 export type Reflection = z.infer<typeof reflectionSchema>;
 
+const TITLE_INSTRUCTION_EN =
+  'Write ONE short evocative page title (4–7 words) capturing the unique connection between this quote and parable. No generic phrases, no quotes or punctuation at the end. Essay/book chapter tone. Respond with ONLY the title.';
+
+const TITLE_INSTRUCTION_RU =
+  'Напиши ОДИН короткий выразительный заголовок (4–7 слов), передающий уникальную связь между цитатой и притчей. Без общих фраз, без кавычек. Тон эссе или главы книги. Ответь ТОЛЬКО заголовком.';
+
+function buildTitleContext(
+  quoteText: string,
+  author: string,
+  parableTitle: string,
+  moral: string,
+  theme: string | null,
+  language: 'en' | 'ru',
+): string {
+  return language === 'ru'
+    ? `Цитата: "${quoteText}" — ${author}\nПритча: "${parableTitle}". Мораль: ${moral}${theme ? `\nТема: ${theme}` : ''}`
+    : `Quote: "${quoteText}" — ${author}\nParable: "${parableTitle}". Moral: ${moral}${theme ? `\nTheme: ${theme}` : ''}`;
+}
+
 function buildTitlePrompt(
   quoteText: string,
   author: string,
@@ -18,37 +37,15 @@ function buildTitlePrompt(
   theme: string | null,
   language: 'en' | 'ru',
 ): string {
-  if (language === 'ru') {
-    return `Ты пишешь SEO-заголовок для страницы на сайте мудрости SagewayAI.
+  const instruction = language === 'ru' ? TITLE_INSTRUCTION_RU : TITLE_INSTRUCTION_EN;
+  const context = buildTitleContext(quoteText, author, parableTitle, moral, theme, language);
+  return `${instruction}\n\n${context}`;
+}
 
-Цитата: "${quoteText}" — ${author}
-Притча: "${parableTitle}". Мораль: ${moral}${theme ? `\nТема: ${theme}` : ''}
-
-Напиши ОДИН короткий выразительный заголовок (4–7 слов) который передаёт уникальную связь между этой цитатой и притчей.
-
-Требования:
-- Без общих фраз ("Мудрость дня", "Урок дня", "Притча о...")
-- Без кавычек и знаков препинания в конце
-- Звучит как название эссе или главы книги
-- Отражает конкретный инсайт этой пары
-
-Ответь ТОЛЬКО заголовком — без пояснений, без кавычек.`;
-  }
-
-  return `You are writing an SEO page title for a wisdom website called SagewayAI.
-
-Quote: "${quoteText}" — ${author}
-Parable: "${parableTitle}". Moral: ${moral}${theme ? `\nTheme: ${theme}` : ''}
-
-Write ONE short evocative page title (4–7 words) that captures the unique connection between this quote and parable.
-
-Rules:
-- No generic phrases ("Daily wisdom", "Lesson of the day", "A parable about...")
-- No quotes or punctuation at the end
-- Feels like an essay or book chapter title
-- Must reflect the specific insight of this pair
-
-Respond with ONLY the title — no explanation, no quotes.`;
+function extractTitle(response: Anthropic.Message): string {
+  const block = response.content[0];
+  if (block?.type !== 'text') throw new Error(`Unexpected response block type: ${block?.type}`);
+  return block.text.trim().replace(/^["«]|["»]$/g, '').trim();
 }
 
 export async function generateDigestTitle(
@@ -59,26 +56,13 @@ export async function generateDigestTitle(
   theme: string | null,
   language: 'en' | 'ru',
 ): Promise<string> {
-  const client = getClient();
-
-  const response = await client.messages.create({
+  const response = await getClient().messages.create({
     model: MODEL,
     max_tokens: 50,
     temperature: 0.8,
-    messages: [
-      {
-        role: 'user',
-        content: buildTitlePrompt(quoteText, author, parableTitle, moral, theme, language),
-      },
-    ],
+    messages: [{ role: 'user', content: buildTitlePrompt(quoteText, author, parableTitle, moral, theme, language) }],
   });
-
-  const block = response.content[0];
-  if (block?.type !== 'text') {
-    throw new Error(`Unexpected response block type: ${block?.type}`);
-  }
-
-  return block.text.trim().replace(/^["«]|["»]$/g, '').trim();
+  return extractTitle(response);
 }
 
 function getClient(): Anthropic {
