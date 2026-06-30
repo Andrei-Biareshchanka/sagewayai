@@ -41,7 +41,7 @@ Claude Sonnet 4.6      ← generates reflection + question (once/day, cached in 
 | `src/lib/digestApi.ts` | HTTP client to `GET /api/digest/daily?lang=` and `POST /api/digest/situation` |
 | `src/lib/formatDigest.ts` | Formats digest as MarkdownV2 with spoiler on reflection |
 | `src/lib/broadcast.ts` | Daily broadcast to all active subscribers |
-| `src/lib/keyboard.ts` | Reply keyboard + share inline keyboard (with referral link) |
+| `src/lib/keyboard.ts` | `buildKeyboard()` — reply keyboard; `buildShareUrl()` — MarkdownV2-safe share link embedded by `formatDigest` |
 | `src/lib/syncCommands.ts` | Per-user dynamic slash menu via `setMyCommands` |
 | `src/lib/i18n.ts` | All EN/RU strings — single source of truth |
 | `src/lib/botInfo.ts` | Stores bot username after `bot.init()` |
