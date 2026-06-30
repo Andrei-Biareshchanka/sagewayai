@@ -25,6 +25,11 @@ Claude Sonnet 4.6      ← generates reflection + question (once/day, cached in 
 
 **Deploy:** Railway (polling mode, not webhook). On each deploy `prisma db push` runs automatically before the bot starts.
 
+## Shared data models (read here, owned across packages)
+
+- `TelegramSubscriber.referredBy` — the referring subscriber's `chatId`, set during `/start` referral parsing (`src/commands/start.ts`). Owned by `telegram-bot/`, mirrored in `server/` and `web/` schemas for `schema-sync-check` (see root `CLAUDE.md`).
+- `SituationRequest` — rate-limit table for the "🎯 For my situation" flow (`src/commands/situation.ts`). Bot requests use `chatId` (not `ip`) so each subscriber gets an independent 24h limit, since all bot requests share one Railway IP.
+
 ## Key files
 
 | File | Purpose |

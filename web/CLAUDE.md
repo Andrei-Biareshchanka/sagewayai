@@ -210,7 +210,9 @@ Edge runtime. Accepts `?title=...&lang=ru|en`. Returns 1200×630 OG image. Uses 
 
 **Client-side (cookie):** `SituationSearch` checks cookie `swai_situation_used_at` (24h cooldown).
 
-**Server-side (IP + DB):** Express checks `SituationRequest` table by IP. Returns 429 with `retryAfter` ms.
+**Server-side (IP + DB):** Express checks `SituationRequest` table by IP (or `chatId` for Telegram bot requests). Returns 429 with `retryAfter` ms.
+
+`web/prisma/schema.prisma` is a read-only copy of the shared schema — it also carries `TelegramSubscriber.referredBy` (referral tracking, owned by `telegram-bot/`) even though `web/` doesn't read it, to stay in sync with `server/` and `telegram-bot/` (see root `CLAUDE.md` → `schema-sync-check`).
 
 ## Design system
 

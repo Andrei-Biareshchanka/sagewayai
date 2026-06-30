@@ -70,6 +70,7 @@ After schema change: `npx prisma migrate dev --name <name>` then `npx prisma gen
 | `DailyParable` | `id`, `parableId`, `date` (unique per day) |
 | `DailyDigest` | `id`, `date` (unique), `slug?` (unique), `titleEn?`, `titleRu?`, `quoteId`, `parableId`, `conclusionEn/Ru`, `questionEn/Ru` |
 | `SituationRequest` | `id`, `ip`, `chatId?`, `usedAt` — rate limit table for `/api/digest/situation`. Web uses IP, Telegram bot passes `chatId` so each bot user has an independent 24h limit (all bot requests share one Railway IP). |
+| `TelegramSubscriber` | `id`, `chatId` (unique), `username?`, `active`, `language`, `situationUsedAt?`, `referredBy?` — owned by `telegram-bot/`; `referredBy` stores the referring subscriber's `chatId` for the referral system. |
 
 Constraints: `DailyDigest` has `@@unique([parableId, quoteId])` — same parable+quote pair can only appear once ever.
 
