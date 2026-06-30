@@ -51,6 +51,12 @@ web/
 │   │   └── [slug]/
 │   │       ├── page.tsx               # Digest page (SSG, revalidate 86400)
 │   │       └── DigestPageContent.tsx  # Client wrapper — bilingual content, reads from LanguageContext
+│   ├── digests/
+│   │   ├── page.tsx                       # Archive: paginated list of all digests (revalidate 3600)
+│   │   ├── DigestsArchiveContent.tsx       # Client coordinator — breadcrumb + grid + pagination
+│   │   ├── DigestArchiveBreadcrumb.tsx     # Client — bilingual breadcrumb
+│   │   ├── DigestCard.tsx                  # Client — single digest card (AI title + date)
+│   │   └── DigestPagination.tsx            # Client — prev/next page links
 │   └── api/
 │       ├── og/
 │       │   └── route.tsx       # Edge: OG image 1200x630 — NOTE: .tsx not .ts (JSX inside)
@@ -199,6 +205,9 @@ Server passes **both RU and EN** fields to `DigestPageContent` for all content, 
 Includes JSON-LD Article schema and full OpenGraph metadata.
 
 `generateMetadata` uses `digest.titleRu ?? digest.titleEn` (AI-generated, stored in DB) as the page `<title>`, falling back to the parable title. Description is built from the quote snippet + parable moral for unique, content-rich SEO snippets per page.
+
+### GET /digests
+Paginated archive of all daily digests (`?page=N`, 12 per page, `revalidate = 3600`). Lists `titleRu`/`titleEn` (AI-generated, fallback to parable title) + date, linking to `/d/[slug]`. Linked from `Navbar` ("Архив" / "Archive") and included in `app/sitemap.ts`. Pages beyond 1 are `noindex` to avoid duplicate-content SEO issues.
 
 ### POST /api/situation
 Proxy to Express backend. Reads real user IP from `x-forwarded-for`, forwards it for IP-based rate limiting.
