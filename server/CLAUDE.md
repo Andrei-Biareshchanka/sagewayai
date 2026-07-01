@@ -89,6 +89,10 @@ Each day a quote+parable pair is selected and stored in `DailyDigest`. On reques
 
 Because this is free-text LLM output (non-zero temperature), two different quote+parable pairs could otherwise land on the same or a near-identical title. `dailyDigest.ts`'s `generateUniqueTitle()` guards against **exact** duplicates: after each generation it checks `DailyDigest.titleEn`/`titleRu` for an existing exact match via `isTitleTaken()`, and regenerates up to `MAX_TITLE_ATTEMPTS` (3) times per language before giving up and accepting the last attempt (rather than blocking digest creation indefinitely). This does not catch near-duplicate/semantically-similar titles — only literal string matches.
 
+`generateUniqueTitle()` and its argument builder `buildTitleArgs()` are **exported** from `dailyDigest.ts` so any script that (re)generates titles reuses the same dedup guard instead of calling `generateDigestTitle()` directly (see `scripts/generate-digest-titles.ts`). `buildTitleArgs(quote, parable, language)` takes narrowed `Pick<Quote, 'text' | 'textRu' | 'author' | 'authorRu' | 'theme'>` / `Pick<Parable, 'title' | 'moral'>` types — it only reads those fields, so both the live `findParableForQuote()` match shape and a full Prisma `Parable`/`Quote` row (as used by backfill scripts) satisfy it.
+
+**Scripts that touch shared title/digest logic should import `prisma` from `src/lib/prisma`** (the app's singleton, which self-loads env vars via `import 'dotenv/config'`) rather than constructing their own `PrismaClient` — this guarantees they see the same DB state the dedup check relies on and avoids maintaining a second connection setup.
+
 ### Slug format (`src/lib/slug.ts`)
 
 `buildDigestSlug(prisma, parableTitle, author, theme)` — generates `{parable-title}-{author}-{theme}` (all lowercased, special chars stripped). If the base slug is taken, appends `-2`, `-3`, etc. until unique. Theme is always included when present on the quote.
