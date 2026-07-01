@@ -27,14 +27,18 @@ async function getDigestBySlug(slug: string) {
 }
 
 type PageProps = { params: Promise<{ slug: string }> };
+type DigestWithRelations = NonNullable<Awaited<ReturnType<typeof getDigestBySlug>>>;
+
+function resolveDigestTitle(digest: DigestWithRelations): string {
+  return digest.titleRu ?? digest.titleEn ?? digest.parable.titleRu ?? digest.parable.title;
+}
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
   const digest = await getDigestBySlug(slug);
   if (!digest) return {};
 
-  const title =
-    digest.titleRu ?? digest.titleEn ?? digest.parable.titleRu ?? digest.parable.title;
+  const title = resolveDigestTitle(digest);
   const quoteSnippet = (digest.quote.textRu ?? digest.quote.text).slice(0, 80);
   const moral = digest.parable.moralRu ?? digest.parable.moral;
   const description = `«${quoteSnippet}» — ${moral}`.slice(0, 160);
@@ -77,13 +81,12 @@ export default async function DigestPage({ params }: PageProps) {
     take: 3,
   });
 
-  const parableTitle = digest.parable.titleRu ?? digest.parable.title;
   const description = (digest.parable.contentRu ?? digest.parable.content).slice(0, 160);
 
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Article',
-    headline: parableTitle,
+    headline: resolveDigestTitle(digest),
     description,
     datePublished: digest.date.toISOString(),
     publisher: {
@@ -104,6 +107,8 @@ export default async function DigestPage({ params }: PageProps) {
         <DigestPageContent
           digest={{
             date: digest.date,
+            titleRu: digest.titleRu ?? digest.parable.titleRu ?? digest.parable.title,
+            titleEn: digest.titleEn ?? digest.parable.title,
             quote: {
               textRu: digest.quote.textRu ?? digest.quote.text,
               textEn: digest.quote.text,

@@ -9,6 +9,8 @@ import { CTABlock } from '@/components/CTABlock';
 
 interface BilingualDigest {
   date: Date;
+  titleRu: string;
+  titleEn: string;
   quote: { textRu: string; textEn: string; authorRu: string; authorEn: string };
   parable: { titleRu: string; titleEn: string; contentRu: string; contentEn: string };
   conclusionRu: string;
@@ -33,6 +35,7 @@ interface DigestPageContentProps {
 export function DigestPageContent({ digest, related }: DigestPageContentProps) {
   const { lang } = useLanguage();
 
+  const digestTitle = lang === 'ru' ? digest.titleRu : digest.titleEn;
   const quoteText = lang === 'ru' ? digest.quote.textRu : digest.quote.textEn;
   const quoteAuthor = lang === 'ru' ? digest.quote.authorRu : digest.quote.authorEn;
   const parableTitle = lang === 'ru' ? digest.parable.titleRu : digest.parable.titleEn;
@@ -50,6 +53,8 @@ export function DigestPageContent({ digest, related }: DigestPageContentProps) {
         <span>/</span>
         <span>{lang === 'ru' ? 'Дайджест дня' : 'Daily Digest'}</span>
       </nav>
+
+      <h1 className="font-serif text-3xl font-semibold text-ink">{digestTitle}</h1>
 
       <div className="flex items-center gap-3">
         <p className="font-sans text-sm text-muted">
@@ -80,7 +85,7 @@ export function DigestPageContent({ digest, related }: DigestPageContentProps) {
 
       <hr className="border-[var(--color-border)]" />
 
-      <h1 className="font-serif text-2xl font-semibold text-ink">{parableTitle}</h1>
+      <h2 className="font-serif text-2xl font-semibold text-ink">{parableTitle}</h2>
 
       <p className="font-serif text-lg text-ink" style={{ lineHeight: '1.9' }}>
         {parableContent}

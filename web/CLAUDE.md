@@ -121,6 +121,8 @@ Full conversion block: headline, 4 content bullets (цитата → притч�
 ### DigestPageContent
 Renders the full digest page. Reads `lang` from context. Switches: quote, parable, conclusion, question, breadcrumbs, section labels, date locale (`ru` / `enUS`), and related card titles (server passes both `parableTitleRu` and `parableTitleEn`).
 
+Renders the AI-generated digest title (`titleRu` / `titleEn`, resolved server-side with fallback to the parable title) as the page's `<h1>` — matches `<title>`/OG so search snippets and the on-page heading agree. The parable's own title is rendered as `<h2>` right above the parable text, so it stays visible without competing with the digest `<h1>`.
+
 ## Critical: Prisma 7 + Turbopack compatibility
 
 ### What does NOT work (do not revert to these)
