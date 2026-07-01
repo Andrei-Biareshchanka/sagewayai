@@ -17,7 +17,7 @@ const DIGEST_LIST_SELECT = {
     select: {
       title: true,
       titleRu: true,
-      category: { select: { name: true, slug: true, color: true } },
+      category: { select: { name: true, nameRu: true, slug: true, color: true } },
     },
   },
 } as const;
@@ -41,11 +41,14 @@ export async function generateMetadata({ searchParams }: PageProps): Promise<Met
   const { page: rawPage, category: categorySlug } = await searchParams;
   const page = parsePage(rawPage);
   const category = categorySlug
-    ? await prisma.category.findUnique({ where: { slug: categorySlug }, select: { name: true } })
+    ? await prisma.category.findUnique({
+        where: { slug: categorySlug },
+        select: { name: true, nameRu: true },
+      })
     : null;
 
   const title = category
-    ? `${category.name} — Архив дайджестов | SagewayAI`
+    ? `${category.nameRu ?? category.name} — Архив дайджестов | SagewayAI`
     : 'Архив дайджестов | SagewayAI';
   const canonical = `https://sagewayai.com/digests${buildCanonicalParams(page, category ? categorySlug : undefined)}`;
 
@@ -60,7 +63,7 @@ export async function generateMetadata({ searchParams }: PageProps): Promise<Met
 async function getCategories() {
   return prisma.category.findMany({
     where: { parables: { some: { digests: { some: { slug: { not: null } } } } } },
-    select: { name: true, slug: true, color: true },
+    select: { name: true, nameRu: true, slug: true, color: true },
     orderBy: { name: 'asc' },
   });
 }

@@ -125,7 +125,11 @@ export default async function DigestPage({ params }: PageProps) {
             conclusionEn: digest.conclusionEn,
             questionRu: digest.questionRu,
             questionEn: digest.questionEn,
-            category: { name: digest.parable.category.name, slug: digest.parable.category.slug },
+            category: {
+              name: digest.parable.category.name,
+              nameRu: digest.parable.category.nameRu,
+              slug: digest.parable.category.slug,
+            },
           }}
           related={related.map((d) => ({
             date: d.date,

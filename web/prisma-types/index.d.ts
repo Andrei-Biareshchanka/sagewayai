@@ -5507,6 +5507,7 @@ export namespace Prisma {
   export type CategoryMinAggregateOutputType = {
     id: string | null
     name: string | null
+    nameRu: string | null
     slug: string | null
     description: string | null
     color: string | null
@@ -5516,6 +5517,7 @@ export namespace Prisma {
   export type CategoryMaxAggregateOutputType = {
     id: string | null
     name: string | null
+    nameRu: string | null
     slug: string | null
     description: string | null
     color: string | null
@@ -5525,6 +5527,7 @@ export namespace Prisma {
   export type CategoryCountAggregateOutputType = {
     id: number
     name: number
+    nameRu: number
     slug: number
     description: number
     color: number
@@ -5544,6 +5547,7 @@ export namespace Prisma {
   export type CategoryMinAggregateInputType = {
     id?: true
     name?: true
+    nameRu?: true
     slug?: true
     description?: true
     color?: true
@@ -5553,6 +5557,7 @@ export namespace Prisma {
   export type CategoryMaxAggregateInputType = {
     id?: true
     name?: true
+    nameRu?: true
     slug?: true
     description?: true
     color?: true
@@ -5562,6 +5567,7 @@ export namespace Prisma {
   export type CategoryCountAggregateInputType = {
     id?: true
     name?: true
+    nameRu?: true
     slug?: true
     description?: true
     color?: true
@@ -5658,6 +5664,7 @@ export namespace Prisma {
   export type CategoryGroupByOutputType = {
     id: string
     name: string
+    nameRu: string | null
     slug: string
     description: string | null
     color: string | null
@@ -5686,6 +5693,7 @@ export namespace Prisma {
   export type CategorySelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     name?: boolean
+    nameRu?: boolean
     slug?: boolean
     description?: boolean
     color?: boolean
@@ -5697,6 +5705,7 @@ export namespace Prisma {
   export type CategorySelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     name?: boolean
+    nameRu?: boolean
     slug?: boolean
     description?: boolean
     color?: boolean
@@ -5706,6 +5715,7 @@ export namespace Prisma {
   export type CategorySelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     name?: boolean
+    nameRu?: boolean
     slug?: boolean
     description?: boolean
     color?: boolean
@@ -5715,13 +5725,14 @@ export namespace Prisma {
   export type CategorySelectScalar = {
     id?: boolean
     name?: boolean
+    nameRu?: boolean
     slug?: boolean
     description?: boolean
     color?: boolean
     parablesCount?: boolean
   }
 
-  export type CategoryOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "slug" | "description" | "color" | "parablesCount", ExtArgs["result"]["category"]>
+  export type CategoryOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "nameRu" | "slug" | "description" | "color" | "parablesCount", ExtArgs["result"]["category"]>
   export type CategoryInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     parables?: boolean | Category$parablesArgs<ExtArgs>
     _count?: boolean | CategoryCountOutputTypeDefaultArgs<ExtArgs>
@@ -5737,6 +5748,7 @@ export namespace Prisma {
     scalars: $Extensions.GetPayloadResult<{
       id: string
       name: string
+      nameRu: string | null
       slug: string
       description: string | null
       color: string | null
@@ -6167,6 +6179,7 @@ export namespace Prisma {
   interface CategoryFieldRefs {
     readonly id: FieldRef<"Category", 'String'>
     readonly name: FieldRef<"Category", 'String'>
+    readonly nameRu: FieldRef<"Category", 'String'>
     readonly slug: FieldRef<"Category", 'String'>
     readonly description: FieldRef<"Category", 'String'>
     readonly color: FieldRef<"Category", 'String'>
@@ -13998,6 +14011,7 @@ export namespace Prisma {
   export const CategoryScalarFieldEnum: {
     id: 'id',
     name: 'name',
+    nameRu: 'nameRu',
     slug: 'slug',
     description: 'description',
     color: 'color',
@@ -14480,6 +14494,7 @@ export namespace Prisma {
     NOT?: CategoryWhereInput | CategoryWhereInput[]
     id?: StringFilter<"Category"> | string
     name?: StringFilter<"Category"> | string
+    nameRu?: StringNullableFilter<"Category"> | string | null
     slug?: StringFilter<"Category"> | string
     description?: StringNullableFilter<"Category"> | string | null
     color?: StringNullableFilter<"Category"> | string | null
@@ -14490,6 +14505,7 @@ export namespace Prisma {
   export type CategoryOrderByWithRelationInput = {
     id?: SortOrder
     name?: SortOrder
+    nameRu?: SortOrderInput | SortOrder
     slug?: SortOrder
     description?: SortOrderInput | SortOrder
     color?: SortOrderInput | SortOrder
@@ -14504,6 +14520,7 @@ export namespace Prisma {
     OR?: CategoryWhereInput[]
     NOT?: CategoryWhereInput | CategoryWhereInput[]
     name?: StringFilter<"Category"> | string
+    nameRu?: StringNullableFilter<"Category"> | string | null
     description?: StringNullableFilter<"Category"> | string | null
     color?: StringNullableFilter<"Category"> | string | null
     parablesCount?: IntFilter<"Category"> | number
@@ -14513,6 +14530,7 @@ export namespace Prisma {
   export type CategoryOrderByWithAggregationInput = {
     id?: SortOrder
     name?: SortOrder
+    nameRu?: SortOrderInput | SortOrder
     slug?: SortOrder
     description?: SortOrderInput | SortOrder
     color?: SortOrderInput | SortOrder
@@ -14530,6 +14548,7 @@ export namespace Prisma {
     NOT?: CategoryScalarWhereWithAggregatesInput | CategoryScalarWhereWithAggregatesInput[]
     id?: StringWithAggregatesFilter<"Category"> | string
     name?: StringWithAggregatesFilter<"Category"> | string
+    nameRu?: StringNullableWithAggregatesFilter<"Category"> | string | null
     slug?: StringWithAggregatesFilter<"Category"> | string
     description?: StringNullableWithAggregatesFilter<"Category"> | string | null
     color?: StringNullableWithAggregatesFilter<"Category"> | string | null
@@ -15224,6 +15243,7 @@ export namespace Prisma {
   export type CategoryCreateInput = {
     id?: string
     name: string
+    nameRu?: string | null
     slug: string
     description?: string | null
     color?: string | null
@@ -15234,6 +15254,7 @@ export namespace Prisma {
   export type CategoryUncheckedCreateInput = {
     id?: string
     name: string
+    nameRu?: string | null
     slug: string
     description?: string | null
     color?: string | null
@@ -15244,6 +15265,7 @@ export namespace Prisma {
   export type CategoryUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
+    nameRu?: NullableStringFieldUpdateOperationsInput | string | null
     slug?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     color?: NullableStringFieldUpdateOperationsInput | string | null
@@ -15254,6 +15276,7 @@ export namespace Prisma {
   export type CategoryUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
+    nameRu?: NullableStringFieldUpdateOperationsInput | string | null
     slug?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     color?: NullableStringFieldUpdateOperationsInput | string | null
@@ -15264,6 +15287,7 @@ export namespace Prisma {
   export type CategoryCreateManyInput = {
     id?: string
     name: string
+    nameRu?: string | null
     slug: string
     description?: string | null
     color?: string | null
@@ -15273,6 +15297,7 @@ export namespace Prisma {
   export type CategoryUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
+    nameRu?: NullableStringFieldUpdateOperationsInput | string | null
     slug?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     color?: NullableStringFieldUpdateOperationsInput | string | null
@@ -15282,6 +15307,7 @@ export namespace Prisma {
   export type CategoryUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
+    nameRu?: NullableStringFieldUpdateOperationsInput | string | null
     slug?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     color?: NullableStringFieldUpdateOperationsInput | string | null
@@ -16011,6 +16037,7 @@ export namespace Prisma {
   export type CategoryCountOrderByAggregateInput = {
     id?: SortOrder
     name?: SortOrder
+    nameRu?: SortOrder
     slug?: SortOrder
     description?: SortOrder
     color?: SortOrder
@@ -16024,6 +16051,7 @@ export namespace Prisma {
   export type CategoryMaxOrderByAggregateInput = {
     id?: SortOrder
     name?: SortOrder
+    nameRu?: SortOrder
     slug?: SortOrder
     description?: SortOrder
     color?: SortOrder
@@ -16033,6 +16061,7 @@ export namespace Prisma {
   export type CategoryMinOrderByAggregateInput = {
     id?: SortOrder
     name?: SortOrder
+    nameRu?: SortOrder
     slug?: SortOrder
     description?: SortOrder
     color?: SortOrder

@@ -17,7 +17,7 @@ interface BilingualDigest {
   conclusionEn: string;
   questionRu: string;
   questionEn: string;
-  category: { name: string; slug: string };
+  category: { name: string; nameRu: string | null; slug: string };
 }
 
 interface RelatedDigest {
@@ -64,7 +64,7 @@ export function DigestPageContent({ digest, related }: DigestPageContentProps) {
           href={`/digests?category=${digest.category.slug}`}
           className="font-sans text-xs font-medium text-sage-dark bg-sage-pill hover:bg-sage-pill-hover rounded-full px-2 py-0.5 transition-colors"
         >
-          {digest.category.name}
+          {lang === 'ru' ? digest.category.nameRu ?? digest.category.name : digest.category.name}
         </Link>
       </div>
 

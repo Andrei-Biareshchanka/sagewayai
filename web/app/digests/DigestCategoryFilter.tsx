@@ -39,7 +39,7 @@ export function DigestCategoryFilter({
           href={pillHref(category.slug)}
           className={`font-sans text-sm font-medium rounded-full px-3 py-1 transition-colors ${pillClassName(selectedCategorySlug === category.slug)}`}
         >
-          {category.name}
+          {lang === 'ru' ? category.nameRu ?? category.name : category.name}
         </Link>
       ))}
     </div>
