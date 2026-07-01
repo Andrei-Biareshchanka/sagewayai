@@ -1,12 +1,5 @@
-import * as dotenv from 'dotenv';
-dotenv.config();
-
-import { PrismaClient } from '@prisma/client';
-import { PrismaPg } from '@prisma/adapter-pg';
-import { generateDigestTitle } from '../src/lib/anthropic';
-
-const adapter = new PrismaPg({ connectionString: process.env['DATABASE_URL']! });
-const prisma = new PrismaClient({ adapter });
+import { prisma } from '../src/lib/prisma';
+import { buildTitleArgs, generateUniqueTitle } from '../src/lib/dailyDigest';
 
 async function main() {
   const digests = await prisma.dailyDigest.findMany({
@@ -22,15 +15,8 @@ async function main() {
 
     try {
       const [titleEn, titleRu] = await Promise.all([
-        generateDigestTitle(quote.text, quote.author, parable.title, parable.moral, quote.theme ?? null, 'en'),
-        generateDigestTitle(
-          quote.textRu ?? quote.text,
-          quote.authorRu ?? quote.author,
-          parable.title,
-          parable.moral,
-          quote.theme ?? null,
-          'ru',
-        ),
+        generateUniqueTitle('titleEn', buildTitleArgs(quote, parable, 'en')),
+        generateUniqueTitle('titleRu', buildTitleArgs(quote, parable, 'ru')),
       ]);
 
       await prisma.dailyDigest.update({
