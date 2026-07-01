@@ -15,6 +15,7 @@ interface BilingualDigest {
   conclusionEn: string;
   questionRu: string;
   questionEn: string;
+  category: { name: string; slug: string };
 }
 
 interface RelatedDigest {
@@ -50,9 +51,17 @@ export function DigestPageContent({ digest, related }: DigestPageContentProps) {
         <span>{lang === 'ru' ? 'Дайджест дня' : 'Daily Digest'}</span>
       </nav>
 
-      <p className="font-sans text-sm text-muted">
-        {format(digest.date, 'd MMMM yyyy', { locale: dateLocale })}
-      </p>
+      <div className="flex items-center gap-3">
+        <p className="font-sans text-sm text-muted">
+          {format(digest.date, 'd MMMM yyyy', { locale: dateLocale })}
+        </p>
+        <Link
+          href={`/digests?category=${digest.category.slug}`}
+          className="font-sans text-xs font-medium text-sage-dark bg-sage-pill hover:bg-sage-pill-hover rounded-full px-2 py-0.5 transition-colors"
+        >
+          {digest.category.name}
+        </Link>
+      </div>
 
       <figure className="relative pl-12">
         <span
