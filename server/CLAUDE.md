@@ -81,7 +81,7 @@ Seed categories: Wisdom, Motivation, Leadership, Journey, Loss, Risk, Trust, Mea
 Each day a quote+parable pair is selected and stored in `DailyDigest`. On request:
 1. Check if today's date has a record in `DailyDigest`
 2. If yes — return it
-3. If no — pick next quote (unused first, then LRU), find best matching parable via vector similarity (excluding parables already paired with this quote), generate EN+RU reflections **and AI titles** via Claude in parallel, generate slug, create record
+3. If no — pick next quote (unused first, then LRU), find best matching parable via vector similarity (excluding parables already paired with this quote, and — when possible — parables used in any digest within the last 14 days), generate EN+RU reflections **and AI titles** via Claude in parallel, generate slug, create record
 
 ### AI titles (`src/lib/anthropic.ts`)
 
@@ -93,9 +93,13 @@ Because this is free-text LLM output (non-zero temperature), two different quote
 
 `buildDigestSlug(prisma, parableTitle, author, theme)` — generates `{parable-title}-{author}-{theme}` (all lowercased, special chars stripped). If the base slug is taken, appends `-2`, `-3`, etc. until unique. Theme is always included when present on the quote.
 
-### Parable exclusion (`src/services/digest.ts`)
+### Parable exclusion & cooldown (`src/services/digest.ts`)
 
-`findParableForQuote(quoteId)` excludes parables already paired with this quote using vector similarity (`<=>`) with a safe `Prisma.sql` + `Prisma.join` parameterized query. This prevents the same parable from repeating with the same quote across different digests.
+`findParableForQuote(quoteId)` finds the best vector-similarity match (`<=>`) via a safe `Prisma.sql` + `Prisma.join` parameterized query, excluding two sets of parables:
+1. **Permanent**: parables already paired with *this specific quote* (any digest, ever) — prevents the same pair from repeating.
+2. **Cooldown**: parables used in *any* digest within the last `PARABLE_COOLDOWN_DAYS` (14) — prevents the same parable resurfacing every day or two with a different quote.
+
+If applying both exclusions leaves no candidate (small parable pool), it retries once with only the permanent exclusion — same graceful-degradation pattern as quote LRU selection, so a small library never throws `No available parable found` unnecessarily.
 
 ## Request validation
 
