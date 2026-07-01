@@ -85,7 +85,9 @@ Each day a quote+parable pair is selected and stored in `DailyDigest`. On reques
 
 ### AI titles (`src/lib/anthropic.ts`)
 
-`generateDigestTitle(quoteText, author, parableTitle, moral, theme, language)` — calls Claude (`max_tokens: 50, temperature: 0.8`) to produce a 4-7 word evocative page title capturing the unique connection between the specific quote and parable. Titles are unique across digests even when parables repeat, because they reflect the quote+parable combination. Generated in both `'en'` and `'ru'` in parallel alongside reflections and stored as `titleEn`/`titleRu` on `DailyDigest`.
+`generateDigestTitle(quoteText, author, parableTitle, moral, theme, language)` — calls Claude (`max_tokens: 50, temperature: 0.8`) to produce a 4-7 word evocative page title capturing the unique connection between the specific quote and parable. Generated in both `'en'` and `'ru'` in parallel alongside reflections and stored as `titleEn`/`titleRu` on `DailyDigest`.
+
+Because this is free-text LLM output (non-zero temperature), two different quote+parable pairs could otherwise land on the same or a near-identical title. `dailyDigest.ts`'s `generateUniqueTitle()` guards against **exact** duplicates: after each generation it checks `DailyDigest.titleEn`/`titleRu` for an existing exact match via `isTitleTaken()`, and regenerates up to `MAX_TITLE_ATTEMPTS` (3) times per language before giving up and accepting the last attempt (rather than blocking digest creation indefinitely). This does not catch near-duplicate/semantically-similar titles — only literal string matches.
 
 ### Slug format (`src/lib/slug.ts`)
 

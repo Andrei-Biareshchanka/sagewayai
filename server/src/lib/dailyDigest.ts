@@ -35,23 +35,43 @@ function buildParableText(title: string, content: string, moral: string): string
   return `${title}. ${content} Moral: ${moral}`;
 }
 
+type TitleField = 'titleEn' | 'titleRu';
+type TitleArgs = Parameters<typeof generateDigestTitle>;
+
+const MAX_TITLE_ATTEMPTS = 3;
+
+function buildTitleArgs(
+  quote: Quote,
+  parable: Awaited<ReturnType<typeof findParableForQuote>>,
+  language: 'en' | 'ru',
+): TitleArgs {
+  return language === 'ru'
+    ? [quote.textRu ?? quote.text, quote.authorRu ?? quote.author, parable.title, parable.moral, quote.theme ?? null, 'ru']
+    : [quote.text, quote.author, parable.title, parable.moral, quote.theme ?? null, 'en'];
+}
+
+async function isTitleTaken(field: TitleField, title: string): Promise<boolean> {
+  const where = field === 'titleEn' ? { titleEn: title } : { titleRu: title };
+  const existing = await prisma.dailyDigest.findFirst({ where });
+  return existing !== null;
+}
+
+async function generateUniqueTitle(field: TitleField, args: TitleArgs): Promise<string> {
+  let title = '';
+  for (let attempt = 0; attempt < MAX_TITLE_ATTEMPTS; attempt++) {
+    title = await generateDigestTitle(...args);
+    if (!(await isTitleTaken(field, title))) return title;
+  }
+  return title;
+}
+
 async function buildReflections(quote: Quote, parable: Awaited<ReturnType<typeof findParableForQuote>>) {
+  const parableText = buildParableText(parable.title, parable.content, parable.moral);
   const [en, ru, titleEn, titleRu] = await Promise.all([
-    generateReflection(quote.text, buildParableText(parable.title, parable.content, parable.moral), 'en'),
-    generateReflection(
-      quote.textRu ?? quote.text,
-      buildParableText(parable.title, parable.content, parable.moral),
-      'ru',
-    ),
-    generateDigestTitle(quote.text, quote.author, parable.title, parable.moral, quote.theme ?? null, 'en'),
-    generateDigestTitle(
-      quote.textRu ?? quote.text,
-      quote.authorRu ?? quote.author,
-      parable.title,
-      parable.moral,
-      quote.theme ?? null,
-      'ru',
-    ),
+    generateReflection(quote.text, parableText, 'en'),
+    generateReflection(quote.textRu ?? quote.text, parableText, 'ru'),
+    generateUniqueTitle('titleEn', buildTitleArgs(quote, parable, 'en')),
+    generateUniqueTitle('titleRu', buildTitleArgs(quote, parable, 'ru')),
   ]);
 
   return {

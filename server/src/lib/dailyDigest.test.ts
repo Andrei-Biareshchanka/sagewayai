@@ -96,6 +96,7 @@ describe('getDailyDigest', () => {
 
   it('builds a new digest when none exists for today', async () => {
     mockPrisma.dailyDigest.findUnique.mockResolvedValue(null);
+    mockPrisma.dailyDigest.findFirst.mockResolvedValue(null);
     mockPrisma.quote.findMany.mockResolvedValue([MOCK_QUOTE]);
     mockFindParableForQuote.mockResolvedValue(MOCK_PARABLE_MATCH);
     mockGenerateReflection
@@ -109,7 +110,56 @@ describe('getDailyDigest', () => {
     expect(result).toEqual(MOCK_DIGEST_ROW);
     expect(mockFindParableForQuote).toHaveBeenCalledWith(MOCK_QUOTE.id);
     expect(mockGenerateReflection).toHaveBeenCalledTimes(2);
+    expect(mockGenerateDigestTitle).toHaveBeenCalledTimes(2);
     expect(mockPrisma.dailyDigest.create).toHaveBeenCalledOnce();
+  });
+
+  it('regenerates a title that already exists on another digest', async () => {
+    // titleEn and titleRu are generated concurrently (Promise.all), so this mock is keyed
+    // by the actual arguments each call receives rather than call order, which would be
+    // nondeterministic across the two concurrent retry loops.
+    mockPrisma.dailyDigest.findUnique.mockResolvedValue(null);
+    mockPrisma.quote.findMany.mockResolvedValue([MOCK_QUOTE]);
+    mockFindParableForQuote.mockResolvedValue(MOCK_PARABLE_MATCH);
+    mockGenerateReflection.mockResolvedValue({ conclusion: 'c', question: 'q?' });
+    mockPrisma.dailyDigest.create.mockResolvedValue(MOCK_DIGEST_ROW);
+
+    let enAttempts = 0;
+    mockGenerateDigestTitle.mockImplementation((...args: unknown[]) => {
+      const language = args[5];
+      if (language !== 'en') return Promise.resolve('RU Title');
+      enAttempts += 1;
+      return Promise.resolve(enAttempts === 1 ? 'Taken Title' : 'Fresh Title');
+    });
+    mockPrisma.dailyDigest.findFirst.mockImplementation(({ where }: { where: { titleEn?: string } }) =>
+      Promise.resolve(where.titleEn === 'Taken Title' ? MOCK_DIGEST_ROW : null),
+    );
+
+    await getDailyDigest();
+
+    expect(mockPrisma.dailyDigest.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ titleEn: 'Fresh Title', titleRu: 'RU Title' }),
+      }),
+    );
+  });
+
+  it('gives up after max attempts and keeps the last generated title', async () => {
+    mockPrisma.dailyDigest.findUnique.mockResolvedValue(null);
+    mockPrisma.dailyDigest.findFirst.mockResolvedValue(MOCK_DIGEST_ROW); // always "taken"
+    mockPrisma.quote.findMany.mockResolvedValue([MOCK_QUOTE]);
+    mockFindParableForQuote.mockResolvedValue(MOCK_PARABLE_MATCH);
+    mockGenerateReflection.mockResolvedValue({ conclusion: 'c', question: 'q?' });
+    mockGenerateDigestTitle.mockResolvedValue('Always Taken');
+    mockPrisma.dailyDigest.create.mockResolvedValue(MOCK_DIGEST_ROW);
+
+    await getDailyDigest();
+
+    // 3 attempts per language (titleEn + titleRu)
+    expect(mockGenerateDigestTitle).toHaveBeenCalledTimes(6);
+    expect(mockPrisma.dailyDigest.create).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ titleEn: 'Always Taken' }) }),
+    );
   });
 
   it('handles race condition (P2002) by reading the already-created record', async () => {
@@ -118,6 +168,7 @@ describe('getDailyDigest', () => {
       .mockResolvedValueOnce(null)          // buildDigestSlug: base slug not taken
       .mockResolvedValueOnce(MOCK_DIGEST_ROW); // findDigestForDate retry after P2002
 
+    mockPrisma.dailyDigest.findFirst.mockResolvedValue(null);
     mockPrisma.quote.findMany.mockResolvedValue([MOCK_QUOTE]);
     mockFindParableForQuote.mockResolvedValue(MOCK_PARABLE_MATCH);
     mockGenerateReflection.mockResolvedValue({ conclusion: 'c', question: 'q?' });
@@ -137,6 +188,7 @@ describe('getDailyDigest', () => {
 
   it('rethrows non-P2002 errors', async () => {
     mockPrisma.dailyDigest.findUnique.mockResolvedValue(null);
+    mockPrisma.dailyDigest.findFirst.mockResolvedValue(null);
     mockPrisma.quote.findMany.mockResolvedValue([MOCK_QUOTE]);
     mockFindParableForQuote.mockResolvedValue(MOCK_PARABLE_MATCH);
     mockGenerateReflection.mockResolvedValue({ conclusion: 'c', question: 'q?' });
