@@ -8,43 +8,81 @@ export const revalidate = 3600;
 
 const PAGE_SIZE = 12;
 
-type PageProps = { searchParams: Promise<{ page?: string }> };
+const DIGEST_LIST_SELECT = {
+  date: true,
+  slug: true,
+  titleEn: true,
+  titleRu: true,
+  parable: {
+    select: {
+      title: true,
+      titleRu: true,
+      category: { select: { name: true, slug: true, color: true } },
+    },
+  },
+} as const;
+
+type PageProps = { searchParams: Promise<{ page?: string; category?: string }> };
 
 function parsePage(raw: string | undefined): number {
   const page = Number(raw);
   return Number.isInteger(page) && page > 1 ? page : 1;
 }
 
+function buildCanonicalParams(page: number, categorySlug: string | undefined): string {
+  const params = new URLSearchParams();
+  if (categorySlug) params.set('category', categorySlug);
+  if (page > 1) params.set('page', String(page));
+  const query = params.toString();
+  return query ? `?${query}` : '';
+}
+
 export async function generateMetadata({ searchParams }: PageProps): Promise<Metadata> {
-  const { page: rawPage } = await searchParams;
+  const { page: rawPage, category: categorySlug } = await searchParams;
   const page = parsePage(rawPage);
-  const canonical =
-    page === 1 ? 'https://sagewayai.com/digests' : `https://sagewayai.com/digests?page=${page}`;
+  const category = categorySlug
+    ? await prisma.category.findUnique({ where: { slug: categorySlug }, select: { name: true } })
+    : null;
+
+  const title = category
+    ? `${category.name} — Архив дайджестов | SagewayAI`
+    : 'Архив дайджестов | SagewayAI';
+  const canonical = `https://sagewayai.com/digests${buildCanonicalParams(page, category ? categorySlug : undefined)}`;
 
   return {
-    title: 'Архив дайджестов | SagewayAI',
+    title,
     description: 'Все дайджесты дня: цитаты, притчи и размышления из библиотеки SagewayAI.',
     alternates: { canonical },
     robots: page > 1 ? { index: false, follow: true } : undefined,
   };
 }
 
-async function getDigestsPage(page: number) {
+async function getCategories() {
+  return prisma.category.findMany({
+    where: { parables: { some: { digests: { some: { slug: { not: null } } } } } },
+    select: { name: true, slug: true, color: true },
+    orderBy: { name: 'asc' },
+  });
+}
+
+function buildDigestsWhere(categorySlug: string | undefined) {
+  return {
+    slug: { not: null },
+    ...(categorySlug ? { parable: { category: { slug: categorySlug } } } : {}),
+  };
+}
+
+async function getDigestsPage(page: number, categorySlug: string | undefined) {
+  const where = buildDigestsWhere(categorySlug);
   const [digests, total] = await Promise.all([
     prisma.dailyDigest.findMany({
-      where: { slug: { not: null } },
-      select: {
-        date: true,
-        slug: true,
-        titleEn: true,
-        titleRu: true,
-        parable: { select: { title: true, titleRu: true } },
-      },
+      where,
+      select: DIGEST_LIST_SELECT,
       orderBy: { date: 'desc' },
       skip: (page - 1) * PAGE_SIZE,
       take: PAGE_SIZE,
     }),
-    prisma.dailyDigest.count({ where: { slug: { not: null } } }),
+    prisma.dailyDigest.count({ where }),
   ]);
   return { digests, totalPages: Math.max(1, Math.ceil(total / PAGE_SIZE)) };
 }
@@ -55,25 +93,41 @@ function toDigestSummaries(digests: Awaited<ReturnType<typeof getDigestsPage>>['
     slug: d.slug as string,
     titleEn: d.titleEn ?? d.parable.title,
     titleRu: d.titleRu ?? d.parable.titleRu ?? d.parable.title,
+    category: d.parable.category,
   }));
 }
 
-export default async function DigestsArchivePage({ searchParams }: PageProps) {
-  const { page: rawPage } = await searchParams;
+async function loadArchiveData(rawPage: string | undefined, rawCategory: string | undefined) {
   const page = parsePage(rawPage);
-  const { digests, totalPages } = await getDigestsPage(page);
+  const categories = await getCategories();
+  const selectedCategory = categories.find((c) => c.slug === rawCategory);
+  const { digests, totalPages } = await getDigestsPage(page, selectedCategory?.slug);
+  return { page, categories, selectedCategorySlug: selectedCategory?.slug, digests, totalPages };
+}
 
+function ArchiveLayout({ children }: { children: React.ReactNode }) {
   return (
     <>
       <Navbar />
-      <main className="flex-1 max-w-[1200px] mx-auto px-4 sm:px-6 py-12">
-        <DigestsArchiveContent
-          digests={toDigestSummaries(digests)}
-          page={page}
-          totalPages={totalPages}
-        />
-      </main>
+      <main className="flex-1 max-w-[1200px] mx-auto px-4 sm:px-6 py-12">{children}</main>
       <Footer />
     </>
+  );
+}
+
+export default async function DigestsArchivePage({ searchParams }: PageProps) {
+  const { page: rawPage, category: rawCategory } = await searchParams;
+  const data = await loadArchiveData(rawPage, rawCategory);
+
+  return (
+    <ArchiveLayout>
+      <DigestsArchiveContent
+        digests={toDigestSummaries(data.digests)}
+        categories={data.categories}
+        selectedCategorySlug={data.selectedCategorySlug}
+        page={data.page}
+        totalPages={data.totalPages}
+      />
+    </ArchiveLayout>
   );
 }

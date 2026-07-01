@@ -52,11 +52,12 @@ web/
 │   │       ├── page.tsx               # Digest page (SSG, revalidate 86400)
 │   │       └── DigestPageContent.tsx  # Client wrapper — bilingual content, reads from LanguageContext
 │   ├── digests/
-│   │   ├── page.tsx                       # Archive: paginated list of all digests (revalidate 3600)
-│   │   ├── DigestsArchiveContent.tsx       # Client coordinator — breadcrumb + grid + pagination
+│   │   ├── page.tsx                       # Archive: paginated list of all digests (revalidate 3600), optional ?category= filter
+│   │   ├── DigestsArchiveContent.tsx       # Client coordinator — breadcrumb + category filter + grid + pagination
 │   │   ├── DigestArchiveBreadcrumb.tsx     # Client — bilingual breadcrumb
-│   │   ├── DigestCard.tsx                  # Client — single digest card (AI title + date)
-│   │   └── DigestPagination.tsx            # Client — prev/next page links
+│   │   ├── DigestCategoryFilter.tsx        # Client — "All" + category pills, links to /digests?category=slug
+│   │   ├── DigestCard.tsx                  # Client — single digest card (category badge + AI title + date)
+│   │   └── DigestPagination.tsx            # Client — prev/next page links, preserves ?category=
 │   └── api/
 │       ├── og/
 │       │   └── route.tsx       # Edge: OG image 1200x630 — NOTE: .tsx not .ts (JSX inside)
@@ -200,14 +201,16 @@ SSG digest page. `revalidate = 86400`. Slug is read directly from `DailyDigest.s
 
 `app/sitemap.ts` also reads slugs directly from DB.
 
-Server passes **both RU and EN** fields to `DigestPageContent` for all content, quotes, and related card titles.
+Server passes **both RU and EN** fields to `DigestPageContent` for all content, quotes, and related card titles. Also passes `parable.category` (`name` + `slug`), rendered as a pill next to the date that links to `/digests?category=[slug]`.
 
 Includes JSON-LD Article schema and full OpenGraph metadata.
 
 `generateMetadata` uses `digest.titleRu ?? digest.titleEn` (AI-generated, stored in DB) as the page `<title>`, falling back to the parable title. Description is built from the quote snippet + parable moral for unique, content-rich SEO snippets per page.
 
 ### GET /digests
-Paginated archive of all daily digests (`?page=N`, 12 per page, `revalidate = 3600`). Lists `titleRu`/`titleEn` (AI-generated, fallback to parable title) + date, linking to `/d/[slug]`. Linked from `Navbar` ("Архив" / "Archive") and included in `app/sitemap.ts`. Pages beyond 1 are `noindex` to avoid duplicate-content SEO issues.
+Paginated archive of all daily digests (`?page=N`, 12 per page, `revalidate = 3600`). Lists `titleRu`/`titleEn` (AI-generated, fallback to parable title) + date + category badge, linking to `/d/[slug]`. Linked from `Navbar` ("Архив" / "Archive") and included in `app/sitemap.ts`. Pages beyond 1 are `noindex` to avoid duplicate-content SEO issues.
+
+Optional `?category=[slug]` filters to one `Category` (only categories with at least one published digest are listed, via `Category.parables.some.digests.some`). `generateMetadata` builds a per-category title/canonical when the filter is active. `DigestCategoryFilter` renders an "All" pill plus one pill per category; `DigestPagination` preserves the `category` param across page links.
 
 ### POST /api/situation
 Proxy to Express backend. Reads real user IP from `x-forwarded-for`, forwards it for IP-based rate limiting.
