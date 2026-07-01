@@ -35,14 +35,16 @@ function buildParableText(title: string, content: string, moral: string): string
   return `${title}. ${content} Moral: ${moral}`;
 }
 
-type TitleField = 'titleEn' | 'titleRu';
-type TitleArgs = Parameters<typeof generateDigestTitle>;
+export type TitleField = 'titleEn' | 'titleRu';
+export type TitleArgs = Parameters<typeof generateDigestTitle>;
+type TitleQuote = Pick<Quote, 'text' | 'textRu' | 'author' | 'authorRu' | 'theme'>;
+type TitleParable = Pick<Parable, 'title' | 'moral'>;
 
 const MAX_TITLE_ATTEMPTS = 3;
 
-function buildTitleArgs(
-  quote: Quote,
-  parable: Awaited<ReturnType<typeof findParableForQuote>>,
+export function buildTitleArgs(
+  quote: TitleQuote,
+  parable: TitleParable,
   language: 'en' | 'ru',
 ): TitleArgs {
   return language === 'ru'
@@ -56,7 +58,7 @@ async function isTitleTaken(field: TitleField, title: string): Promise<boolean> 
   return existing !== null;
 }
 
-async function generateUniqueTitle(field: TitleField, args: TitleArgs): Promise<string> {
+export async function generateUniqueTitle(field: TitleField, args: TitleArgs): Promise<string> {
   let title = '';
   for (let attempt = 0; attempt < MAX_TITLE_ATTEMPTS; attempt++) {
     title = await generateDigestTitle(...args);
