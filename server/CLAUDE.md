@@ -44,7 +44,14 @@ src/
     ├── daily.ts       # daily parable selection logic
     └── anthropic.ts   # Claude API helpers: generateReflection(), generateDigestTitle()
 scripts/
-└── generate-digest-titles.ts  # backfill: generates titleEn/titleRu for existing digests
+├── generate-digest-titles.ts     # backfill: generates titleEn/titleRu for digests missing either
+├── fix-wrong-language-titles.ts  # repair: regenerates titleRu for digests where it's null or came back in English
+├── populate-digest-slugs.ts      # repopulates ALL digest slugs (resets then rebuilds) — do not run on prod without checking for already-indexed URLs first
+├── check-digest-themes.ts
+├── find-duplicate-parables.ts
+├── generate-quotes.ts
+├── seed-quotes.ts
+└── seed-embeddings.ts / seed-quote-embeddings.ts  # pgvector embedding backfills
 ```
 
 ## Prisma notes
