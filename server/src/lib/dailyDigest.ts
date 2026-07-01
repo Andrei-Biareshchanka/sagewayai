@@ -58,10 +58,20 @@ async function isTitleTaken(field: TitleField, title: string): Promise<boolean> 
   return existing !== null;
 }
 
+const CYRILLIC_PATTERN = /[а-яА-ЯёЁ]/;
+
+// Claude sometimes ignores the Russian instruction and answers in English —
+// this is only checkable after the fact, since it's free-text LLM output.
+export function isWrongLanguage(title: string, language: 'en' | 'ru'): boolean {
+  return language === 'ru' && !CYRILLIC_PATTERN.test(title);
+}
+
 export async function generateUniqueTitle(field: TitleField, args: TitleArgs): Promise<string> {
+  const language = args[5];
   let title = '';
   for (let attempt = 0; attempt < MAX_TITLE_ATTEMPTS; attempt++) {
     title = await generateDigestTitle(...args);
+    if (isWrongLanguage(title, language)) continue;
     if (!(await isTitleTaken(field, title))) return title;
   }
   return title;
