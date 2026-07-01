@@ -102,7 +102,7 @@ describe('getDailyDigest', () => {
     mockGenerateReflection
       .mockResolvedValueOnce({ conclusion: 'EN conclusion', question: 'EN question?' })
       .mockResolvedValueOnce({ conclusion: 'RU conclusion', question: 'RU question?' });
-    mockGenerateDigestTitle.mockResolvedValue('Test Title');
+    mockGenerateDigestTitle.mockResolvedValue('Тестовый заголовок');
     mockPrisma.dailyDigest.create.mockResolvedValue(MOCK_DIGEST_ROW);
 
     const result = await getDailyDigest();
@@ -127,7 +127,7 @@ describe('getDailyDigest', () => {
     let enAttempts = 0;
     mockGenerateDigestTitle.mockImplementation((...args: unknown[]) => {
       const language = args[5];
-      if (language !== 'en') return Promise.resolve('RU Title');
+      if (language !== 'en') return Promise.resolve('Заголовок РУ');
       enAttempts += 1;
       return Promise.resolve(enAttempts === 1 ? 'Taken Title' : 'Fresh Title');
     });
@@ -139,8 +139,32 @@ describe('getDailyDigest', () => {
 
     expect(mockPrisma.dailyDigest.create).toHaveBeenCalledWith(
       expect.objectContaining({
-        data: expect.objectContaining({ titleEn: 'Fresh Title', titleRu: 'RU Title' }),
+        data: expect.objectContaining({ titleEn: 'Fresh Title', titleRu: 'Заголовок РУ' }),
       }),
+    );
+  });
+
+  it('regenerates a titleRu that came back in English instead of Russian', async () => {
+    mockPrisma.dailyDigest.findUnique.mockResolvedValue(null);
+    mockPrisma.dailyDigest.findFirst.mockResolvedValue(null); // nothing is a duplicate
+    mockPrisma.quote.findMany.mockResolvedValue([MOCK_QUOTE]);
+    mockFindParableForQuote.mockResolvedValue(MOCK_PARABLE_MATCH);
+    mockGenerateReflection.mockResolvedValue({ conclusion: 'c', question: 'q?' });
+    mockPrisma.dailyDigest.create.mockResolvedValue(MOCK_DIGEST_ROW);
+
+    let ruAttempts = 0;
+    mockGenerateDigestTitle.mockImplementation((...args: unknown[]) => {
+      const language = args[5];
+      if (language !== 'ru') return Promise.resolve('English Title');
+      ruAttempts += 1;
+      return Promise.resolve(ruAttempts < 2 ? 'English Title Instead Of Russian' : 'Русский заголовок');
+    });
+
+    await getDailyDigest();
+
+    expect(ruAttempts).toBe(2);
+    expect(mockPrisma.dailyDigest.create).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ titleRu: 'Русский заголовок' }) }),
     );
   });
 
@@ -150,7 +174,7 @@ describe('getDailyDigest', () => {
     mockPrisma.quote.findMany.mockResolvedValue([MOCK_QUOTE]);
     mockFindParableForQuote.mockResolvedValue(MOCK_PARABLE_MATCH);
     mockGenerateReflection.mockResolvedValue({ conclusion: 'c', question: 'q?' });
-    mockGenerateDigestTitle.mockResolvedValue('Always Taken');
+    mockGenerateDigestTitle.mockResolvedValue('Всегда занято');
     mockPrisma.dailyDigest.create.mockResolvedValue(MOCK_DIGEST_ROW);
 
     await getDailyDigest();
@@ -158,7 +182,7 @@ describe('getDailyDigest', () => {
     // 3 attempts per language (titleEn + titleRu)
     expect(mockGenerateDigestTitle).toHaveBeenCalledTimes(6);
     expect(mockPrisma.dailyDigest.create).toHaveBeenCalledWith(
-      expect.objectContaining({ data: expect.objectContaining({ titleEn: 'Always Taken' }) }),
+      expect.objectContaining({ data: expect.objectContaining({ titleEn: 'Всегда занято' }) }),
     );
   });
 
@@ -172,7 +196,7 @@ describe('getDailyDigest', () => {
     mockPrisma.quote.findMany.mockResolvedValue([MOCK_QUOTE]);
     mockFindParableForQuote.mockResolvedValue(MOCK_PARABLE_MATCH);
     mockGenerateReflection.mockResolvedValue({ conclusion: 'c', question: 'q?' });
-    mockGenerateDigestTitle.mockResolvedValue('Test Title');
+    mockGenerateDigestTitle.mockResolvedValue('Тестовый заголовок');
 
     const p2002 = new Prisma.PrismaClientKnownRequestError('Unique constraint failed', {
       code: 'P2002',
@@ -192,7 +216,7 @@ describe('getDailyDigest', () => {
     mockPrisma.quote.findMany.mockResolvedValue([MOCK_QUOTE]);
     mockFindParableForQuote.mockResolvedValue(MOCK_PARABLE_MATCH);
     mockGenerateReflection.mockResolvedValue({ conclusion: 'c', question: 'q?' });
-    mockGenerateDigestTitle.mockResolvedValue('Test Title');
+    mockGenerateDigestTitle.mockResolvedValue('Тестовый заголовок');
 
     const dbError = new Prisma.PrismaClientKnownRequestError('Connection lost', {
       code: 'P1001',
