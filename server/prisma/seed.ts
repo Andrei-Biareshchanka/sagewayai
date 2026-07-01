@@ -16,14 +16,14 @@ interface ParableData {
 }
 
 const CATEGORIES = [
-  { name: 'Wisdom', slug: 'wisdom', color: '#6B8F71', description: 'Ancient and timeless wisdom' },
-  { name: 'Motivation', slug: 'motivation', color: '#E07B54', description: 'Stories that inspire action' },
-  { name: 'Leadership', slug: 'leadership', color: '#5B7FA6', description: 'Lessons of great leaders' },
-  { name: 'Journey', slug: 'journey', color: '#9B7EC8', description: 'The path of self-discovery' },
-  { name: 'Loss', slug: 'loss', color: '#7A8A8C', description: 'Finding meaning through loss' },
-  { name: 'Risk', slug: 'risk', color: '#D4A017', description: 'Courage to take the leap' },
-  { name: 'Trust', slug: 'trust', color: '#4A90A4', description: 'The foundation of connection' },
-  { name: 'Meaning', slug: 'meaning', color: '#8B6F47', description: 'In search of purpose' },
+  { name: 'Wisdom', nameRu: 'Мудрость', slug: 'wisdom', color: '#6B8F71', description: 'Ancient and timeless wisdom' },
+  { name: 'Motivation', nameRu: 'Мотивация', slug: 'motivation', color: '#E07B54', description: 'Stories that inspire action' },
+  { name: 'Leadership', nameRu: 'Лидерство', slug: 'leadership', color: '#5B7FA6', description: 'Lessons of great leaders' },
+  { name: 'Journey', nameRu: 'Путь', slug: 'journey', color: '#9B7EC8', description: 'The path of self-discovery' },
+  { name: 'Loss', nameRu: 'Потеря', slug: 'loss', color: '#7A8A8C', description: 'Finding meaning through loss' },
+  { name: 'Risk', nameRu: 'Риск', slug: 'risk', color: '#D4A017', description: 'Courage to take the leap' },
+  { name: 'Trust', nameRu: 'Доверие', slug: 'trust', color: '#4A90A4', description: 'The foundation of connection' },
+  { name: 'Meaning', nameRu: 'Смысл', slug: 'meaning', color: '#8B6F47', description: 'In search of purpose' },
 ] as const;
 
 const PARABLES: Record<string, ParableData[]> = {
@@ -1950,9 +1950,10 @@ async function main() {
 
     const category = await prisma.category.upsert({
       where: { slug: categoryData.slug },
-      update: { parablesCount: parables.length },
+      update: { parablesCount: parables.length, nameRu: categoryData.nameRu },
       create: {
         name: categoryData.name,
+        nameRu: categoryData.nameRu,
         slug: categoryData.slug,
         color: categoryData.color,
         description: categoryData.description,

@@ -67,6 +67,7 @@ model DailyDigest {
 model Category {
   id            String    @id @default(cuid())
   name          String
+  nameRu        String?
   slug          String    @unique
   description   String?
   color         String?
