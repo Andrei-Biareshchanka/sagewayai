@@ -47,7 +47,7 @@ export function DigestBlock({ data, slug }: DigestBlockProps) {
 
       <hr className="border-[var(--color-border)]" />
 
-      <h3 className="font-serif text-lg font-semibold text-ink">{parable.title}</h3>
+      <h2 className="font-serif text-lg font-semibold text-ink">{parable.title}</h2>
 
       <p className="font-serif text-base leading-[1.8] text-ink">{truncatedContent}</p>
 
