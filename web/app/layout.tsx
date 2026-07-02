@@ -4,6 +4,7 @@ import { GoogleAnalytics } from '@next/third-parties/google';
 import { Analytics } from '@vercel/analytics/next';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import { LanguageProvider } from '@/contexts/LanguageContext';
+import { SITE_URL } from '@/lib/config';
 import './globals.css';
 
 const plusJakartaSans = Plus_Jakarta_Sans({
@@ -31,7 +32,7 @@ const lora = Lora({
 export const metadata: Metadata = {
   title: 'SagewayAI — мудрость каждый день',
   description: 'Дайджест дня: цитата, притча, рефлексия и вопрос для размышления. Найдите мудрость для вашей ситуации.',
-  metadataBase: new URL('https://sagewayai.com'),
+  metadataBase: new URL(SITE_URL),
   icons: {
     icon: [
       { url: '/favicon.ico' },
