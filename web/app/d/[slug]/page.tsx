@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
+import { SITE_URL } from '@/lib/config';
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 import { DigestPageContent } from './DigestPageContent';
@@ -60,7 +61,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       ],
     },
     alternates: {
-      canonical: `https://sagewayai.com/d/${slug}`,
+      canonical: `${SITE_URL}/d/${slug}`,
     },
   };
 }
@@ -92,7 +93,7 @@ export default async function DigestPage({ params }: PageProps) {
     publisher: {
       '@type': 'Organization',
       name: 'SagewayAI',
-      url: 'https://sagewayai.com',
+      url: SITE_URL,
     },
   };
 
