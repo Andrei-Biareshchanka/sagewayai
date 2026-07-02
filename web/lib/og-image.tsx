@@ -156,7 +156,7 @@ function Footer({
 function deriveOgContent(params: OgParams) {
   const { title, quote, author, lang } = params;
   const isDigest = quote.length > 0;
-  const quoteText = truncate(quote, 150);
+  const quoteText = truncate(quote, 200);
   const bottomTitle = truncate(title, 70);
   const subtitle = lang === 'ru' ? 'Мудрость дня' : 'Daily Wisdom';
   const tagline =
