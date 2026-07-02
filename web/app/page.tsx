@@ -52,6 +52,8 @@ export default async function HomePage() {
         {digest && (
           <HomeDailyDigest
             data={{
+              titleRu: digest.titleRu ?? digest.parable.titleRu ?? digest.parable.title,
+              titleEn: digest.titleEn ?? digest.parable.title,
               quote: {
                 textRu: digest.quote.textRu ?? digest.quote.text,
                 authorRu: digest.quote.authorRu ?? digest.quote.author,
