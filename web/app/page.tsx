@@ -43,11 +43,32 @@ async function getDailyDigest() {
   });
 }
 
+const websiteJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: 'SagewayAI',
+  url: SITE_URL,
+  description: 'Daily wisdom digests: parables, philosopher quotes, reflection, and a question to ponder',
+  inLanguage: ['ru', 'en'],
+  potentialAction: {
+    '@type': 'SearchAction',
+    target: {
+      '@type': 'EntryPoint',
+      urlTemplate: `${SITE_URL}/search?q={search_term_string}`,
+    },
+    'query-input': 'required name=search_term_string',
+  },
+};
+
 export default async function HomePage() {
   const digest = await getDailyDigest();
 
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
+      />
       <Navbar />
       <main className="flex-1 max-w-[680px] mx-auto px-4 sm:px-6 py-12 space-y-12">
         {digest && (

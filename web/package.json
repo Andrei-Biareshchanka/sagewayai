@@ -10,7 +10,7 @@
     "dev": "next dev",
     "build": "prisma generate && next build",
     "start": "next start",
-"type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit"
   },
   "dependencies": {
     "@next/third-parties": "^16.2.9",
@@ -23,7 +23,8 @@
     "pg": "^8",
     "react": "^19",
     "react-dom": "^19",
-    "transliteration": "^2"
+    "transliteration": "^2",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
