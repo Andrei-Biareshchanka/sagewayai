@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { startOfDay } from 'date-fns';
 import { prisma } from '@/lib/prisma';
+import { SITE_URL } from '@/lib/config';
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 import { HomeDailyDigest } from '@/components/HomeDailyDigest';
@@ -12,12 +13,12 @@ export const metadata: Metadata = {
   title: 'SagewayAI — мудрость каждый день',
   description: 'Дайджест дня: цитата, притча, рефлексия и вопрос для размышления. Найдите мудрость для вашей ситуации.',
   alternates: {
-    canonical: 'https://sagewayai.com',
+    canonical: SITE_URL,
   },
   openGraph: {
     title: 'SagewayAI — мудрость каждый день',
     description: 'Дайджест дня: цитата, притча, рефлексия и вопрос для размышления.',
-    url: 'https://sagewayai.com',
+    url: SITE_URL,
     images: [
       {
         url: '/api/og?title=SagewayAI&lang=ru',

@@ -78,7 +78,8 @@ web/
 │   ├── prisma.ts               # Singleton PrismaClient with PrismaPg adapter
 │   ├── brand.ts                # Centralized color + font constants (use for ImageResponse inline styles)
 │   ├── slug.ts                 # generateSlug(title) via transliteration library
-│   └── formatTime.ts           # formatCountdown(ms) → "23h 45m"
+│   ├── formatTime.ts           # formatCountdown(ms) → "23h 45m"
+│   └── config.ts               # SITE_URL — canonical domain, used for metadataBase, canonical tags, sitemap, robots
 ├── prisma/
 │   └── schema.prisma           # Copy of server/prisma/schema.prisma (read access only)
 ├── prisma.config.ts            # Prisma 7 config — no dotenv import (Next.js loads .env.local)
@@ -165,6 +166,7 @@ DATABASE_URL=postgresql://postgres:postgres@localhost:5433/sagewayai
 SAGEWAYAI_API_URL=http://localhost:3001
 NEXT_PUBLIC_BOT_URL=https://t.me/sagewayai_bot
 NEXT_PUBLIC_GA_ID=G-XXXXXXXXXX   # optional — GA4 disabled in dev without it
+NEXT_PUBLIC_SITE_URL=https://sagewayai.com   # optional — falls back to https://sagewayai.com via lib/config.ts
 ```
 
 Production env vars to set in Vercel dashboard:
@@ -172,6 +174,7 @@ Production env vars to set in Vercel dashboard:
 - `SAGEWAYAI_API_URL` — deployed Express server URL (Railway)
 - `NEXT_PUBLIC_BOT_URL` — `https://t.me/sagewayai_bot`
 - `NEXT_PUBLIC_GA_ID` — Google Analytics 4 Measurement ID
+- `NEXT_PUBLIC_SITE_URL` — `https://sagewayai.com` (canonical domain — same value for Production, Preview, Development)
 
 **Important:** PostgreSQL listens on port **5433** locally (not 5432).
 See `docker-compose.yml` in monorepo root: `ports: "5433:5432"`.
@@ -257,6 +260,7 @@ Reader max-width: `680px`. Page max-width: `1200px`.
 
 ## Analytics & SEO
 
+- **Canonical domain** — `lib/config.ts` exports `SITE_URL` (from `NEXT_PUBLIC_SITE_URL`, default `https://sagewayai.com`). Used for `metadataBase`, all `alternates.canonical`, OG `url`, JSON-LD `publisher.url`, `sitemap.ts`, and `robots.ts` — never hardcode the domain elsewhere.
 - **GA4** — `GoogleAnalytics` in `layout.tsx`, only renders when `NEXT_PUBLIC_GA_ID` is set
 - **Vercel Analytics** — `Analytics` in `layout.tsx`, always active on Vercel deployments
 - **Speed Insights** — `SpeedInsights` in `layout.tsx`, always active on Vercel deployments

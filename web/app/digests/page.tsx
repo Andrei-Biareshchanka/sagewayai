@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { prisma } from '@/lib/prisma';
+import { SITE_URL } from '@/lib/config';
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 import { DigestsArchiveContent } from './DigestsArchiveContent';
@@ -50,7 +51,7 @@ export async function generateMetadata({ searchParams }: PageProps): Promise<Met
   const title = category
     ? `${category.nameRu ?? category.name} — Архив дайджестов | SagewayAI`
     : 'Архив дайджестов | SagewayAI';
-  const canonical = `https://sagewayai.com/digests${buildCanonicalParams(page, category ? categorySlug : undefined)}`;
+  const canonical = `${SITE_URL}/digests${buildCanonicalParams(page, category ? categorySlug : undefined)}`;
 
   return {
     title,
