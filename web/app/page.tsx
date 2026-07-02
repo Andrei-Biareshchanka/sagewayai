@@ -93,7 +93,6 @@ export default async function HomePage() {
               questionRu: digest.questionRu,
               questionEn: digest.questionEn,
             }}
-            slug={digest.slug ?? ''}
           />
         )}
 
