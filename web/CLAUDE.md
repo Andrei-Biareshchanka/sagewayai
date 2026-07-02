@@ -22,6 +22,7 @@ Next.js App Router SEO site with three goals:
 - **@prisma/adapter-pg** (required in Prisma 7 — `new PrismaClient()` without adapter is invalid)
 - **date-fns v4** for date formatting
 - **transliteration** for generating slugs from Russian titles
+- **zod** for query param validation (e.g. `app/api/og/route.tsx`)
 - **app/sitemap.ts** — built-in Next.js sitemap, queries DB via Prisma, revalidates every 24h
 - **app/robots.ts** — built-in Next.js robots.txt
 - **@next/third-parties** for Google Analytics 4 (optimized script loading)
@@ -79,9 +80,12 @@ web/
 │   ├── brand.ts                # Centralized color + font constants (use for ImageResponse inline styles)
 │   ├── slug.ts                 # generateSlug(title) via transliteration library
 │   ├── formatTime.ts           # formatCountdown(ms) → "23h 45m"
-│   └── config.ts               # SITE_URL — canonical domain, used for metadataBase, canonical tags, sitemap, robots
+│   ├── config.ts               # SITE_URL — canonical domain, used for metadataBase, canonical tags, sitemap, robots
+│   └── og-image.tsx            # buildOgImage() — used by app/api/og/route.tsx, see GET /api/og below
 ├── prisma/
 │   └── schema.prisma           # Copy of server/prisma/schema.prisma (read access only)
+├── public/
+│   └── llms.txt                # AI-crawler discovery file (robots.txt analog for LLMs) — static, English
 ├── prisma.config.ts            # Prisma 7 config — no dotenv import (Next.js loads .env.local)
 ├── next.config.ts              # serverExternalPackages: ['@prisma/client', 'pg']
 ├── tailwind.config.ts          # extend: colors, fontFamily, borderRadius
@@ -195,7 +199,7 @@ npm run dev   # automatically runs prisma generate via predev script
 ## Routes
 
 ### GET /
-Server component. Fetches bilingual daily digest from DB. Renders:
+Server component. Fetches bilingual daily digest from DB. Includes `WebSite` JSON-LD (`websiteJsonLd` in `page.tsx`) with a `SearchAction` pointing at `/search?q={search_term_string}` — that route doesn't exist yet, added ahead of time so Google can pick up the sitelinks searchbox once it ships. Renders:
 1. `HomeDailyDigest` — bilingual digest (switches language via context)
 2. `CTABlock` — Telegram subscription CTA (at the bottom)
 
@@ -208,9 +212,9 @@ SSG digest page. `revalidate = 86400`. Slug is read directly from `DailyDigest.s
 
 Server passes **both RU and EN** fields to `DigestPageContent` for all content, quotes, and related card titles. Also passes `parable.category` (`name` + `slug`), rendered as a pill next to the date that links to `/digests?category=[slug]`.
 
-Includes JSON-LD Article schema and full OpenGraph metadata.
+Includes JSON-LD `Article` schema and full OpenGraph metadata. `jsonLd` includes `author`/`publisher` (both `Organization`, publisher has a `logo` pointing at `/favicon.svg`), `image` (the digest's OG image URL), `inLanguage: 'ru'`, and `isPartOf` (`WebSite`). `dateModified` uses `digest.createdAt` — `DailyDigest` has no `updatedAt` field in the schema, so `createdAt` is the closest available proxy.
 
-`generateMetadata` uses `digest.titleRu ?? digest.titleEn` (AI-generated, stored in DB) as the page `<title>`, falling back to the parable title. Description is built from the quote snippet + parable moral for unique, content-rich SEO snippets per page.
+`generateMetadata` uses `digest.titleRu ?? digest.titleEn` (AI-generated, stored in DB) as the page `<title>`, falling back to the parable title. Description is built from the quote snippet + parable moral for unique, content-rich SEO snippets per page. `buildOgImageUrl()` (local helper) builds the `/api/og` URL with `title`, `quote` (truncated to 150 chars), and `author` — used for both `openGraph.images` and `twitter.images`, and reused for the JSON-LD `image` field.
 
 ### GET /digests
 Paginated archive of all daily digests (`?page=N`, 12 per page, `revalidate = 3600`). Lists `titleRu`/`titleEn` (AI-generated, fallback to parable title) + date + category badge, linking to `/d/[slug]`. Linked from `Navbar` ("Архив" / "Archive") and included in `app/sitemap.ts`. Pages beyond 1 are `noindex` to avoid duplicate-content SEO issues.
