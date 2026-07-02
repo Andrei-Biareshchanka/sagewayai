@@ -73,6 +73,14 @@ v2 adds: `/api/auth/*`, `/api/subscribe`
 
 This includes: source code, comments, commit messages, documentation (CLAUDE.md, CONVENTIONS.md, README), Prisma schema comments, seed data descriptions, error messages, and variable names.
 
+**Exception — bilingual user-facing content:** SagewayAI is a Russian-primary bilingual site (`html lang="ru"`). Literal Cyrillic strings are expected and allowed wherever they are actual product content meant to be read by users, crawlers, or search engines — not code. This covers (non-exhaustively):
+- UI copy and labels that switch on `lang` (e.g. `DigestBlock`, `og-image.tsx` badge/tagline text)
+- `web/public/llms.txt`
+- JSON-LD fields describing page/site content (e.g. `description`, `headline`)
+- Digest/parable content itself (titles, quotes, morals — sourced from the DB, already Cyrillic by design)
+
+The rule still applies in full to identifiers, comments, commit messages, and docs — only literal content strings intended for end readers are exempt.
+
 ## Conventions
 
 See **[CONVENTIONS.md](./CONVENTIONS.md)** for the full coding style guide.

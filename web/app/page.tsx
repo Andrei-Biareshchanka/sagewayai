@@ -48,7 +48,7 @@ const websiteJsonLd = {
   '@type': 'WebSite',
   name: 'SagewayAI',
   url: SITE_URL,
-  description: 'Daily wisdom digests: parables, philosopher quotes, reflection, and a question to ponder',
+  description: 'Ежедневные дайджесты мудрости: притчи, цитаты философов, рефлексия и вопрос для размышления',
   inLanguage: ['ru', 'en'],
   potentialAction: {
     '@type': 'SearchAction',
