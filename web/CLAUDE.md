@@ -221,7 +221,15 @@ Optional `?category=[slug]` filters to one `Category` (only categories with at l
 Proxy to Express backend. Reads real user IP from `x-forwarded-for`, forwards it for IP-based rate limiting.
 
 ### GET /api/og
-Edge runtime. Accepts `?title=...&lang=ru|en`. Returns 1200×630 OG image. Uses `colors` from `lib/brand.ts` (CSS variables don't work in ImageResponse inline styles).
+Edge runtime. Returns 1200×630 OG image. Uses `colors` from `lib/brand.ts` (CSS variables don't work in ImageResponse inline styles).
+
+Params: `?title=...` (falls back to `SagewayAI`), `?quote=...` (optional, truncated to 150 chars), `?author=...` (optional, only shown when `quote` is present), `?lang=ru|en` (default `ru`).
+
+Two render modes, selected by whether `quote` is present:
+- **Digest mode** (`quote` present) — brand icon + wordmark top-left, `sagewayai.com` top-right, centered quote (Lora, up to 3 lines) with `— author` below it, digest title bottom-left, "Мудрость дня"/"Daily Wisdom" badge bottom-right.
+- **Home mode** (no `quote`) — same header, centered "SagewayAI" + tagline, `sagewayai.com` bottom-left, "SagewayAI" badge bottom-right.
+
+Fonts (Inter 400/700, Lora 400 italic/600) are fetched at request time from the Google Fonts CSS API (`loadGoogleFont` helper) — only the weights actually used for the current mode are fetched, scoped to the exact text being rendered via the API's `text=` param (handles Cyrillic automatically).
 
 ## Rate limiting
 
