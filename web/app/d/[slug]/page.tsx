@@ -35,7 +35,7 @@ function resolveDigestTitle(digest: DigestWithRelations): string {
 }
 
 function buildOgImageUrl(digest: DigestWithRelations, title: string): string {
-  const quote = (digest.quote.textRu ?? digest.quote.text).slice(0, 150);
+  const quote = (digest.quote.textRu ?? digest.quote.text).slice(0, 200);
   const author = digest.quote.authorRu ?? digest.quote.author;
   const params = new URLSearchParams({ title, quote, author });
   return `${SITE_URL}/api/og?${params.toString()}`;
