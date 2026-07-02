@@ -16,10 +16,9 @@ interface BilingualDailyData {
 
 interface HomeDailyDigestProps {
   data: BilingualDailyData;
-  slug: string;
 }
 
-export function HomeDailyDigest({ data, slug }: HomeDailyDigestProps) {
+export function HomeDailyDigest({ data }: HomeDailyDigestProps) {
   const { lang } = useLanguage();
   return (
     <div className="space-y-6">
@@ -39,7 +38,6 @@ export function HomeDailyDigest({ data, slug }: HomeDailyDigestProps) {
           conclusion: lang === 'ru' ? data.conclusionRu : data.conclusionEn,
           question: lang === 'ru' ? data.questionRu : data.questionEn,
         }}
-        slug={slug}
       />
     </div>
   );

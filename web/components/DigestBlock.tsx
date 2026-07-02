@@ -1,6 +1,6 @@
 'use client';
 
-import Link from 'next/link';
+import { useState } from 'react';
 import { colors } from '@/lib/brand';
 import { useLanguage } from '@/contexts/LanguageContext';
 
@@ -13,16 +13,12 @@ export interface DigestData {
 
 interface DigestBlockProps {
   data: DigestData;
-  slug?: string;
 }
 
-export function DigestBlock({ data, slug }: DigestBlockProps) {
+export function DigestBlock({ data }: DigestBlockProps) {
   const { lang } = useLanguage();
+  const [showReflection, setShowReflection] = useState(false);
   const { quote, parable, conclusion, question } = data;
-  const truncatedContent =
-    parable.content.length > 300
-      ? parable.content.slice(0, 300) + '...'
-      : parable.content;
 
   return (
     <div className="space-y-6">
@@ -49,26 +45,7 @@ export function DigestBlock({ data, slug }: DigestBlockProps) {
 
       <h2 className="font-serif text-lg font-semibold text-ink">{parable.title}</h2>
 
-      <p className="font-serif text-base leading-[1.8] text-ink">{truncatedContent}</p>
-
-      {slug && (
-        <Link
-          href={`/d/${slug}`}
-          className="inline-block font-sans text-sm text-sage hover:text-sage-dark transition-colors"
-        >
-          {lang === 'ru' ? 'Читать полностью →' : 'Read more →'}
-        </Link>
-      )}
-
-      <div
-        className="bg-sage-light border-l-4 border-sage rounded-card p-4 space-y-1"
-        style={{ borderLeftColor: colors.sage }}
-      >
-        <p className="font-sans text-xs font-medium text-sage uppercase tracking-wide">
-          {lang === 'ru' ? 'Размышление' : 'Reflection'}
-        </p>
-        <p className="font-serif text-base text-ink">{conclusion}</p>
-      </div>
+      <p className="font-serif text-base leading-[1.8] text-ink">{parable.content}</p>
 
       <div className="bg-sage-pill rounded-card p-4 space-y-1">
         <p className="font-sans text-xs font-medium text-sage-dark uppercase tracking-wide">
@@ -77,6 +54,25 @@ export function DigestBlock({ data, slug }: DigestBlockProps) {
         <p className="font-sans text-base text-ink">{question}</p>
       </div>
 
+      {showReflection ? (
+        <div
+          className="bg-sage-light border-l-4 border-sage rounded-card p-4 space-y-1"
+          style={{ borderLeftColor: colors.sage }}
+        >
+          <p className="font-sans text-xs font-medium text-sage uppercase tracking-wide">
+            {lang === 'ru' ? 'Размышление' : 'Reflection'}
+          </p>
+          <p className="font-serif text-base text-ink">{conclusion}</p>
+        </div>
+      ) : (
+        <button
+          type="button"
+          onClick={() => setShowReflection(true)}
+          className="font-sans text-sm text-sage hover:text-sage-dark transition-colors"
+        >
+          {lang === 'ru' ? 'Показать размышление автора ↓' : 'Show the author’s reflection ↓'}
+        </button>
+      )}
     </div>
   );
 }

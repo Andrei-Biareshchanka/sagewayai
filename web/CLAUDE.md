@@ -115,7 +115,7 @@ LanguageProvider (app/layout.tsx body)
 ## Key components
 
 ### DigestBlock
-Client component. Accepts single-language `DigestData`. Reads `lang` from context for **labels only** (Мудрость дня, Размышление, Вопрос, Читать полностью). Content itself stays in whatever language was passed — doesn't re-fetch on lang change.
+Client component. Accepts single-language `DigestData`. Reads `lang` from context for **labels only** (Мудрость дня, Размышление, Вопрос). Content itself stays in whatever language was passed — doesn't re-fetch on lang change. Shows the quote and full parable text unconditionally (no truncation, no link to `/d/[slug]` — removed to stop duplicating almost the entire digest page for a near-identical "read more" click). The Question is always visible; the Reflection is collapsed behind a "Show the author's reflection" toggle (local `useState`) so readers can form their own answer to the Question first.
 
 ### HomeDailyDigest
 Client wrapper used on the homepage. Receives bilingual data from the server component (`page.tsx`) and picks the correct language fields based on `useLanguage()`. Renders `DigestBlock`.
