@@ -214,7 +214,7 @@ Server passes **both RU and EN** fields to `DigestPageContent` for all content, 
 
 Includes JSON-LD `Article` schema and full OpenGraph metadata. `jsonLd` includes `author`/`publisher` (both `Organization`, publisher has a `logo` pointing at `/favicon.svg`), `image` (the digest's OG image URL), `inLanguage: 'ru'`, and `isPartOf` (`WebSite`). `dateModified` uses `digest.createdAt` — `DailyDigest` has no `updatedAt` field in the schema, so `createdAt` is the closest available proxy.
 
-`generateMetadata` uses `digest.titleRu ?? digest.titleEn` (AI-generated, stored in DB) as the page `<title>`, falling back to the parable title. Description is built from the quote snippet + parable moral for unique, content-rich SEO snippets per page. `buildOgImageUrl()` (local helper) builds the `/api/og` URL with `title`, `quote` (truncated to 150 chars), and `author` — used for both `openGraph.images` and `twitter.images`, and reused for the JSON-LD `image` field.
+`generateMetadata` uses `digest.titleRu ?? digest.titleEn` (AI-generated, stored in DB) as the page `<title>`, falling back to the parable title. Description is built from the quote snippet + parable moral for unique, content-rich SEO snippets per page. `buildOgImageUrl()` (local helper) builds the `/api/og` URL with `title`, `quote` (truncated to 200 chars), and `author` — used for both `openGraph.images` and `twitter.images`, and reused for the JSON-LD `image` field.
 
 ### GET /digests
 Paginated archive of all daily digests (`?page=N`, 12 per page, `revalidate = 3600`). Lists `titleRu`/`titleEn` (AI-generated, fallback to parable title) + date + category badge, linking to `/d/[slug]`. Linked from `Navbar` ("Архив" / "Archive") and included in `app/sitemap.ts`. Pages beyond 1 are `noindex` to avoid duplicate-content SEO issues.
@@ -227,7 +227,7 @@ Proxy to Express backend. Reads real user IP from `x-forwarded-for`, forwards it
 ### GET /api/og
 Edge runtime. Returns 1200×630 OG image. Uses `colors` from `lib/brand.ts` (CSS variables don't work in ImageResponse inline styles).
 
-Params: `?title=...` (falls back to `SagewayAI`), `?quote=...` (optional, truncated to 150 chars), `?author=...` (optional, only shown when `quote` is present), `?lang=ru|en` (default `ru`).
+Params: `?title=...` (falls back to `SagewayAI`), `?quote=...` (optional, truncated to 200 chars), `?author=...` (optional, only shown when `quote` is present), `?lang=ru|en` (default `ru`).
 
 Two render modes, selected by whether `quote` is present:
 - **Digest mode** (`quote` present) — brand icon + wordmark top-left, `sagewayai.com` top-right, centered quote (Lora, up to 3 lines) with `— author` below it, digest title bottom-left, "Мудрость дня"/"Daily Wisdom" badge bottom-right.
