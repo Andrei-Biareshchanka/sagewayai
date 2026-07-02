@@ -1,20 +1,20 @@
 # SagewayAI
-> Daily wisdom digests: parables, philosopher quotes, reflection.
+> Ежедневные дайджесты мудрости: притчи, цитаты философов, рефлексия.
 
-## Main pages
-- Home: https://sagewayai.com
-- Digest archive: https://sagewayai.com/digests
+## Основные страницы
+- Главная: https://sagewayai.com
+- Архив дайджестов: https://sagewayai.com/digests
 - Sitemap: https://sagewayai.com/sitemap.xml
 
-## About
-SagewayAI publishes a daily wisdom digest: a short parable from world
-culture, a quote from a philosopher (Marcus Aurelius, Seneca, Confucius,
-and others), a reflection, and a question to ponder. Content is available
-in Russian and English. Also available as a Telegram bot @sagewayai_bot.
+## О проекте
+SagewayAI — проект который каждый день публикует дайджест мудрости:
+короткая притча из мировой культуры, цитата философа (Марк Аврелий, Сенека,
+Конфуций и др.), рефлексия и вопрос для размышления. Контент на русском и
+английском языках. Также доступен как Telegram-бот @sagewayai_bot.
 
-## Content
-All digests are available at /d/[slug]. Each one contains:
-- A quote from a sage, with attribution
-- A short parable (200-400 words)
-- An authored reflection
-- A question for personal reflection
+## Контент
+Все дайджесты доступны по адресу /d/[slug]. Каждый содержит:
+- Цитату мудреца с атрибуцией
+- Короткую притчу (200-400 слов)
+- Авторскую рефлексию
+- Вопрос для личного размышления
