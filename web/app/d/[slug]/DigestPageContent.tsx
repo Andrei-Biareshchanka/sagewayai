@@ -96,7 +96,7 @@ export function DigestPageContent({ digest, related }: DigestPageContentProps) {
         style={{ borderLeftColor: colors.sage }}
       >
         <p className="font-sans text-sm font-medium text-sage">
-          {lang === 'ru' ? '💡 Размышление' : '💡 Reflection'}
+          {lang === 'ru' ? '💡 Резюме' : '💡 Summary'}
         </p>
         <p className="font-serif text-base text-ink">{conclusion}</p>
       </div>

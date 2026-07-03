@@ -1,6 +1,5 @@
 'use client';
 
-import { useState } from 'react';
 import { colors } from '@/lib/brand';
 import { useLanguage } from '@/contexts/LanguageContext';
 
@@ -17,7 +16,6 @@ interface DigestBlockProps {
 
 export function DigestBlock({ data }: DigestBlockProps) {
   const { lang } = useLanguage();
-  const [showReflection, setShowReflection] = useState(false);
   const { quote, parable, conclusion, question } = data;
 
   return (
@@ -54,25 +52,15 @@ export function DigestBlock({ data }: DigestBlockProps) {
         <p className="font-sans text-base text-ink">{question}</p>
       </div>
 
-      {showReflection ? (
-        <div
-          className="bg-sage-light border-l-4 border-sage rounded-card p-4 space-y-1"
-          style={{ borderLeftColor: colors.sage }}
-        >
-          <p className="font-sans text-xs font-medium text-sage uppercase tracking-wide">
-            {lang === 'ru' ? 'Размышление' : 'Reflection'}
-          </p>
-          <p className="font-serif text-base text-ink">{conclusion}</p>
-        </div>
-      ) : (
-        <button
-          type="button"
-          onClick={() => setShowReflection(true)}
-          className="font-sans text-sm text-sage hover:text-sage-dark transition-colors"
-        >
-          {lang === 'ru' ? 'Показать размышление автора ↓' : 'Show the author’s reflection ↓'}
-        </button>
-      )}
+      <div
+        className="bg-sage-light border-l-4 border-sage rounded-card p-4 space-y-1"
+        style={{ borderLeftColor: colors.sage }}
+      >
+        <p className="font-sans text-xs font-medium text-sage uppercase tracking-wide">
+          {lang === 'ru' ? 'Резюме' : 'Summary'}
+        </p>
+        <p className="font-serif text-base text-ink">{conclusion}</p>
+      </div>
     </div>
   );
 }
