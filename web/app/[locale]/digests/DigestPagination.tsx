@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useLanguage } from '@/contexts/LanguageContext';
+import { useLanguage, type Lang } from '@/contexts/LanguageContext';
 
 interface DigestPaginationProps {
   page: number;
@@ -9,12 +9,12 @@ interface DigestPaginationProps {
   categorySlug: string | undefined;
 }
 
-function pageHref(page: number, categorySlug: string | undefined): string {
+function pageHref(lang: Lang, page: number, categorySlug: string | undefined): string {
   const params = new URLSearchParams();
   if (categorySlug) params.set('category', categorySlug);
   if (page > 1) params.set('page', String(page));
   const query = params.toString();
-  return query ? `/digests?${query}` : '/digests';
+  return query ? `/${lang}/digests?${query}` : `/${lang}/digests`;
 }
 
 export function DigestPagination({ page, totalPages, categorySlug }: DigestPaginationProps) {
@@ -25,7 +25,7 @@ export function DigestPagination({ page, totalPages, categorySlug }: DigestPagin
   return (
     <nav className="flex items-center justify-between pt-4 font-sans text-sm">
       {page > 1 ? (
-        <Link href={pageHref(page - 1, categorySlug)} className="text-sage hover:text-sage-dark">
+        <Link href={pageHref(lang, page - 1, categorySlug)} className="text-sage hover:text-sage-dark">
           {lang === 'ru' ? '← Назад' : '← Previous'}
         </Link>
       ) : (
@@ -35,7 +35,7 @@ export function DigestPagination({ page, totalPages, categorySlug }: DigestPagin
         {lang === 'ru' ? `Страница ${page} из ${totalPages}` : `Page ${page} of ${totalPages}`}
       </span>
       {page < totalPages ? (
-        <Link href={pageHref(page + 1, categorySlug)} className="text-sage hover:text-sage-dark">
+        <Link href={pageHref(lang, page + 1, categorySlug)} className="text-sage hover:text-sage-dark">
           {lang === 'ru' ? 'Вперёд →' : 'Next →'}
         </Link>
       ) : (

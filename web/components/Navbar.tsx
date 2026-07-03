@@ -10,7 +10,7 @@ export function Navbar() {
   return (
     <header className="sticky top-0 z-10 bg-white/80 backdrop-blur border-b border-[var(--color-border)]">
       <nav className="max-w-[1200px] mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-2">
+        <Link href={`/${lang}`} className="flex items-center gap-2">
           <img
             src="/favicon.svg"
             alt=""
@@ -28,7 +28,7 @@ export function Navbar() {
         </Link>
         <div className="flex items-center gap-4">
           <Link
-            href="/digests"
+            href={`/${lang}/digests`}
             className="font-sans text-sm text-muted hover:text-ink transition-colors"
           >
             {lang === 'ru' ? 'Архив' : 'Archive'}

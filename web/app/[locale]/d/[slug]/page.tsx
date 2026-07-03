@@ -2,9 +2,9 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
 import { SITE_URL } from '@/lib/config';
-import { Navbar } from '@/components/Navbar';
-import { Footer } from '@/components/Footer';
 import { DigestPageContent } from './DigestPageContent';
+import { LOCALES, isLocale, type Locale } from '@/lib/locales';
+import { pickLocalized } from '@/lib/locale-content';
 
 export const revalidate = 86400;
 
@@ -14,7 +14,7 @@ export async function generateStaticParams() {
     where: { slug: { not: null } },
     orderBy: { date: 'desc' },
   });
-  return digests.map((d) => ({ slug: d.slug as string }));
+  return LOCALES.flatMap((locale) => digests.map((d) => ({ locale, slug: d.slug as string })));
 }
 
 async function getDigestBySlug(slug: string) {
@@ -27,30 +27,37 @@ async function getDigestBySlug(slug: string) {
   });
 }
 
-type PageProps = { params: Promise<{ slug: string }> };
+type PageProps = { params: Promise<{ locale: string; slug: string }> };
 type DigestWithRelations = NonNullable<Awaited<ReturnType<typeof getDigestBySlug>>>;
 
-function resolveDigestTitle(digest: DigestWithRelations): string {
-  return digest.titleRu ?? digest.titleEn ?? digest.parable.titleRu ?? digest.parable.title;
+function resolveDigestTitle(digest: DigestWithRelations, locale: Locale): string {
+  return pickLocalized(
+    digest.titleRu ?? digest.parable.titleRu ?? digest.parable.title,
+    digest.titleEn ?? digest.parable.title,
+    locale,
+  );
 }
 
-function buildOgImageUrl(digest: DigestWithRelations, title: string): string {
-  const quote = (digest.quote.textRu ?? digest.quote.text).slice(0, 200);
-  const author = digest.quote.authorRu ?? digest.quote.author;
-  const params = new URLSearchParams({ title, quote, author });
+function buildOgImageUrl(digest: DigestWithRelations, title: string, locale: Locale): string {
+  const quote = pickLocalized(digest.quote.textRu, digest.quote.text, locale).slice(0, 200);
+  const author = pickLocalized(digest.quote.authorRu, digest.quote.author, locale);
+  const params = new URLSearchParams({ title, quote, author, lang: locale });
   return `${SITE_URL}/api/og?${params.toString()}`;
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const { slug } = await params;
+  const { locale: rawLocale, slug } = await params;
+  const locale: Locale = isLocale(rawLocale) ? rawLocale : 'ru';
+  const otherLocale: Locale = locale === 'ru' ? 'en' : 'ru';
   const digest = await getDigestBySlug(slug);
   if (!digest) return {};
 
-  const title = resolveDigestTitle(digest);
-  const quoteSnippet = (digest.quote.textRu ?? digest.quote.text).slice(0, 80);
-  const moral = digest.parable.moralRu ?? digest.parable.moral;
+  const title = resolveDigestTitle(digest, locale);
+  const quoteSnippet = pickLocalized(digest.quote.textRu, digest.quote.text, locale).slice(0, 80);
+  const moral = pickLocalized(digest.parable.moralRu, digest.parable.moral, locale);
   const description = `«${quoteSnippet}» — ${moral}`.slice(0, 160);
-  const ogImageUrl = buildOgImageUrl(digest, title);
+  const ogImageUrl = buildOgImageUrl(digest, title, locale);
+  const canonical = `${SITE_URL}/${locale}/d/${slug}`;
 
   return {
     title: `${title} | SagewayAI`,
@@ -66,13 +73,21 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       images: [ogImageUrl],
     },
     alternates: {
-      canonical: `${SITE_URL}/d/${slug}`,
+      canonical,
+      languages: {
+        [locale]: canonical,
+        [otherLocale]: `${SITE_URL}/${otherLocale}/d/${slug}`,
+        'x-default': `${SITE_URL}/ru/d/${slug}`,
+      },
     },
   };
 }
 
 export default async function DigestPage({ params }: PageProps) {
-  const { slug } = await params;
+  const { locale: rawLocale, slug } = await params;
+  if (!isLocale(rawLocale)) notFound();
+  const locale = rawLocale;
+
   const digest = await getDigestBySlug(slug);
   if (!digest) notFound();
 
@@ -87,8 +102,8 @@ export default async function DigestPage({ params }: PageProps) {
     take: 3,
   });
 
-  const description = (digest.parable.contentRu ?? digest.parable.content).slice(0, 160);
-  const title = resolveDigestTitle(digest);
+  const description = pickLocalized(digest.parable.contentRu, digest.parable.content, locale).slice(0, 160);
+  const title = resolveDigestTitle(digest, locale);
 
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -111,8 +126,8 @@ export default async function DigestPage({ params }: PageProps) {
         url: `${SITE_URL}/favicon.svg`,
       },
     },
-    image: buildOgImageUrl(digest, title),
-    inLanguage: 'ru',
+    image: buildOgImageUrl(digest, title, locale),
+    inLanguage: locale,
     isPartOf: {
       '@type': 'WebSite',
       name: 'SagewayAI',
@@ -126,7 +141,6 @@ export default async function DigestPage({ params }: PageProps) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <Navbar />
       <main className="flex-1 max-w-[680px] mx-auto px-4 sm:px-6 py-12">
         <DigestPageContent
           digest={{
@@ -163,7 +177,6 @@ export default async function DigestPage({ params }: PageProps) {
           }))}
         />
       </main>
-      <Footer />
     </>
   );
 }

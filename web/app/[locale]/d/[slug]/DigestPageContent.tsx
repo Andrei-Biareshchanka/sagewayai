@@ -47,7 +47,7 @@ export function DigestPageContent({ digest, related }: DigestPageContentProps) {
   return (
     <div className="space-y-8">
       <nav className="font-sans text-sm text-muted flex items-center gap-1.5">
-        <Link href="/" className="hover:text-ink transition-colors">
+        <Link href={`/${lang}`} className="hover:text-ink transition-colors">
           {lang === 'ru' ? 'Главная' : 'Home'}
         </Link>
         <span>/</span>
@@ -61,7 +61,7 @@ export function DigestPageContent({ digest, related }: DigestPageContentProps) {
           {format(digest.date, 'd MMMM yyyy', { locale: dateLocale })}
         </p>
         <Link
-          href={`/digests?category=${digest.category.slug}`}
+          href={`/${lang}/digests?category=${digest.category.slug}`}
           className="font-sans text-xs font-medium text-sage-dark bg-sage-pill hover:bg-sage-pill-hover rounded-full px-2 py-0.5 transition-colors"
         >
           {lang === 'ru' ? digest.category.nameRu ?? digest.category.name : digest.category.name}
@@ -117,7 +117,7 @@ export function DigestPageContent({ digest, related }: DigestPageContentProps) {
             {related.map((item) => (
               <Link
                 key={item.slug}
-                href={`/d/${item.slug}`}
+                href={`/${lang}/d/${item.slug}`}
                 className="block bg-white border border-[var(--color-border)] rounded-card p-4 hover:border-sage transition-colors space-y-1"
               >
                 <p className="font-serif text-sm font-medium text-ink line-clamp-2">

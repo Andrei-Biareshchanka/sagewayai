@@ -1,13 +1,27 @@
 import type { Metadata } from 'next';
 import { prisma } from '@/lib/prisma';
 import { SITE_URL } from '@/lib/config';
-import { Navbar } from '@/components/Navbar';
-import { Footer } from '@/components/Footer';
 import { DigestsArchiveContent } from './DigestsArchiveContent';
+import { isLocale, type Locale } from '@/lib/locales';
+import { pickLocalized } from '@/lib/locale-content';
+import { notFound } from 'next/navigation';
 
 export const revalidate = 3600;
 
 const PAGE_SIZE = 12;
+
+const ARCHIVE_METADATA: Record<Locale, { titleSuffix: string; noCategoryTitle: string; description: string }> = {
+  ru: {
+    titleSuffix: 'Архив дайджестов | SagewayAI',
+    noCategoryTitle: 'Архив дайджестов | SagewayAI',
+    description: 'Все дайджесты дня: цитаты, притчи и размышления из библиотеки SagewayAI.',
+  },
+  en: {
+    titleSuffix: 'Digest Archive | SagewayAI',
+    noCategoryTitle: 'Digest Archive | SagewayAI',
+    description: 'All daily digests: quotes, parables, and reflections from the SagewayAI library.',
+  },
+};
 
 const DIGEST_LIST_SELECT = {
   date: true,
@@ -23,7 +37,10 @@ const DIGEST_LIST_SELECT = {
   },
 } as const;
 
-type PageProps = { searchParams: Promise<{ page?: string; category?: string }> };
+type PageProps = {
+  params: Promise<{ locale: string }>;
+  searchParams: Promise<{ page?: string; category?: string }>;
+};
 
 function parsePage(raw: string | undefined): number {
   const page = Number(raw);
@@ -38,7 +55,10 @@ function buildCanonicalParams(page: number, categorySlug: string | undefined): s
   return query ? `?${query}` : '';
 }
 
-export async function generateMetadata({ searchParams }: PageProps): Promise<Metadata> {
+export async function generateMetadata({ params, searchParams }: PageProps): Promise<Metadata> {
+  const { locale: rawLocale } = await params;
+  const locale: Locale = isLocale(rawLocale) ? rawLocale : 'ru';
+  const otherLocale: Locale = locale === 'ru' ? 'en' : 'ru';
   const { page: rawPage, category: categorySlug } = await searchParams;
   const page = parsePage(rawPage);
   const category = categorySlug
@@ -48,15 +68,25 @@ export async function generateMetadata({ searchParams }: PageProps): Promise<Met
       })
     : null;
 
+  const copy = ARCHIVE_METADATA[locale];
   const title = category
-    ? `${category.nameRu ?? category.name} — Архив дайджестов | SagewayAI`
-    : 'Архив дайджестов | SagewayAI';
-  const canonical = `${SITE_URL}/digests${buildCanonicalParams(page, category ? categorySlug : undefined)}`;
+    ? `${pickLocalized(category.nameRu, category.name, locale)} — ${copy.titleSuffix}`
+    : copy.noCategoryTitle;
+  const queryString = buildCanonicalParams(page, category ? categorySlug : undefined);
+  const canonical = `${SITE_URL}/${locale}/digests${queryString}`;
+  const sibling = `${SITE_URL}/${otherLocale}/digests${queryString}`;
 
   return {
     title,
-    description: 'Все дайджесты дня: цитаты, притчи и размышления из библиотеки SagewayAI.',
-    alternates: { canonical },
+    description: copy.description,
+    alternates: {
+      canonical,
+      languages: {
+        [locale]: canonical,
+        [otherLocale]: sibling,
+        'x-default': `${SITE_URL}/ru/digests${queryString}`,
+      },
+    },
     robots: page > 1 ? { index: false, follow: true } : undefined,
   };
 }
@@ -109,22 +139,15 @@ async function loadArchiveData(rawPage: string | undefined, rawCategory: string 
   return { page, categories, selectedCategorySlug: selectedCategory?.slug, digests, totalPages };
 }
 
-function ArchiveLayout({ children }: { children: React.ReactNode }) {
-  return (
-    <>
-      <Navbar />
-      <main className="flex-1 max-w-[1200px] mx-auto px-4 sm:px-6 py-12">{children}</main>
-      <Footer />
-    </>
-  );
-}
+export default async function DigestsArchivePage({ params, searchParams }: PageProps) {
+  const { locale } = await params;
+  if (!isLocale(locale)) notFound();
 
-export default async function DigestsArchivePage({ searchParams }: PageProps) {
   const { page: rawPage, category: rawCategory } = await searchParams;
   const data = await loadArchiveData(rawPage, rawCategory);
 
   return (
-    <ArchiveLayout>
+    <main className="flex-1 max-w-[1200px] mx-auto px-4 sm:px-6 py-12">
       <DigestsArchiveContent
         digests={toDigestSummaries(data.digests)}
         categories={data.categories}
@@ -132,6 +155,6 @@ export default async function DigestsArchivePage({ searchParams }: PageProps) {
         page={data.page}
         totalPages={data.totalPages}
       />
-    </ArchiveLayout>
+    </main>
   );
 }
