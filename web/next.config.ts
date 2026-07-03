@@ -6,6 +6,13 @@ const config: NextConfig = {
   images: {
     remotePatterns: [{ protocol: 'https', hostname: 'sagewayai.com' }],
   },
+  async redirects() {
+    return [
+      { source: '/', destination: '/ru', permanent: true },
+      { source: '/d/:slug', destination: '/ru/d/:slug', permanent: true },
+      { source: '/digests', destination: '/ru/digests', permanent: true },
+    ];
+  },
   webpack(webpackConfig) {
     // Prisma 7 "prisma-client" provider on Linux emits .ts source files only
     // (no pre-compiled index.js). @prisma/client is intentionally empty in

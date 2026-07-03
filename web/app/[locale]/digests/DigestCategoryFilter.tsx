@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useLanguage } from '@/contexts/LanguageContext';
+import { useLanguage, type Lang } from '@/contexts/LanguageContext';
 import type { DigestCategorySummary } from './DigestCard';
 
 interface DigestCategoryFilterProps {
@@ -9,8 +9,8 @@ interface DigestCategoryFilterProps {
   selectedCategorySlug: string | undefined;
 }
 
-function pillHref(slug: string | undefined): string {
-  return slug ? `/digests?category=${slug}` : '/digests';
+function pillHref(lang: Lang, slug: string | undefined): string {
+  return slug ? `/${lang}/digests?category=${slug}` : `/${lang}/digests`;
 }
 
 function pillClassName(isActive: boolean): string {
@@ -28,7 +28,7 @@ export function DigestCategoryFilter({
   return (
     <div className="flex flex-wrap gap-2">
       <Link
-        href={pillHref(undefined)}
+        href={pillHref(lang, undefined)}
         className={`font-sans text-sm font-medium rounded-full px-3 py-1 transition-colors ${pillClassName(!selectedCategorySlug)}`}
       >
         {lang === 'ru' ? 'Все' : 'All'}
@@ -36,7 +36,7 @@ export function DigestCategoryFilter({
       {categories.map((category) => (
         <Link
           key={category.slug}
-          href={pillHref(category.slug)}
+          href={pillHref(lang, category.slug)}
           className={`font-sans text-sm font-medium rounded-full px-3 py-1 transition-colors ${pillClassName(selectedCategorySlug === category.slug)}`}
         >
           {lang === 'ru' ? category.nameRu ?? category.name : category.name}

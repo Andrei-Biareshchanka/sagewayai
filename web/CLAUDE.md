@@ -43,30 +43,35 @@ npm run type-check # tsc --noEmit
 ```
 web/
 ├── app/
-│   ├── layout.tsx              # Root layout — fonts, metadata, LanguageProvider wrapper
-│   ├── page.tsx                # Home: CTABlock + daily HomeDailyDigest
+│   ├── [locale]/                # locale segment — 'ru' | 'en', see lib/locales.ts. Every page lives here.
+│   │   ├── layout.tsx           # Root layout (html/body live here — no separate app/layout.tsx) —
+│   │   │                        # fonts, metadata, <html lang={locale}>, 404s on invalid locale,
+│   │   │                        # renders Navbar/Footer once, wraps children in LanguageProvider
+│   │   ├── page.tsx             # Home: CTABlock + daily HomeDailyDigest, locale-aware metadata
+│   │   ├── d/
+│   │   │   └── [slug]/
+│   │   │       ├── page.tsx               # Digest page (SSG, revalidate 86400, generateStaticParams is locale×slug)
+│   │   │       └── DigestPageContent.tsx  # Client wrapper — bilingual content, reads from LanguageContext
+│   │   └── digests/
+│   │       ├── page.tsx                       # Archive: paginated list of all digests (revalidate 3600), optional ?category= filter
+│   │       ├── DigestsArchiveContent.tsx       # Client coordinator — breadcrumb + category filter + grid + pagination
+│   │       ├── DigestArchiveBreadcrumb.tsx     # Client — bilingual breadcrumb
+│   │       ├── DigestCategoryFilter.tsx        # Client — "All" + category pills, links to /{lang}/digests?category=slug
+│   │       ├── DigestCard.tsx                  # Client — single digest card (category badge + AI title + date)
+│   │       └── DigestPagination.tsx            # Client — prev/next page links, preserves ?category=
 │   ├── globals.css             # Tailwind v4 import + CSS color variables
 │   ├── generated/
 │   │   └── prisma/             # Generated Prisma Client (gitignored, rebuilt on predev)
-│   ├── d/
-│   │   └── [slug]/
-│   │       ├── page.tsx               # Digest page (SSG, revalidate 86400)
-│   │       └── DigestPageContent.tsx  # Client wrapper — bilingual content, reads from LanguageContext
-│   ├── digests/
-│   │   ├── page.tsx                       # Archive: paginated list of all digests (revalidate 3600), optional ?category= filter
-│   │   ├── DigestsArchiveContent.tsx       # Client coordinator — breadcrumb + category filter + grid + pagination
-│   │   ├── DigestArchiveBreadcrumb.tsx     # Client — bilingual breadcrumb
-│   │   ├── DigestCategoryFilter.tsx        # Client — "All" + category pills, links to /digests?category=slug
-│   │   ├── DigestCard.tsx                  # Client — single digest card (category badge + AI title + date)
-│   │   └── DigestPagination.tsx            # Client — prev/next page links, preserves ?category=
+│   ├── sitemap.ts              # Top-level (outside [locale]) — emits both /ru and /en URLs per page/digest
+│   ├── robots.ts               # Top-level — allows all, points to sitemap.xml
 │   └── api/
 │       ├── og/
 │       │   └── route.tsx       # Edge: OG image 1200x630 — NOTE: .tsx not .ts (JSX inside)
 │       └── situation/
 │           └── route.ts        # Proxy to Express /api/digest/situation (forwards real IP)
 ├── components/
-│   ├── Navbar.tsx              # 'use client' — logo + LanguageToggle (reads/sets LanguageContext)
-│   ├── Footer.tsx              # © 2026 SagewayAI · slogan — no Telegram link (it's in CTABlock)
+│   ├── Navbar.tsx              # 'use client' — logo + LanguageToggle (reads/sets LanguageContext), links prefixed with /{lang}
+│   ├── Footer.tsx              # 'use client' — © 2026 SagewayAI · slogan, switches RU/EN via LanguageContext
 │   ├── CTAButton.tsx           # Simple Telegram link button (legacy — prefer CTABlock)
 │   ├── CTABlock.tsx            # 'use client' — full CTA section: headline + 4 bullets + button
 │   ├── DigestBlock.tsx         # 'use client' — quote + parable + reflection + question; reads lang from context
@@ -74,11 +79,13 @@ web/
 │   ├── SituationSearch.tsx     # 'use client' — wisdom search form with cookie-based rate limit
 │   └── LanguageToggle.tsx      # 'use client' — custom RU/EN dropdown (presentational, controlled)
 ├── contexts/
-│   └── LanguageContext.tsx     # Lang type, LanguageProvider, useLanguage() hook
+│   └── LanguageContext.tsx     # Lang type, LanguageProvider, useLanguage() hook — see "Language routing architecture" below
 ├── lib/
 │   ├── prisma.ts               # Singleton PrismaClient with PrismaPg adapter
 │   ├── brand.ts                # Centralized color + font constants (use for ImageResponse inline styles)
 │   ├── slug.ts                 # generateSlug(title) via transliteration library
+│   ├── locales.ts              # LOCALES = ['ru', 'en'], Locale type, isLocale() guard — single source of truth for supported locales
+│   ├── locale-content.ts       # pickLocalized(ru, en, locale) — selects a bilingual DB field by the actual route locale (server-side only)
 │   ├── formatTime.ts           # formatCountdown(ms) → "23h 45m"
 │   ├── config.ts               # SITE_URL — canonical domain, used for metadataBase, canonical tags, sitemap, robots
 │   └── og-image.tsx            # buildOgImage() — used by app/api/og/route.tsx, see GET /api/og below
@@ -87,23 +94,26 @@ web/
 ├── public/
 │   └── llms.txt                # AI-crawler discovery file (robots.txt analog for LLMs) — static, English
 ├── prisma.config.ts            # Prisma 7 config — no dotenv import (Next.js loads .env.local)
-├── next.config.ts              # serverExternalPackages: ['@prisma/client', 'pg']
+├── next.config.ts              # serverExternalPackages: ['@prisma/client', 'pg']; redirects() 308s old unprefixed URLs (/, /d/:slug, /digests) to /ru/...
 ├── tailwind.config.ts          # extend: colors, fontFamily, borderRadius
 ├── postcss.config.mjs          # @tailwindcss/postcss plugin (Tailwind v4)
 ├── next-sitemap.config.js      # siteUrl: sagewayai.com, daily revalidation
 └── vercel.json                 # buildCommand: prisma generate && next build
 ```
 
-## Language switching architecture
+## Language routing architecture
 
-Language state lives in **`contexts/LanguageContext.tsx`** — single source of truth.
+**RU and EN are separate, real URLs** (`/ru/...`, `/en/...`), not a client-side toggle over one URL — this is required for Google to index both languages independently (each declares the other as its `hreflang` alternate, pointing at the sibling URL, not itself).
+
+`contexts/LanguageContext.tsx` still exposes the same `{ lang, setLang }` contract every component below reads, but the mechanics changed: `lang` is derived from the URL's `[locale]` segment (passed in as a prop by `app/[locale]/layout.tsx`, not local `useState`), and `setLang(newLang)` navigates (`router.push`) to the same path with the locale segment swapped instead of just re-rendering. Switching language is a real page navigation to a real URL now, since the content genuinely differs by URL.
 
 ```
-LanguageProvider (app/layout.tsx body)
-  └── Navbar.tsx          → reads { lang, setLang } → renders LanguageToggle
+LanguageProvider (app/[locale]/layout.tsx body, lang comes from params.locale)
+  └── Navbar.tsx          → reads { lang, setLang } → renders LanguageToggle, links prefixed with /{lang}
+  └── Footer.tsx          → reads { lang } → switches slogan text
   └── DigestBlock.tsx     → reads { lang } → switches labels (Мудрость дня / Daily Wisdom etc.)
   └── HomeDailyDigest.tsx → reads { lang } → picks RU or EN content fields
-  └── DigestPageContent.tsx → reads { lang } → switches all bilingual fields + date locale
+  └── DigestPageContent.tsx → reads { lang } → switches all bilingual fields + date locale + internal link prefixes
   └── CTABlock.tsx        → reads { lang } → bilingual headline, bullets, button text
   └── SituationSearch.tsx → reads { lang } → bilingual UI + sends lang to API
 ```
@@ -111,6 +121,8 @@ LanguageProvider (app/layout.tsx body)
 **Rule:** never add a local `lang` state to a component — always use `useLanguage()` from context.
 
 `LanguageToggle` is a **presentational** component — receives `lang` + `onChange` as props. Only `Navbar` wires it to the context.
+
+**Server-side locale selection:** `generateMetadata`, JSON-LD, and OG image URL building can't reach the client context — they use `lib/locale-content.ts`'s `pickLocalized(ru, en, locale)` with the actual route `params.locale`, instead of the old hardcoded RU-first `??` fallback chains. Old unprefixed URLs (`/`, `/d/:slug`, `/digests`) 308-redirect to their `/ru` equivalent via `next.config.ts`.
 
 ## Key components
 
@@ -198,28 +210,30 @@ npm run dev   # automatically runs prisma generate via predev script
 
 ## Routes
 
-### GET /
-Server component. Fetches bilingual daily digest from DB. Includes `WebSite` JSON-LD (`websiteJsonLd` in `page.tsx`) with a `SearchAction` pointing at `/search?q={search_term_string}` — that route doesn't exist yet, added ahead of time so Google can pick up the sitelinks searchbox once it ships. Renders:
+All page routes live under `app/[locale]/`, so every path below is actually `/ru/...` or `/en/...` — the old unprefixed paths (`/`, `/d/:slug`, `/digests`) 308-redirect to their `/ru` equivalent via `next.config.ts`'s `redirects()`.
+
+### GET /[locale]
+Server component. Fetches bilingual daily digest from DB. Includes `WebSite` JSON-LD (`buildWebsiteJsonLd()` in `page.tsx`) with a `SearchAction` pointing at `/search?q={search_term_string}` — that route doesn't exist yet, added ahead of time so Google can pick up the sitelinks searchbox once it ships. `generateMetadata` picks locale-specific title/description from a small `HOME_METADATA` record and builds `alternates.languages` pointing `ru`/`en` at each other's URL (not itself) plus `x-default` at `/ru`. Renders:
 1. `HomeDailyDigest` — bilingual digest (switches language via context)
 2. `CTABlock` — Telegram subscription CTA (at the bottom)
 
-### GET /d/[slug]
+### GET /[locale]/d/[slug]
 SSG digest page. `revalidate = 86400`. Slug is read directly from `DailyDigest.slug` in the DB — it is generated and stored by the server at digest creation time (format: `{parable-title}-{author}-{theme}`).
 
-`generateStaticParams` queries `prisma.dailyDigest.findMany({ select: { slug: true }, where: { slug: { not: null } } })` — uses DB slugs, no runtime generation.
+`generateStaticParams` returns the flat cross-join of `LOCALES × slugs` (not relying on parent/child param merging) from `prisma.dailyDigest.findMany({ select: { slug: true }, where: { slug: { not: null } } })` — uses DB slugs, no runtime generation.
 
-`app/sitemap.ts` also reads slugs directly from DB.
+`app/sitemap.ts` also reads slugs directly from DB and emits both locale URLs per digest.
 
-Server passes **both RU and EN** fields to `DigestPageContent` for all content, quotes, and related card titles. Also passes `parable.category` (`name` + `slug`), rendered as a pill next to the date that links to `/digests?category=[slug]`.
+Server passes **both RU and EN** fields to `DigestPageContent` for all content, quotes, and related card titles (the client component still does its own `lang`-based field selection — since `lang` now always equals the route locale, that logic didn't need to change). Also passes `parable.category` (`name` + `slug`), rendered as a pill next to the date that links to `/{lang}/digests?category=[slug]`.
 
-Includes JSON-LD `Article` schema and full OpenGraph metadata. `jsonLd` includes `author`/`publisher` (both `Organization`, publisher has a `logo` pointing at `/favicon.svg`), `image` (the digest's OG image URL), `inLanguage: 'ru'`, and `isPartOf` (`WebSite`). `dateModified` uses `digest.createdAt` — `DailyDigest` has no `updatedAt` field in the schema, so `createdAt` is the closest available proxy.
+Includes JSON-LD `Article` schema and full OpenGraph metadata. `jsonLd` includes `author`/`publisher` (both `Organization`, publisher has a `logo` pointing at `/favicon.svg`), `image` (the digest's OG image URL), `inLanguage: locale`, and `isPartOf` (`WebSite`). `dateModified` uses `digest.createdAt` — `DailyDigest` has no `updatedAt` field in the schema, so `createdAt` is the closest available proxy.
 
-`generateMetadata` uses `digest.titleRu ?? digest.titleEn` (AI-generated, stored in DB) as the page `<title>`, falling back to the parable title. Description is built from the quote snippet + parable moral for unique, content-rich SEO snippets per page. `buildOgImageUrl()` (local helper) builds the `/api/og` URL with `title`, `quote` (truncated to 200 chars), and `author` — used for both `openGraph.images` and `twitter.images`, and reused for the JSON-LD `image` field.
+`generateMetadata` resolves the page `<title>` via `resolveDigestTitle(digest, locale)`, which uses `lib/locale-content.ts`'s `pickLocalized()` against `digest.titleRu`/`titleEn` (AI-generated, stored in DB), falling back to the parable title. Description is built from the locale-picked quote snippet + parable moral for unique, content-rich SEO snippets per page. `buildOgImageUrl()` (local helper) builds the `/api/og` URL with `title`, `quote` (truncated to 200 chars), `author`, and `lang=${locale}` — used for both `openGraph.images` and `twitter.images`, and reused for the JSON-LD `image` field. `alternates.languages` points the current locale at itself and the other locale at its own `/d/[slug]` URL — never both at the same URL.
 
-### GET /digests
-Paginated archive of all daily digests (`?page=N`, 12 per page, `revalidate = 3600`). Lists `titleRu`/`titleEn` (AI-generated, fallback to parable title) + date + category badge, linking to `/d/[slug]`. Linked from `Navbar` ("Архив" / "Archive") and included in `app/sitemap.ts`. Pages beyond 1 are `noindex` to avoid duplicate-content SEO issues.
+### GET /[locale]/digests
+Paginated archive of all daily digests (`?page=N`, 12 per page, `revalidate = 3600`). Lists `titleRu`/`titleEn` (AI-generated, fallback to parable title) + date + category badge, linking to `/{lang}/d/[slug]`. Linked from `Navbar` ("Архив" / "Archive") and included in `app/sitemap.ts`. Pages beyond 1 are `noindex` to avoid duplicate-content SEO issues.
 
-Optional `?category=[slug]` filters to one `Category` (only categories with at least one published digest are listed, via `Category.parables.some.digests.some`). `generateMetadata` builds a per-category title/canonical when the filter is active. `DigestCategoryFilter` renders an "All" pill plus one pill per category; `DigestPagination` preserves the `category` param across page links.
+Optional `?category=[slug]` filters to one `Category` (only categories with at least one published digest are listed, via `Category.parables.some.digests.some`). `generateMetadata` builds a per-category, per-locale title/canonical when the filter is active, with `alternates.languages` pointing at the sibling locale's `/digests` URL (same query string). `DigestCategoryFilter` renders an "All" pill plus one pill per category, all prefixed with `/{lang}`; `DigestPagination` preserves the `category` param across page links, also prefixed with `/{lang}`.
 
 ### POST /api/situation
 Proxy to Express backend. Reads real user IP from `x-forwarded-for`, forwards it for IP-based rate limiting.
@@ -273,11 +287,11 @@ Reader max-width: `680px`. Page max-width: `1200px`.
 ## Analytics & SEO
 
 - **Canonical domain** — `lib/config.ts` exports `SITE_URL` (from `NEXT_PUBLIC_SITE_URL`, default `https://sagewayai.com`). Used for `metadataBase`, all `alternates.canonical`, OG `url`, JSON-LD `publisher.url`, `sitemap.ts`, and `robots.ts` — never hardcode the domain elsewhere.
-- **GA4** — `GoogleAnalytics` in `layout.tsx`, only renders when `NEXT_PUBLIC_GA_ID` is set
-- **Vercel Analytics** — `Analytics` in `layout.tsx`, always active on Vercel deployments
-- **Speed Insights** — `SpeedInsights` in `layout.tsx`, always active on Vercel deployments
-- **Home page SEO** — explicit `metadata` export with canonical URL and OG image (`/api/og?title=SagewayAI&lang=ru`)
-- **Sitemap** — `app/sitemap.ts`, queries all digests from DB, revalidates every 24h → `https://sagewayai.com/sitemap.xml`
+- **GA4** — `GoogleAnalytics` in `app/[locale]/layout.tsx`, only renders when `NEXT_PUBLIC_GA_ID` is set
+- **Vercel Analytics** — `Analytics` in `app/[locale]/layout.tsx`, always active on Vercel deployments
+- **Speed Insights** — `SpeedInsights` in `app/[locale]/layout.tsx`, always active on Vercel deployments
+- **Home page SEO** — `generateMetadata` per locale with canonical URL and OG image (`/api/og?title=SagewayAI&lang={locale}`)
+- **Sitemap** — `app/sitemap.ts`, queries all digests from DB, emits both `/ru` and `/en` URLs per page/digest with reciprocal `alternates.languages`, revalidates every 24h → `https://sagewayai.com/sitemap.xml`
 - **robots.txt** — `app/robots.ts`, always allows all, points to sitemap
 
 ## Deployment (Vercel)

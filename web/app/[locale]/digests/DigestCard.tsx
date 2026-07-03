@@ -30,7 +30,7 @@ export function DigestCard({ digest, dateLocale }: DigestCardProps) {
 
   return (
     <Link
-      href={`/d/${digest.slug}`}
+      href={`/${lang}/d/${digest.slug}`}
       className="block bg-white border border-[var(--color-border)] rounded-card p-4 hover:border-sage transition-colors space-y-2"
     >
       <span className="inline-block font-sans text-xs font-medium text-sage-dark bg-sage-pill rounded-full px-2 py-0.5">
