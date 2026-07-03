@@ -4,7 +4,7 @@ import { colors } from '@/lib/brand';
 export type FontConfig = {
   name: string;
   data: ArrayBuffer;
-  weight: 400 | 600 | 700;
+  weight: 400 | 500 | 700;
   style: 'normal' | 'italic';
 };
 
@@ -19,45 +19,40 @@ const styles = {
   container: {
     width: '1200px', height: '630px', display: 'flex', flexDirection: 'column',
     justifyContent: 'space-between', padding: '60px', boxSizing: 'border-box',
-    background: 'linear-gradient(135deg, #1a2e1a 0%, #0f1f0f 100%)', fontFamily: 'Inter',
+    backgroundColor: colors.sageLight, fontFamily: 'Inter',
   },
   headerRow: { display: 'flex', justifyContent: 'space-between', alignItems: 'center' },
   brandRow: { display: 'flex', alignItems: 'center', gap: '12px' },
   icon: {
-    width: '40px', height: '40px', borderRadius: '999px', backgroundColor: colors.sage,
+    width: '34px', height: '34px', borderRadius: '50%', backgroundColor: colors.sage,
     display: 'flex', alignItems: 'center', justifyContent: 'center',
   },
-  iconText: { fontSize: '20px', fontWeight: 700, color: colors.canvas },
-  wordmark: { display: 'flex', fontSize: '26px', fontWeight: 700 },
-  domain: { fontSize: '18px', color: 'rgba(255,255,255,0.5)' },
+  iconText: { fontFamily: 'Inter', fontSize: '15px', fontWeight: 700, color: colors.canvas },
+  wordmark: { display: 'flex', fontFamily: 'Inter', fontSize: '18px', fontWeight: 700 },
+  domain: { fontFamily: 'Inter', fontSize: '12px', fontWeight: 500, color: colors.muted },
   content: {
     flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center',
-    justifyContent: 'center', textAlign: 'center', padding: '0 40px',
+    justifyContent: 'center', textAlign: 'center', padding: '0 60px',
   },
+  stack: { display: 'flex', flexDirection: 'column', alignItems: 'center' },
   quote: {
     display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden',
-    maxWidth: '950px', fontFamily: 'Lora', fontWeight: 600, fontSize: '36px', lineHeight: 1.4, color: '#FFFFFF',
+    maxWidth: '860px', fontFamily: 'Lora', fontStyle: 'italic', fontSize: '24px',
+    lineHeight: 1.45, color: colors.ink,
   },
   author: {
-    marginTop: '28px', fontFamily: 'Lora', fontStyle: 'italic', fontWeight: 400, fontSize: '22px', color: '#a8c5a0',
+    marginTop: '16px', fontFamily: 'Inter', fontStyle: 'italic', fontSize: '14px', color: colors.sageDark,
   },
-  homeTitle: { fontSize: '72px', fontWeight: 700, color: '#FFFFFF' },
-  tagline: { marginTop: '20px', fontSize: '26px', fontWeight: 400, color: 'rgba(255,255,255,0.75)' },
-  footerRow: { display: 'flex', justifyContent: 'space-between', alignItems: 'center' },
-  footerTitle: {
-    fontSize: '20px', fontWeight: 400, color: 'rgba(255,255,255,0.55)',
-    maxWidth: '700px', overflow: 'hidden', whiteSpace: 'nowrap',
-  },
-  badge: {
-    display: 'flex', padding: '10px 20px', borderRadius: '999px',
-    backgroundColor: 'rgba(92,158,101,0.18)', border: '1px solid rgba(92,158,101,0.4)',
-  },
-  badgeText: { fontSize: '15px', fontWeight: 700, color: '#a8c5a0' },
+  homeTitle: { fontFamily: 'Inter', fontSize: '38px', fontWeight: 700, color: colors.sage },
+  homeSlogan: { marginTop: '12px', fontFamily: 'Inter', fontSize: '18px', fontWeight: 500, color: colors.muted },
+  footerRow: { display: 'flex', justifyContent: 'flex-end' },
+  footerSlogan: { fontFamily: 'Inter', fontSize: '13px', fontWeight: 500, color: colors.sageDark },
+  footerDomain: { fontFamily: 'Inter', fontSize: '12px', fontWeight: 500, color: colors.muted },
 } as const;
 
 function truncate(text: string, max: number): string {
   if (text.length <= max) return text;
-  return `${text.slice(0, max).trimEnd()}...`;
+  return `${text.slice(0, max).trimEnd()}…`;
 }
 
 async function loadGoogleFont(family: string, axis: string, text: string): Promise<ArrayBuffer> {
@@ -73,21 +68,18 @@ function toFontConfig(name: string, weight: FontConfig['weight'], style: FontCon
   return (data: ArrayBuffer): FontConfig => ({ name, data, weight, style });
 }
 
-async function loadOgFonts(texts: {
-  interBold: string;
-  interRegular: string;
-  quote?: string;
-  author?: string;
-}): Promise<FontConfig[]> {
+type OgFontTexts = { interBold: string; interMedium: string; quoteItalic?: string; authorItalic?: string };
+
+async function loadOgFonts(texts: OgFontTexts): Promise<FontConfig[]> {
   const jobs: Promise<FontConfig>[] = [
     loadGoogleFont('Inter', 'wght@700', texts.interBold).then(toFontConfig('Inter', 700, 'normal')),
-    loadGoogleFont('Inter', 'wght@400', texts.interRegular).then(toFontConfig('Inter', 400, 'normal')),
+    loadGoogleFont('Inter', 'wght@500', texts.interMedium).then(toFontConfig('Inter', 500, 'normal')),
   ];
-  if (texts.quote) {
-    jobs.push(loadGoogleFont('Lora', 'wght@600', texts.quote).then(toFontConfig('Lora', 600, 'normal')));
+  if (texts.quoteItalic) {
+    jobs.push(loadGoogleFont('Lora', 'ital,wght@1,400', texts.quoteItalic).then(toFontConfig('Lora', 400, 'italic')));
   }
-  if (texts.author) {
-    jobs.push(loadGoogleFont('Lora', 'ital,wght@1,400', texts.author).then(toFontConfig('Lora', 400, 'italic')));
+  if (texts.authorItalic) {
+    jobs.push(loadGoogleFont('Inter', 'ital,wght@1,400', texts.authorItalic).then(toFontConfig('Inter', 400, 'italic')));
   }
   return Promise.all(jobs);
 }
@@ -101,7 +93,7 @@ function Brand() {
       <div style={styles.wordmark}>
         <span style={{ color: colors.sage }}>Sage</span>
         <span style={{ color: colors.amber }}>way</span>
-        <span style={{ color: colors.sageMuted }}>AI</span>
+        <span style={{ color: colors.sage }}>AI</span>
       </div>
     </div>
   );
@@ -118,64 +110,49 @@ function Header() {
 
 function DigestQuote({ quote, author }: { quote: string; author: string }) {
   return (
-    <>
+    <div style={styles.stack}>
       <div style={styles.quote}>{`“${quote}”`}</div>
       {author && <div style={styles.author}>{`— ${author}`}</div>}
-    </>
+    </div>
   );
 }
 
-function HomeHeadline({ tagline }: { tagline: string }) {
+function HomeHeadline({ slogan }: { slogan: string }) {
   return (
-    <>
+    <div style={styles.stack}>
       <div style={styles.homeTitle}>SagewayAI</div>
-      <div style={styles.tagline}>{tagline}</div>
-    </>
+      <div style={styles.homeSlogan}>{slogan}</div>
+    </div>
   );
 }
 
-function Footer({
-  isDigest,
-  bottomTitle,
-  badgeText,
-}: {
-  isDigest: boolean;
-  bottomTitle: string;
-  badgeText: string;
-}) {
+function Footer({ isDigest, slogan }: { isDigest: boolean; slogan: string }) {
   return (
     <div style={styles.footerRow}>
-      <span style={styles.footerTitle}>{isDigest ? bottomTitle : 'sagewayai.com'}</span>
-      <div style={styles.badge}>
-        <span style={styles.badgeText}>{badgeText}</span>
-      </div>
+      <span style={isDigest ? styles.footerSlogan : styles.footerDomain}>
+        {isDigest ? slogan : 'sagewayai.com'}
+      </span>
     </div>
   );
 }
 
 function deriveOgContent(params: OgParams) {
-  const { title, quote, author, lang } = params;
+  const { quote, author, lang } = params;
   const isDigest = quote.length > 0;
-  const quoteText = truncate(quote, 200);
-  const bottomTitle = truncate(title, 70);
-  const subtitle = lang === 'ru' ? 'Мудрость дня' : 'Daily Wisdom';
-  const tagline =
-    lang === 'ru'
-      ? 'Мудрость каждый день — притчи, цитаты, рефлексия'
-      : 'Daily wisdom — parables, quotes, reflection';
-  const badgeText = isDigest ? subtitle : 'SagewayAI';
-  return { isDigest, quoteText, bottomTitle, tagline, badgeText, author };
+  const quoteText = truncate(quote, 120);
+  const slogan = lang === 'ru' ? 'Мудрость каждый день' : 'Daily Wisdom';
+  return { isDigest, quoteText, author, slogan };
 }
 
 function renderOgElement(content: ReturnType<typeof deriveOgContent>): ReactElement {
-  const { isDigest, quoteText, bottomTitle, tagline, badgeText, author } = content;
+  const { isDigest, quoteText, slogan, author } = content;
   return (
     <div style={styles.container}>
       <Header />
       <div style={styles.content}>
-        {isDigest ? <DigestQuote quote={quoteText} author={author} /> : <HomeHeadline tagline={tagline} />}
+        {isDigest ? <DigestQuote quote={quoteText} author={author} /> : <HomeHeadline slogan={slogan} />}
       </div>
-      <Footer isDigest={isDigest} bottomTitle={bottomTitle} badgeText={badgeText} />
+      <Footer isDigest={isDigest} slogan={slogan} />
     </div>
   );
 }
@@ -183,10 +160,10 @@ function renderOgElement(content: ReturnType<typeof deriveOgContent>): ReactElem
 export async function buildOgImage(params: OgParams): Promise<{ element: ReactElement; fonts: FontConfig[] }> {
   const content = deriveOgContent(params);
   const fonts = await loadOgFonts({
-    interBold: `SagewayAI ${content.badgeText} S`,
-    interRegular: `sagewayai.com ${content.tagline} ${content.bottomTitle}`,
-    quote: content.isDigest ? content.quoteText : undefined,
-    author: content.isDigest && content.author ? `— ${content.author}` : undefined,
+    interBold: 'SagewayAI',
+    interMedium: `sagewayai.com ${content.slogan}`,
+    quoteItalic: content.isDigest ? content.quoteText : undefined,
+    authorItalic: content.isDigest && content.author ? `— ${content.author}` : undefined,
   });
   return { element: renderOgElement(content), fonts };
 }
