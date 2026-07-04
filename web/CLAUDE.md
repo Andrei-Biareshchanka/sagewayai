@@ -129,6 +129,17 @@ LanguageProvider (app/[locale]/layout.tsx body, lang comes from params.locale)
 ### DigestBlock
 Client component. Accepts single-language `DigestData`. Reads `lang` from context for **labels only** (Мудрость дня, Вопрос, Резюме). Content itself stays in whatever language was passed — doesn't re-fetch on lang change. Shows the quote and full parable text unconditionally (no truncation, no link to `/d/[slug]` — removed to stop duplicating almost the entire digest page for a near-identical "read more" click). Question and Summary (`conclusion` field — an AI-generated takeaway, not the quoted author's own words, hence "Резюме"/"Summary" rather than "Размышление"/"Reflection") are both always visible, no collapse/toggle.
 
+Accepts optional `shareUrl`/`shareTitle` — when provided (both current callers pass them whenever the digest has a `slug`), renders `ShareButton` after the Summary box.
+
+### ShareButton
+Client component (`components/ShareButton.tsx`). Props: `url`, `title`, `text` (kept short — quote + author, not the full parable, since the destination page's own OG image/description already carries the rich preview). On click, tries `navigator.share()` (native OS share sheet on supporting devices); if unsupported or the call resolves without the user completing a share, falls back to a small dropdown with Telegram (`t.me/share/url` — same scheme `telegram-bot/src/lib/keyboard.ts`'s `buildShareUrl` already uses), WhatsApp, X, and "copy link".
+
+`url` is always built by the caller as `` `${SITE_URL}/${lang}/d/${slug}?utm_source=share&utm_medium=social` `` so GA4 can attribute traffic from shares; a `gtag('event', 'share', { method, content_type: 'digest' })` also fires on every successful path (guarded — no-op if `gtag` isn't loaded). No dedicated Prisma model or API endpoint tracks shares — mirrors the Telegram bot's own share feature, which has no tracking table either.
+
+Rendered from two places, each threading the digest's `slug` down to build `url`:
+- `HomeDailyDigest` → `DigestBlock` (homepage digest; `slug` added to `BilingualDailyData`, guarded — no button renders if `slug` is `null`)
+- `DigestPageContent` (`/[locale]/d/[slug]`; `slug` added to `BilingualDigest`, always present since the page 404s otherwise)
+
 ### HomeDailyDigest
 Client wrapper used on the homepage. Receives bilingual data from the server component (`page.tsx`) and picks the correct language fields based on `useLanguage()`. Renders `DigestBlock`.
 
