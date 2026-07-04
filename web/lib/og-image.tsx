@@ -29,7 +29,7 @@ const styles = {
   },
   iconText: { fontFamily: 'Inter', fontSize: '15px', fontWeight: 700, color: colors.canvas },
   wordmark: { display: 'flex', fontFamily: 'Inter', fontSize: '18px', fontWeight: 700 },
-  domain: { fontFamily: 'Inter', fontSize: '12px', fontWeight: 500, color: colors.muted },
+  domain: { fontFamily: 'Inter', fontSize: '14px', fontWeight: 500, color: colors.muted },
   content: {
     flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center',
     justifyContent: 'center', textAlign: 'center', padding: '0 60px',
@@ -37,16 +37,16 @@ const styles = {
   stack: { display: 'flex', flexDirection: 'column', alignItems: 'center' },
   quote: {
     display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden',
-    maxWidth: '860px', fontFamily: 'Lora', fontStyle: 'italic', fontSize: '24px',
+    maxWidth: '860px', fontFamily: 'Lora', fontStyle: 'italic', fontSize: '36px',
     lineHeight: 1.45, color: colors.ink,
   },
   author: {
-    marginTop: '16px', fontFamily: 'Inter', fontStyle: 'italic', fontSize: '14px', color: colors.sageDark,
+    marginTop: '16px', fontFamily: 'Inter', fontStyle: 'italic', fontSize: '18px', color: colors.sageDark,
   },
-  homeTitle: { fontFamily: 'Inter', fontSize: '38px', fontWeight: 700, color: colors.sage },
-  homeSlogan: { marginTop: '12px', fontFamily: 'Inter', fontSize: '18px', fontWeight: 500, color: colors.muted },
+  homeTitle: { fontFamily: 'Inter', fontSize: '48px', fontWeight: 700, color: colors.sage },
+  homeSlogan: { marginTop: '12px', fontFamily: 'Inter', fontSize: '22px', fontWeight: 500, color: colors.muted },
   footerRow: { display: 'flex', justifyContent: 'flex-end' },
-  footerSlogan: { fontFamily: 'Inter', fontSize: '13px', fontWeight: 500, color: colors.sageDark },
+  footerSlogan: { fontFamily: 'Inter', fontSize: '16px', fontWeight: 500, color: colors.sageDark },
   footerDomain: { fontFamily: 'Inter', fontSize: '12px', fontWeight: 500, color: colors.muted },
 } as const;
 
