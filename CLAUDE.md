@@ -106,6 +106,14 @@ See **[CONVENTIONS.md](./CONVENTIONS.md)** for the full coding style guide.
 | `/new-migration <name>` | Create a Prisma migration with confirmation and error guidance |
 | `/seed-parable [category] [count]` | Insert generated test parables directly into the DB via MCP Postgres |
 
+## Custom skills
+
+Defined in `.claude/skills/` — Claude Code picks them up automatically.
+
+| Skill | When to use |
+|-------|-------------|
+| `docs-maintainer` | Keeps `.claude/docs/` (`ARCHITECTURE.md`, `FOLLOWUPS.md`, `adr/`) current — living docs describe today's state and get edited in place, ADRs are one-time records of a decision or merged feature. `.claude/docs/` is gitignored (local-only); only `.claude/skills/` is committed. |
+
 ## Custom MCP server
 
 `server/src/mcp/index.ts` — exposes 3 tools Claude can call directly (no HTTP server needed):

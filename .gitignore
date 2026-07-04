@@ -4,6 +4,9 @@
 # MCP local config (contains DB credentials and tokens)
 .mcp.json
 
+# Local Claude Code docs (living architecture notes, ADRs, follow-ups) — not shared via git
+.claude/docs/
+
 # Environment files
 .env
 .env.*
