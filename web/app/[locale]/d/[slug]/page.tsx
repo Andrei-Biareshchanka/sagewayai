@@ -144,6 +144,7 @@ export default async function DigestPage({ params }: PageProps) {
       <main className="flex-1 max-w-[680px] mx-auto px-4 sm:px-6 py-12">
         <DigestPageContent
           digest={{
+            slug,
             date: digest.date,
             titleRu: digest.titleRu ?? digest.parable.titleRu ?? digest.parable.title,
             titleEn: digest.titleEn ?? digest.parable.title,

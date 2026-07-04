@@ -5,9 +5,12 @@ import { ru, enUS } from 'date-fns/locale';
 import Link from 'next/link';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { colors } from '@/lib/brand';
+import { SITE_URL } from '@/lib/config';
 import { CTABlock } from '@/components/CTABlock';
+import { ShareButton } from '@/components/ShareButton';
 
 interface BilingualDigest {
+  slug: string;
   date: Date;
   titleRu: string;
   titleEn: string;
@@ -66,6 +69,11 @@ export function DigestPageContent({ digest, related }: DigestPageContentProps) {
         >
           {lang === 'ru' ? digest.category.nameRu ?? digest.category.name : digest.category.name}
         </Link>
+        <ShareButton
+          url={`${SITE_URL}/${lang}/d/${digest.slug}?utm_source=share&utm_medium=social`}
+          title={digestTitle}
+          text={`"${quoteText}" — ${quoteAuthor}`}
+        />
       </div>
 
       <figure className="relative pl-12">

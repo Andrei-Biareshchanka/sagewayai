@@ -108,6 +108,7 @@ export default async function HomePage({ params }: PageProps) {
         {digest && (
           <HomeDailyDigest
             data={{
+              slug: digest.slug,
               titleRu: digest.titleRu ?? digest.parable.titleRu ?? digest.parable.title,
               titleEn: digest.titleEn ?? digest.parable.title,
               quote: {

@@ -2,6 +2,7 @@
 
 import { colors } from '@/lib/brand';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { ShareButton } from './ShareButton';
 
 export interface DigestData {
   quote: { text: string; author: string };
@@ -12,9 +13,11 @@ export interface DigestData {
 
 interface DigestBlockProps {
   data: DigestData;
+  shareUrl?: string;
+  shareTitle?: string;
 }
 
-export function DigestBlock({ data }: DigestBlockProps) {
+export function DigestBlock({ data, shareUrl, shareTitle }: DigestBlockProps) {
   const { lang } = useLanguage();
   const { quote, parable, conclusion, question } = data;
 
@@ -61,6 +64,14 @@ export function DigestBlock({ data }: DigestBlockProps) {
         </p>
         <p className="font-serif text-base text-ink">{conclusion}</p>
       </div>
+
+      {shareUrl && (
+        <ShareButton
+          url={shareUrl}
+          title={shareTitle ?? parable.title}
+          text={`"${quote.text}" — ${quote.author}`}
+        />
+      )}
     </div>
   );
 }

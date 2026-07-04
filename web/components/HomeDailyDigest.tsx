@@ -1,9 +1,11 @@
 'use client';
 
 import { useLanguage } from '@/contexts/LanguageContext';
+import { SITE_URL } from '@/lib/config';
 import { DigestBlock } from './DigestBlock';
 
 interface BilingualDailyData {
+  slug: string | null;
   titleRu: string;
   titleEn: string;
   quote: { textRu: string; authorRu: string; textEn: string; authorEn: string };
@@ -20,11 +22,11 @@ interface HomeDailyDigestProps {
 
 export function HomeDailyDigest({ data }: HomeDailyDigestProps) {
   const { lang } = useLanguage();
+  const title = lang === 'ru' ? data.titleRu : data.titleEn;
+
   return (
     <div className="space-y-6">
-      <h1 className="font-serif text-2xl font-semibold text-ink">
-        {lang === 'ru' ? data.titleRu : data.titleEn}
-      </h1>
+      <h1 className="font-serif text-2xl font-semibold text-ink">{title}</h1>
       <DigestBlock
         data={{
           quote: {
@@ -38,6 +40,8 @@ export function HomeDailyDigest({ data }: HomeDailyDigestProps) {
           conclusion: lang === 'ru' ? data.conclusionRu : data.conclusionEn,
           question: lang === 'ru' ? data.questionRu : data.questionEn,
         }}
+        shareUrl={data.slug ? `${SITE_URL}/${lang}/d/${data.slug}?utm_source=share&utm_medium=social` : undefined}
+        shareTitle={title}
       />
     </div>
   );
