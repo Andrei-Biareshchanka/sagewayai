@@ -160,6 +160,15 @@ Configured in `.claude/settings.json` (committed):
 | `gh pr create` | `sagewayai-reviewer` checks full branch diff — blocks on violations |
 | `gh pr create` | `security-reviewer` scans for vulnerabilities — blocks on critical, warns on lesser issues |
 
+## Scheduled jobs (GitHub Actions)
+
+| Workflow | Schedule | What it does |
+|---|---|---|
+| `.github/workflows/send-daily.yml` | `08:00 UTC` daily | Emails the (legacy v1) `DailyParable` of the day to `EmailSubscriber`s via `POST /api/admin/send-daily` |
+| `.github/workflows/publish-digest.yml` | `22:00 UTC` daily (= `01:00` Moscow time, UTC+3, no DST — anchored to the primary RU/BY audience's clock) | Calls `POST /api/admin/publish-and-prepare`: publishes the pre-created `DailyDigest` draft for its day and pre-creates the *next* day's draft. See `server/CLAUDE.md`'s "Daily digest logic" for the full publish/bootstrap logic and why the cron time offsets dates by +1/+2 relative to UTC-today. |
+
+Both workflows retry a Railway cold start (wake-up loop against `/api/health`, then `/api/health/db`) before calling their respective admin endpoint, and are guarded by a secret header (`x-send-secret` / `x-publish-secret`) checked against a `GitHub Actions` repo secret — not JWT/session auth, since these run outside any user session.
+
 `schema-sync-check` exists because `server/`, `web/`, and `telegram-bot/` each keep their own `prisma/schema.prisma` pointing at the **same shared database**. telegram-bot runs `prisma db push` automatically on every deploy — if a shared model (e.g. `DailyDigest`) gains a field in one schema but not the others, the next push from the lagging package either drops that column or fails and takes the service down (this happened to the bot on 2026-06-30 when `slug`/`titleEn`/`titleRu` were added to `DailyDigest` in `server/` but not `telegram-bot/`). See `.claude/commands/schema-sync-check.md`.
 
 ## Current phase

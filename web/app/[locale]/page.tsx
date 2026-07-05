@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import { startOfDay } from 'date-fns';
 import { notFound } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
 import { SITE_URL } from '@/lib/config';
@@ -59,15 +58,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   };
 }
 
-async function getDailyDigest() {
-  const today = startOfDay(new Date());
-  const digest = await prisma.dailyDigest.findFirst({
-    where: { date: { gte: today } },
-    orderBy: { date: 'desc' },
-    include: { quote: true, parable: true },
-  });
-  if (digest) return digest;
+function getDailyDigest() {
   return prisma.dailyDigest.findFirst({
+    where: { isPublished: true },
     orderBy: { date: 'desc' },
     include: { quote: true, parable: true },
   });

@@ -77,6 +77,7 @@ web/
 │   ├── DigestBlock.tsx         # 'use client' — quote + parable + reflection + question; reads lang from context
 │   ├── HomeDailyDigest.tsx     # 'use client' — bilingual wrapper for homepage digest, reads lang from context
 │   ├── SituationSearch.tsx     # 'use client' — wisdom search form with cookie-based rate limit
+│   ├── TomorrowTeaser.tsx      # 'use client' — preview of tomorrow's not-yet-published digest title; renders null if no draft exists
 │   └── LanguageToggle.tsx      # 'use client' — custom RU/EN dropdown (presentational, controlled)
 ├── contexts/
 │   └── LanguageContext.tsx     # Lang type, LanguageProvider, useLanguage() hook — see "Language routing architecture" below
@@ -151,6 +152,13 @@ Renders the full digest page. Reads `lang` from context. Switches: quote, parabl
 
 Renders the AI-generated digest title (`titleRu` / `titleEn`, resolved server-side with fallback to the parable title) as the page's `<h1>` — matches `<title>`/OG so search snippets and the on-page heading agree. The parable's own title is rendered as `<h2>` right above the parable text, so it stays visible without competing with the digest `<h1>`.
 
+Renders `TomorrowTeaser` between the related-digests section and `CTABlock`, passing a `tomorrow: TomorrowDigestData | null` prop resolved server-side in `page.tsx` by `getTomorrowDigest()`.
+
+### TomorrowTeaser
+Client component (`components/TomorrowTeaser.tsx`). Props: `tomorrow: { titleRu: string; titleEn: string } | null` — renders `null` if there's no draft yet (nothing to tease). Card styled to match the Summary/Question boxes (`bg-sage-light rounded-card p-6`): a small "Tomorrow on SagewayAI:" label, the draft's title, and a "parable · quote · reflection" caption. No CTA/link inside — `CTABlock` right below already carries the Telegram subscribe button, so this stays a pure preview.
+
+`getTomorrowDigest()` (in `d/[slug]/page.tsx`) queries `DailyDigest` for `isPublished: false` ordered by `date asc` — at any steady-state moment there's at most one unpublished draft (the next one `server/`'s publish-and-prepare cron will publish), so this doesn't need to know the cron's UTC-vs-MSK date-shift logic.
+
 ## Critical: Prisma 7 + Turbopack compatibility
 
 ### What does NOT work (do not revert to these)
@@ -223,17 +231,23 @@ npm run dev   # automatically runs prisma generate via predev script
 
 All page routes live under `app/[locale]/`, so every path below is actually `/ru/...` or `/en/...` — the old unprefixed paths (`/`, `/d/:slug`, `/digests`) 308-redirect to their `/ru` equivalent via `next.config.ts`'s `redirects()`.
 
+**Publish gating:** `DailyDigest` rows can exist a day ahead of their publish date as unpublished drafts (see `server/CLAUDE.md`'s publish-and-prepare cron). Every query below that selects "the daily digest" or lists digests filters on `isPublished: true` — a draft must never be reachable by URL, listed in the archive, or included in the sitemap before its own day.
+
 ### GET /[locale]
-Server component. Fetches bilingual daily digest from DB. Includes `WebSite` JSON-LD (`buildWebsiteJsonLd()` in `page.tsx`) with a `SearchAction` pointing at `/search?q={search_term_string}` — that route doesn't exist yet, added ahead of time so Google can pick up the sitelinks searchbox once it ships. `generateMetadata` picks locale-specific title/description from a small `HOME_METADATA` record and builds `alternates.languages` pointing `ru`/`en` at each other's URL (not itself) plus `x-default` at `/ru`. Renders:
+Server component. Fetches the latest **published** daily digest from DB (`findFirst({ where: { isPublished: true }, orderBy: { date: 'desc' } })`). Includes `WebSite` JSON-LD (`buildWebsiteJsonLd()` in `page.tsx`) with a `SearchAction` pointing at `/search?q={search_term_string}` — that route doesn't exist yet, added ahead of time so Google can pick up the sitelinks searchbox once it ships. `generateMetadata` picks locale-specific title/description from a small `HOME_METADATA` record and builds `alternates.languages` pointing `ru`/`en` at each other's URL (not itself) plus `x-default` at `/ru`. Renders:
 1. `HomeDailyDigest` — bilingual digest (switches language via context)
 2. `CTABlock` — Telegram subscription CTA (at the bottom)
 
 ### GET /[locale]/d/[slug]
 SSG digest page. `revalidate = 86400`. Slug is read directly from `DailyDigest.slug` in the DB — it is generated and stored by the server at digest creation time (format: `{parable-title}-{author}-{theme}`).
 
-`generateStaticParams` returns the flat cross-join of `LOCALES × slugs` (not relying on parent/child param merging) from `prisma.dailyDigest.findMany({ select: { slug: true }, where: { slug: { not: null } } })` — uses DB slugs, no runtime generation.
+`getDigestBySlug` uses `findFirst({ where: { slug, isPublished: true } })` (not `findUnique` — `isPublished` isn't part of the unique index) so an unpublished draft 404s via `notFound()` even if someone has the slug.
 
-`app/sitemap.ts` also reads slugs directly from DB and emits both locale URLs per digest.
+`generateStaticParams` returns the flat cross-join of `LOCALES × slugs` (not relying on parent/child param merging) from `prisma.dailyDigest.findMany({ select: { slug: true }, where: { slug: { not: null }, isPublished: true } })` — uses DB slugs, no runtime generation, excludes drafts.
+
+`app/sitemap.ts` also reads slugs directly from DB (same `isPublished: true` filter) and emits both locale URLs per digest.
+
+`getTomorrowDigest()` fetches the one unpublished draft (if any) to feed `TomorrowTeaser` (see "Key components" above).
 
 Server passes **both RU and EN** fields to `DigestPageContent` for all content, quotes, and related card titles (the client component still does its own `lang`-based field selection — since `lang` now always equals the route locale, that logic didn't need to change). Also passes `parable.category` (`name` + `slug`), rendered as a pill next to the date that links to `/{lang}/digests?category=[slug]`.
 
@@ -242,7 +256,7 @@ Includes JSON-LD `Article` schema and full OpenGraph metadata. `jsonLd` includes
 `generateMetadata` resolves the page `<title>` via `resolveDigestTitle(digest, locale)`, which uses `lib/locale-content.ts`'s `pickLocalized()` against `digest.titleRu`/`titleEn` (AI-generated, stored in DB), falling back to the parable title. Description is built from the locale-picked quote snippet + parable moral for unique, content-rich SEO snippets per page. `buildOgImageUrl()` (local helper) builds the `/api/og` URL with `title`, `quote` (truncated to 200 chars), `author`, and `lang=${locale}` — used for both `openGraph.images` and `twitter.images`, and reused for the JSON-LD `image` field. `alternates.languages` points the current locale at itself and the other locale at its own `/d/[slug]` URL — never both at the same URL.
 
 ### GET /[locale]/digests
-Paginated archive of all daily digests (`?page=N`, 12 per page, `revalidate = 3600`). Lists `titleRu`/`titleEn` (AI-generated, fallback to parable title) + date + category badge, linking to `/{lang}/d/[slug]`. Linked from `Navbar` ("Архив" / "Archive") and included in `app/sitemap.ts`. Pages beyond 1 are `noindex` to avoid duplicate-content SEO issues.
+Paginated archive of all **published** daily digests (`?page=N`, 12 per page, `revalidate = 3600`, `isPublished: true` on both the digest list query and the category-counter query). Lists `titleRu`/`titleEn` (AI-generated, fallback to parable title) + date + category badge, linking to `/{lang}/d/[slug]`. Linked from `Navbar` ("Архив" / "Archive") and included in `app/sitemap.ts`. Pages beyond 1 are `noindex` to avoid duplicate-content SEO issues.
 
 Optional `?category=[slug]` filters to one `Category` (only categories with at least one published digest are listed, via `Category.parables.some.digests.some`). `generateMetadata` builds a per-category, per-locale title/canonical when the filter is active, with `alternates.languages` pointing at the sibling locale's `/digests` URL (same query string). `DigestCategoryFilter` renders an "All" pill plus one pill per category, all prefixed with `/{lang}`; `DigestPagination` preserves the `category` param across page links, also prefixed with `/{lang}`.
 

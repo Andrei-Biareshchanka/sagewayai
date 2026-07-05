@@ -7,6 +7,7 @@ vi.mock('./prisma', () => ({
       findUnique: vi.fn(),
       findFirst: vi.fn(),
       create: vi.fn(),
+      update: vi.fn(),
     },
     quote: {
       findMany: vi.fn(),
@@ -23,7 +24,7 @@ vi.mock('./anthropic', () => ({
   generateDigestTitle: vi.fn(),
 }));
 
-import { getDailyDigest } from './dailyDigest';
+import { getDailyDigest, publishTodayAndPrepareTomorrow } from './dailyDigest';
 import { prisma } from './prisma';
 import { findParableForQuote } from '../services/digest';
 import { generateReflection, generateDigestTitle } from './anthropic';
@@ -33,6 +34,7 @@ const mockPrisma = prisma as unknown as {
     findUnique: ReturnType<typeof vi.fn>;
     findFirst: ReturnType<typeof vi.fn>;
     create: ReturnType<typeof vi.fn>;
+    update: ReturnType<typeof vi.fn>;
   };
   quote: {
     findMany: ReturnType<typeof vi.fn>;
@@ -74,6 +76,8 @@ const MOCK_DIGEST_ROW = {
   conclusionRu: 'RU conclusion',
   questionEn: 'EN question?',
   questionRu: 'RU question?',
+  isPublished: true,
+  publishedAt: new Date(),
   createdAt: new Date(),
   quote: MOCK_QUOTE,
   parable: MOCK_PARABLE_MATCH,
@@ -225,5 +229,101 @@ describe('getDailyDigest', () => {
     mockPrisma.dailyDigest.create.mockRejectedValue(dbError);
 
     await expect(getDailyDigest()).rejects.toThrow('Connection lost');
+  });
+
+  it('auto-publishes an existing unpublished digest (cron missed its run)', async () => {
+    const draft = { ...MOCK_DIGEST_ROW, isPublished: false, publishedAt: null };
+    const published = { ...draft, isPublished: true, publishedAt: new Date() };
+    mockPrisma.dailyDigest.findUnique.mockResolvedValue(draft);
+    mockPrisma.dailyDigest.update.mockResolvedValue(published);
+
+    const result = await getDailyDigest();
+
+    expect(mockPrisma.dailyDigest.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { id: draft.id },
+        data: expect.objectContaining({ isPublished: true }),
+      }),
+    );
+    expect(result).toEqual(published);
+  });
+
+  it('does not call update when the existing digest is already published', async () => {
+    mockPrisma.dailyDigest.findUnique.mockResolvedValue(MOCK_DIGEST_ROW);
+
+    await getDailyDigest();
+
+    expect(mockPrisma.dailyDigest.update).not.toHaveBeenCalled();
+  });
+});
+
+describe('publishTodayAndPrepareTomorrow', () => {
+  it('publishes an unpublished draft for digestDateToPublish and creates digestDateToPrepare when missing', async () => {
+    const draftToPublish = { ...MOCK_DIGEST_ROW, id: 'digest-publish', slug: 'publish-slug', isPublished: false };
+    const published = { ...draftToPublish, isPublished: true, publishedAt: new Date() };
+    const prepared = { ...MOCK_DIGEST_ROW, id: 'digest-prepare', slug: 'prepare-slug', isPublished: false };
+
+    mockPrisma.dailyDigest.findUnique
+      .mockResolvedValueOnce(draftToPublish)  // findDigestForDate(digestDateToPublish) — existing draft
+      .mockResolvedValueOnce(null)            // findDigestForDate(digestDateToPrepare)
+      .mockResolvedValueOnce(null);            // buildDigestSlug: base slug not taken
+    mockPrisma.dailyDigest.update.mockResolvedValue(published);
+    mockPrisma.dailyDigest.findFirst.mockResolvedValue(null);
+    mockPrisma.quote.findMany.mockResolvedValue([MOCK_QUOTE]);
+    mockFindParableForQuote.mockResolvedValue(MOCK_PARABLE_MATCH);
+    mockGenerateReflection.mockResolvedValue({ conclusion: 'c', question: 'q?' });
+    mockGenerateDigestTitle.mockResolvedValue('Тестовый заголовок');
+    mockPrisma.dailyDigest.create.mockResolvedValue(prepared);
+
+    const result = await publishTodayAndPrepareTomorrow();
+
+    expect(result).toEqual({ published: draftToPublish.slug, prepared: prepared.slug });
+    expect(mockPrisma.dailyDigest.create).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ isPublished: false, publishedAt: null }) }),
+    );
+  });
+
+  it('is a no-op when digestDateToPublish is already published and digestDateToPrepare already exists', async () => {
+    mockPrisma.dailyDigest.findUnique
+      .mockResolvedValueOnce(MOCK_DIGEST_ROW) // findDigestForDate(digestDateToPublish) — already published
+      .mockResolvedValueOnce(MOCK_DIGEST_ROW); // findDigestForDate(digestDateToPrepare) — already exists
+
+    const result = await publishTodayAndPrepareTomorrow();
+
+    expect(result).toEqual({ published: null, prepared: null });
+    expect(mockPrisma.dailyDigest.update).not.toHaveBeenCalled();
+    expect(mockPrisma.dailyDigest.create).not.toHaveBeenCalled();
+  });
+
+  it('bootstrap: creates and publishes digestDateToPublish directly when no draft exists at all', async () => {
+    const publishedFromScratch = { ...MOCK_DIGEST_ROW, id: 'digest-publish', slug: 'publish-slug', isPublished: true };
+    const prepared = { ...MOCK_DIGEST_ROW, id: 'digest-prepare', slug: 'prepare-slug', isPublished: false };
+
+    mockPrisma.dailyDigest.findUnique
+      .mockResolvedValueOnce(null) // findDigestForDate(digestDateToPublish) — nothing exists yet
+      .mockResolvedValueOnce(null) // buildDigestSlug: base slug not taken (for the publish-step create)
+      .mockResolvedValueOnce(null) // findDigestForDate(digestDateToPrepare)
+      .mockResolvedValueOnce(null); // buildDigestSlug: base slug not taken (for the prepare-step create)
+    mockPrisma.dailyDigest.findFirst.mockResolvedValue(null);
+    mockPrisma.quote.findMany.mockResolvedValue([MOCK_QUOTE]);
+    mockFindParableForQuote.mockResolvedValue(MOCK_PARABLE_MATCH);
+    mockGenerateReflection.mockResolvedValue({ conclusion: 'c', question: 'q?' });
+    mockGenerateDigestTitle.mockResolvedValue('Тестовый заголовок');
+    mockPrisma.dailyDigest.create
+      .mockResolvedValueOnce(publishedFromScratch)
+      .mockResolvedValueOnce(prepared);
+
+    const result = await publishTodayAndPrepareTomorrow();
+
+    expect(result).toEqual({ published: publishedFromScratch.slug, prepared: prepared.slug });
+    expect(mockPrisma.dailyDigest.create).toHaveBeenNthCalledWith(
+      1,
+      expect.objectContaining({ data: expect.objectContaining({ isPublished: true }) }),
+    );
+    expect(mockPrisma.dailyDigest.create).toHaveBeenNthCalledWith(
+      2,
+      expect.objectContaining({ data: expect.objectContaining({ isPublished: false, publishedAt: null }) }),
+    );
+    expect(mockPrisma.dailyDigest.update).not.toHaveBeenCalled();
   });
 });

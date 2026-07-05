@@ -6,6 +6,7 @@ import { requireRole } from '../middleware/requireRole';
 import { prisma } from '../lib/prisma';
 import { getDailyParable } from '../lib/daily';
 import { sendDailyParableEmail } from '../lib/email';
+import { publishTodayAndPrepareTomorrow } from '../lib/dailyDigest';
 
 type Lang = 'en' | 'ru';
 
@@ -64,6 +65,17 @@ adminRouter.post('/send-daily', async (req: Request, res: Response) => {
   const failed = results.filter((r) => r.status === 'rejected').length;
 
   res.json({ sent, failed, total: subscribers.length });
+});
+
+adminRouter.post('/publish-and-prepare', async (req: Request, res: Response) => {
+  const publishSecret = process.env['ADMIN_PUBLISH_SECRET'];
+  if (!publishSecret || req.headers['x-publish-secret'] !== publishSecret) {
+    res.status(401).json({ error: 'Unauthorized' });
+    return;
+  }
+
+  const result = await publishTodayAndPrepareTomorrow();
+  res.json(result);
 });
 
 adminRouter.use(authenticate, requireRole('ADMIN'));

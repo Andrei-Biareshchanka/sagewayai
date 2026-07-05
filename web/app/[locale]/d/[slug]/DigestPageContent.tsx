@@ -8,6 +8,7 @@ import { colors } from '@/lib/brand';
 import { SITE_URL } from '@/lib/config';
 import { CTABlock } from '@/components/CTABlock';
 import { ShareButton } from '@/components/ShareButton';
+import { TomorrowTeaser, type TomorrowDigestData } from '@/components/TomorrowTeaser';
 
 interface BilingualDigest {
   slug: string;
@@ -33,9 +34,10 @@ interface RelatedDigest {
 interface DigestPageContentProps {
   digest: BilingualDigest;
   related: RelatedDigest[];
+  tomorrow: TomorrowDigestData | null;
 }
 
-export function DigestPageContent({ digest, related }: DigestPageContentProps) {
+export function DigestPageContent({ digest, related, tomorrow }: DigestPageContentProps) {
   const { lang } = useLanguage();
 
   const digestTitle = lang === 'ru' ? digest.titleRu : digest.titleEn;
@@ -139,6 +141,8 @@ export function DigestPageContent({ digest, related }: DigestPageContentProps) {
           </div>
         </section>
       )}
+
+      <TomorrowTeaser tomorrow={tomorrow} />
 
       <CTABlock />
     </div>

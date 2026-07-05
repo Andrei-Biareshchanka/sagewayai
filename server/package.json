@@ -12,7 +12,8 @@
     "seed:embeddings": "ts-node --project tsconfig.json scripts/seed-embeddings.ts",
     "generate:quotes": "ts-node --project tsconfig.json scripts/generate-quotes.ts",
     "seed:quotes": "ts-node --project tsconfig.json scripts/seed-quotes.ts",
-    "seed:quote-embeddings": "ts-node --project tsconfig.json scripts/seed-quote-embeddings.ts"
+    "seed:quote-embeddings": "ts-node --project tsconfig.json scripts/seed-quote-embeddings.ts",
+    "create-tomorrow-test": "ts-node --project tsconfig.json scripts/create-tomorrow-test.ts"
   },
   "prisma": {
     "seed": "ts-node prisma/seed.ts"

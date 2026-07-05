@@ -51,7 +51,8 @@ scripts/
 ├── find-duplicate-parables.ts
 ├── generate-quotes.ts
 ├── seed-quotes.ts
-└── seed-embeddings.ts / seed-quote-embeddings.ts  # pgvector embedding backfills
+├── seed-embeddings.ts / seed-quote-embeddings.ts  # pgvector embedding backfills
+└── create-tomorrow-test.ts       # manual verification: creates one unpublished draft dated tomorrow (UTC), reusing createDigestForDate — for testing the publish-and-prepare flow without waiting for the cron
 ```
 
 ## Prisma notes
@@ -75,7 +76,7 @@ After schema change: `npx prisma migrate dev --name <name>` then `npx prisma gen
 | `Parable` | `id`, `title`, `content`, `moral`, `source?`, `readTime`, `categoryId` |
 | `Category` | `id`, `name`, `slug`, `color?`, `parablesCount` |
 | `DailyParable` | `id`, `parableId`, `date` (unique per day) |
-| `DailyDigest` | `id`, `date` (unique), `slug?` (unique), `titleEn?`, `titleRu?`, `quoteId`, `parableId`, `conclusionEn/Ru`, `questionEn/Ru` |
+| `DailyDigest` | `id`, `date` (unique), `slug?` (unique), `titleEn?`, `titleRu?`, `quoteId`, `parableId`, `conclusionEn/Ru`, `questionEn/Ru`, `isPublished` (default `false`), `publishedAt?` |
 | `SituationRequest` | `id`, `ip`, `chatId?`, `usedAt` — rate limit table for `/api/digest/situation`. Web uses IP, Telegram bot passes `chatId` so each bot user has an independent 24h limit (all bot requests share one Railway IP). |
 | `TelegramSubscriber` | `id`, `chatId` (unique), `username?`, `active`, `language`, `situationUsedAt?`, `referredBy?` — owned by `telegram-bot/`; `referredBy` stores the referring subscriber's `chatId` for the referral system. |
 
@@ -85,10 +86,24 @@ Seed categories: Wisdom, Motivation, Leadership, Journey, Loss, Risk, Trust, Mea
 
 ## Daily digest logic (`src/lib/dailyDigest.ts`)
 
-Each day a quote+parable pair is selected and stored in `DailyDigest`. On request:
-1. Check if today's date has a record in `DailyDigest`
-2. If yes — return it
-3. If no — pick next quote (unused first, then LRU), find best matching parable via vector similarity (excluding parables already paired with this quote, and — when possible — parables used in any digest within the last 14 days), generate EN+RU reflections **and AI titles** via Claude in parallel, generate slug, create record
+Digests are created a day ahead of publication ("tomorrow's teaser") and only made visible to end users on their own day, via `isPublished`/`publishedAt`.
+
+**`GET /api/digest/daily` → `getDailyDigest()`** — used by the Telegram bot (`web/` reads `DailyDigest` directly via its own Prisma client, not this endpoint):
+1. Check if today's date has a record in `DailyDigest`.
+2. If yes — auto-publish it if it isn't already (`publishDigest()`, idempotent no-op if already published). This is a safety net for when the publish-and-prepare cron missed its run: the bot shouldn't stay stuck just because the cron didn't fire.
+3. If no — pick next quote (unused first, then LRU), find best matching parable via vector similarity (excluding parables already paired with this quote, and — when possible — parables used in any digest within the last 14 days), generate EN+RU reflections **and AI titles** via Claude in parallel, generate slug, create record with `isPublished: true` (this is an on-demand creation for *today*, not a draft).
+
+**`POST /api/admin/publish-and-prepare`** (`src/routes/admin.ts`) — called by `.github/workflows/publish-digest.yml`, scheduled `0 22 * * *` UTC (01:00 Moscow time, UTC+3 no DST — deliberately anchored to the primary RU/BY audience's clock, not UTC midnight). Guarded by `x-publish-secret` header matched against `ADMIN_PUBLISH_SECRET` env var (same unauthenticated-but-secret-gated pattern as `/send-daily`).
+
+`publishTodayAndPrepareTomorrow()` (`dailyDigest.ts`): at 22:00 UTC, `getTodayDate()` is still "today" in UTC terms, but it's already the start of MSK's *next* calendar day — so this function acts on **UTC-today + 1** (the digest to publish) and **UTC-today + 2** (the digest to prepare as a draft), not on UTC-today itself:
+1. If UTC-today+1 doesn't exist yet — create **and** publish it in one step (bootstrap case, e.g. very first run ever).
+2. If it exists and is unpublished — publish it (`isPublished: true`, `publishedAt: now()`).
+3. If it's already published — no-op.
+4. If UTC-today+2 doesn't exist — create it as an unpublished draft (`createDigestForDate(date, false)`). If it already exists — no-op (idempotent against repeated/retried cron runs).
+
+Returns `{ published: slug | null, prepared: slug | null }`, logged by the workflow.
+
+`createDigestForDate(date, isPublished)` — exported, generalized version of what used to be `createDigestForToday`; reused by both the lazy on-demand path and the cron, and by `scripts/create-tomorrow-test.ts` for manual verification.
 
 ### AI titles (`src/lib/anthropic.ts`)
 
