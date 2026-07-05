@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma';
 import { SITE_URL } from '@/lib/config';
 import { HomeDailyDigest } from '@/components/HomeDailyDigest';
 import { CTABlock } from '@/components/CTABlock';
+import { TomorrowTeaser } from '@/components/TomorrowTeaser';
 import { isLocale, type Locale } from '@/lib/locales';
 
 export const revalidate = 3600;
@@ -62,7 +63,21 @@ function getDailyDigest() {
   return prisma.dailyDigest.findFirst({
     where: { isPublished: true },
     orderBy: { date: 'desc' },
-    include: { quote: true, parable: true },
+    include: { quote: true, parable: { include: { category: true } } },
+  });
+}
+
+// At any point there's at most one unpublished draft — the next digest already
+// prepared by the publish-digest cron, waiting for its own publish day.
+function getTomorrowDigest() {
+  return prisma.dailyDigest.findFirst({
+    where: { isPublished: false },
+    orderBy: { date: 'asc' },
+    select: {
+      titleRu: true,
+      titleEn: true,
+      parable: { select: { title: true, titleRu: true } },
+    },
   });
 }
 
@@ -90,6 +105,7 @@ export default async function HomePage({ params }: PageProps) {
   if (!isLocale(locale)) notFound();
 
   const digest = await getDailyDigest();
+  const tomorrow = await getTomorrowDigest();
 
   return (
     <>
@@ -97,31 +113,50 @@ export default async function HomePage({ params }: PageProps) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(buildWebsiteJsonLd()) }}
       />
-      <main className="flex-1 max-w-[680px] mx-auto px-4 sm:px-6 py-12 space-y-12">
+      <main className="flex-1 max-w-[680px] mx-auto px-4 sm:px-6 py-12">
         {digest && (
-          <HomeDailyDigest
-            data={{
-              slug: digest.slug,
-              titleRu: digest.titleRu ?? digest.parable.titleRu ?? digest.parable.title,
-              titleEn: digest.titleEn ?? digest.parable.title,
-              quote: {
-                textRu: digest.quote.textRu ?? digest.quote.text,
-                authorRu: digest.quote.authorRu ?? digest.quote.author,
-                textEn: digest.quote.text,
-                authorEn: digest.quote.author,
-              },
-              parable: {
-                titleRu: digest.parable.titleRu ?? digest.parable.title,
-                contentRu: digest.parable.contentRu ?? digest.parable.content,
-                titleEn: digest.parable.title,
-                contentEn: digest.parable.content,
-              },
-              conclusionRu: digest.conclusionRu,
-              conclusionEn: digest.conclusionEn,
-              questionRu: digest.questionRu,
-              questionEn: digest.questionEn,
-            }}
-          />
+          <div className="mb-12">
+            <HomeDailyDigest
+              data={{
+                slug: digest.slug,
+                date: digest.date,
+                titleRu: digest.titleRu ?? digest.parable.titleRu ?? digest.parable.title,
+                titleEn: digest.titleEn ?? digest.parable.title,
+                quote: {
+                  textRu: digest.quote.textRu ?? digest.quote.text,
+                  authorRu: digest.quote.authorRu ?? digest.quote.author,
+                  textEn: digest.quote.text,
+                  authorEn: digest.quote.author,
+                },
+                parable: {
+                  titleRu: digest.parable.titleRu ?? digest.parable.title,
+                  contentRu: digest.parable.contentRu ?? digest.parable.content,
+                  titleEn: digest.parable.title,
+                  contentEn: digest.parable.content,
+                },
+                conclusionRu: digest.conclusionRu,
+                conclusionEn: digest.conclusionEn,
+                questionRu: digest.questionRu,
+                questionEn: digest.questionEn,
+                category: {
+                  name: digest.parable.category.name,
+                  nameRu: digest.parable.category.nameRu,
+                  slug: digest.parable.category.slug,
+                },
+              }}
+            />
+          </div>
+        )}
+
+        {tomorrow && (
+          <div className="mb-6">
+            <TomorrowTeaser
+              tomorrow={{
+                titleRu: tomorrow.titleRu ?? tomorrow.parable.titleRu ?? tomorrow.parable.title,
+                titleEn: tomorrow.titleEn ?? tomorrow.parable.title,
+              }}
+            />
+          </div>
         )}
 
         <CTABlock />

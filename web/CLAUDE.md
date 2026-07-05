@@ -112,9 +112,9 @@ web/
 LanguageProvider (app/[locale]/layout.tsx body, lang comes from params.locale)
   └── Navbar.tsx          → reads { lang, setLang } → renders LanguageToggle, links prefixed with /{lang}
   └── Footer.tsx          → reads { lang } → switches slogan text
-  └── DigestBlock.tsx     → reads { lang } → switches labels (Мудрость дня / Daily Wisdom etc.)
-  └── HomeDailyDigest.tsx → reads { lang } → picks RU or EN content fields
-  └── DigestPageContent.tsx → reads { lang } → switches all bilingual fields + date locale + internal link prefixes
+  └── DigestBlock.tsx     → reads { lang } → switches labels (Мудрость дня / Daily Wisdom etc.) + date locale + category link prefix
+  └── HomeDailyDigest.tsx → reads { lang } → picks RU or EN content fields, renders DigestBlock
+  └── DigestPageContent.tsx → reads { lang } → picks RU or EN content fields, renders DigestBlock
   └── CTABlock.tsx        → reads { lang } → bilingual headline, bullets, button text
   └── SituationSearch.tsx → reads { lang } → bilingual UI + sends lang to API
 ```
@@ -128,36 +128,39 @@ LanguageProvider (app/[locale]/layout.tsx body, lang comes from params.locale)
 ## Key components
 
 ### DigestBlock
-Client component. Accepts single-language `DigestData`. Reads `lang` from context for **labels only** (Мудрость дня, Вопрос, Резюме). Content itself stays in whatever language was passed — doesn't re-fetch on lang change. Shows the quote and full parable text unconditionally (no truncation, no link to `/d/[slug]` — removed to stop duplicating almost the entire digest page for a near-identical "read more" click). Question and Summary (`conclusion` field — an AI-generated takeaway, not the quoted author's own words, hence "Резюме"/"Summary" rather than "Размышление"/"Reflection") are both always visible, no collapse/toggle.
+The single shared component rendering a digest's content — used by `HomeDailyDigest` (homepage), `DigestPageContent` (`/d/[slug]`), and `SituationSearch` (AI wisdom search result). Client component. Accepts single-language `DigestData`; reads `lang` from context for labels only (Мудрость дня, Вопрос, Резюме) and for date formatting/category link prefixing. Content itself stays in whatever language the caller passed — doesn't re-fetch on lang change. Shows the quote and full parable text unconditionally (no truncation, no link to `/d/[slug]` — removed to stop duplicating almost the entire digest page for a near-identical "read more" click). Question and Summary (`conclusion` field — an AI-generated takeaway, not the quoted author's own words, hence "Резюме"/"Summary" rather than "Размышление"/"Reflection") are both always visible, no collapse/toggle.
 
-Accepts optional `shareUrl`/`shareTitle` — when provided (both current callers pass them whenever the digest has a `slug`), renders `ShareButton` after the Summary box.
+All props besides `data` are optional, since callers differ in what they have available:
+- `title` — rendered as the page `<h1>` inside the card; omitted by `SituationSearch` (a live search result has no separate digest title, only the parable's own title, already rendered as `<h2>`)
+- `date` / `category` — rendered as a row at the top of the card (date left, category pill right, linking to `/{lang}/digests?category=[slug]`); either can be omitted independently, the row itself is skipped if neither is present
+- `shareUrl` / `shareTitle` — when provided, renders `ShareButton` in a bordered-top row after the Summary/Question boxes
+
+Layout: the "Мудрость дня"/"Daily wisdom" pill sits **above** the bordered card (not inside it) as a page-level eyebrow; the card itself (`border border-sage-pill rounded-2xl`) wraps everything from the date/category row through the ShareButton.
 
 ### ShareButton
 Client component (`components/ShareButton.tsx`). Props: `url`, `title`, `text` (kept short — quote + author, not the full parable, since the destination page's own OG image/description already carries the rich preview). On click, tries `navigator.share()` (native OS share sheet on supporting devices); if unsupported or the call resolves without the user completing a share, falls back to a small dropdown with Telegram (`t.me/share/url` — same scheme `telegram-bot/src/lib/keyboard.ts`'s `buildShareUrl` already uses), WhatsApp, X, and "copy link".
 
 `url` is always built by the caller as `` `${SITE_URL}/${lang}/d/${slug}?utm_source=share&utm_medium=social` `` so GA4 can attribute traffic from shares; a `gtag('event', 'share', { method, content_type: 'digest' })` also fires on every successful path (guarded — no-op if `gtag` isn't loaded). No dedicated Prisma model or API endpoint tracks shares — mirrors the Telegram bot's own share feature, which has no tracking table either.
 
-Rendered from two places, each threading the digest's `slug` down to build `url`:
-- `HomeDailyDigest` → `DigestBlock` (homepage digest; `slug` added to `BilingualDailyData`, guarded — no button renders if `slug` is `null`)
+Rendered from two places, each threading the digest's `slug` down to build `url` and passed to `DigestBlock`:
+- `HomeDailyDigest` (homepage digest; `slug` added to `BilingualDailyData`, guarded — no button renders if `slug` is `null`)
 - `DigestPageContent` (`/[locale]/d/[slug]`; `slug` added to `BilingualDigest`, always present since the page 404s otherwise)
 
 ### HomeDailyDigest
-Client wrapper used on the homepage. Receives bilingual data from the server component (`page.tsx`) and picks the correct language fields based on `useLanguage()`. Renders `DigestBlock`.
+Client wrapper used on the homepage. Receives bilingual data from the server component (`page.tsx`), including `date` and `category`, and picks the correct language fields based on `useLanguage()`. Renders `DigestBlock`, forwarding `title`, `date`, `category`, and (when the digest has a `slug`) `shareUrl`/`shareTitle`.
 
 ### CTABlock
 Full conversion block: headline, 4 content bullets (цитата → притча → рефлексия → вопрос), centered Telegram button. Used at the bottom of `/` and `/d/[slug]`. Fully bilingual.
 
 ### DigestPageContent
-Renders the full digest page. Reads `lang` from context. Switches: quote, parable, conclusion, question, breadcrumbs, section labels, date locale (`ru` / `enUS`), and related card titles (server passes both `parableTitleRu` and `parableTitleEn`).
+Renders the full digest page. Reads `lang` from context, picks the correct language fields, and renders `DigestBlock` (passing `title`, `date`, `category`, `shareUrl`/`shareTitle`) plus its own breadcrumb nav, related-digests grid, and `CTABlock` around it.
 
-Renders the AI-generated digest title (`titleRu` / `titleEn`, resolved server-side with fallback to the parable title) as the page's `<h1>` — matches `<title>`/OG so search snippets and the on-page heading agree. The parable's own title is rendered as `<h2>` right above the parable text, so it stays visible without competing with the digest `<h1>`.
-
-Renders `TomorrowTeaser` between the related-digests section and `CTABlock`, passing a `tomorrow: TomorrowDigestData | null` prop resolved server-side in `page.tsx` by `getTomorrowDigest()`.
+The digest title (`titleRu`/`titleEn`, resolved server-side with fallback to the parable title) is passed as `DigestBlock`'s `title` and rendered as the page's `<h1>` — matches `<title>`/OG so search snippets and the on-page heading agree. The parable's own title is rendered as `<h2>` right above the parable text (inside `DigestBlock`), so it stays visible without competing with the digest `<h1>`.
 
 ### TomorrowTeaser
-Client component (`components/TomorrowTeaser.tsx`). Props: `tomorrow: { titleRu: string; titleEn: string } | null` — renders `null` if there's no draft yet (nothing to tease). Card styled to match the Summary/Question boxes (`bg-sage-light rounded-card p-6`): a small "Tomorrow on SagewayAI:" label, the draft's title, and a "parable · quote · reflection" caption. No CTA/link inside — `CTABlock` right below already carries the Telegram subscribe button, so this stays a pure preview.
+Client component (`components/TomorrowTeaser.tsx`). Rendered **only on the homepage** (`app/[locale]/page.tsx`), between `HomeDailyDigest` and `CTABlock` — deliberately not shown on `/d/[slug]`, since the "come back tomorrow" hook only makes sense on the page users are likely to revisit, not on an individual digest permalink. Props: `tomorrow: { titleRu: string; titleEn: string } | null` — renders `null` if there's no draft yet (nothing to tease). Styled as a bordered card (`bg-canvas border border-sage-pill rounded-2xl p-8 text-center`): a small "Tomorrow on SagewayAI:" label, the draft's title, and a "parable · quote · reflection · question" caption in `text-sage`. No CTA/link inside — `CTABlock` right below already carries the Telegram subscribe button, so this stays a pure preview.
 
-`getTomorrowDigest()` (in `d/[slug]/page.tsx`) queries `DailyDigest` for `isPublished: false` ordered by `date asc` — at any steady-state moment there's at most one unpublished draft (the next one `server/`'s publish-and-prepare cron will publish), so this doesn't need to know the cron's UTC-vs-MSK date-shift logic.
+`getTomorrowDigest()` (in `app/[locale]/page.tsx`) queries `DailyDigest` for `isPublished: false` ordered by `date asc` — at any steady-state moment there's at most one unpublished draft (the next one `server/`'s publish-and-prepare cron will publish), so this doesn't need to know the cron's UTC-vs-MSK date-shift logic.
 
 ## Critical: Prisma 7 + Turbopack compatibility
 
@@ -234,9 +237,10 @@ All page routes live under `app/[locale]/`, so every path below is actually `/ru
 **Publish gating:** `DailyDigest` rows can exist a day ahead of their publish date as unpublished drafts (see `server/CLAUDE.md`'s publish-and-prepare cron). Every query below that selects "the daily digest" or lists digests filters on `isPublished: true` — a draft must never be reachable by URL, listed in the archive, or included in the sitemap before its own day.
 
 ### GET /[locale]
-Server component. Fetches the latest **published** daily digest from DB (`findFirst({ where: { isPublished: true }, orderBy: { date: 'desc' } })`). Includes `WebSite` JSON-LD (`buildWebsiteJsonLd()` in `page.tsx`) with a `SearchAction` pointing at `/search?q={search_term_string}` — that route doesn't exist yet, added ahead of time so Google can pick up the sitelinks searchbox once it ships. `generateMetadata` picks locale-specific title/description from a small `HOME_METADATA` record and builds `alternates.languages` pointing `ru`/`en` at each other's URL (not itself) plus `x-default` at `/ru`. Renders:
-1. `HomeDailyDigest` — bilingual digest (switches language via context)
-2. `CTABlock` — Telegram subscription CTA (at the bottom)
+Server component. Fetches the latest **published** daily digest from DB (`findFirst({ where: { isPublished: true }, orderBy: { date: 'desc' }, include: { quote: true, parable: { include: { category: true } } } })`) and the one unpublished draft via `getTomorrowDigest()`. Includes `WebSite` JSON-LD (`buildWebsiteJsonLd()` in `page.tsx`) with a `SearchAction` pointing at `/search?q={search_term_string}` — that route doesn't exist yet, added ahead of time so Google can pick up the sitelinks searchbox once it ships. `generateMetadata` picks locale-specific title/description from a small `HOME_METADATA` record and builds `alternates.languages` pointing `ru`/`en` at each other's URL (not itself) plus `x-default` at `/ru`. Renders:
+1. `HomeDailyDigest` — bilingual digest (switches language via context), includes `date`/`category`
+2. `TomorrowTeaser` — next-day preview, homepage-only (see "Key components" above)
+3. `CTABlock` — Telegram subscription CTA (at the bottom)
 
 ### GET /[locale]/d/[slug]
 SSG digest page. `revalidate = 86400`. Slug is read directly from `DailyDigest.slug` in the DB — it is generated and stored by the server at digest creation time (format: `{parable-title}-{author}-{theme}`).
@@ -246,8 +250,6 @@ SSG digest page. `revalidate = 86400`. Slug is read directly from `DailyDigest.s
 `generateStaticParams` returns the flat cross-join of `LOCALES × slugs` (not relying on parent/child param merging) from `prisma.dailyDigest.findMany({ select: { slug: true }, where: { slug: { not: null }, isPublished: true } })` — uses DB slugs, no runtime generation, excludes drafts.
 
 `app/sitemap.ts` also reads slugs directly from DB (same `isPublished: true` filter) and emits both locale URLs per digest.
-
-`getTomorrowDigest()` fetches the one unpublished draft (if any) to feed `TomorrowTeaser` (see "Key components" above).
 
 Server passes **both RU and EN** fields to `DigestPageContent` for all content, quotes, and related card titles (the client component still does its own `lang`-based field selection — since `lang` now always equals the route locale, that logic didn't need to change). Also passes `parable.category` (`name` + `slug`), rendered as a pill next to the date that links to `/{lang}/digests?category=[slug]`.
 

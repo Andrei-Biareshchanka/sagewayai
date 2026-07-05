@@ -19,15 +19,15 @@ export function TomorrowTeaser({ tomorrow }: TomorrowTeaserProps) {
   const title = lang === 'ru' ? tomorrow.titleRu : tomorrow.titleEn;
 
   return (
-    <div className="bg-sage-light rounded-card p-6 space-y-3">
-      <p className="font-sans text-sm text-muted">
+    <div className="bg-canvas border border-sage-pill rounded-2xl p-8 text-center space-y-2.5">
+      <p className="font-sans text-sm text-muted tracking-wide">
         {lang === 'ru' ? 'Завтра в SagewayAI:' : 'Tomorrow on SagewayAI:'}
       </p>
 
-      <h3 className="font-serif text-xl font-semibold text-ink">{title}</h3>
+      <h3 className="font-serif text-2xl font-semibold text-ink">{title}</h3>
 
-      <p className="font-sans text-xs text-sage-muted">
-        {lang === 'ru' ? 'притча · цитата · рефлексия' : 'parable · quote · reflection'}
+      <p className="font-sans text-sm text-sage">
+        {lang === 'ru' ? 'притча · цитата · рефлексия · вопрос' : 'parable · quote · reflection · question'}
       </p>
     </div>
   );
