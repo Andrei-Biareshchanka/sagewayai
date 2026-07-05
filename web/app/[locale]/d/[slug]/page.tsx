@@ -27,6 +27,20 @@ async function getDigestBySlug(slug: string) {
   });
 }
 
+// At any point there's at most one unpublished draft — the next digest already
+// prepared by the publish-digest cron, waiting for its own publish day.
+async function getTomorrowDigest() {
+  return prisma.dailyDigest.findFirst({
+    where: { isPublished: false },
+    orderBy: { date: 'asc' },
+    select: {
+      titleRu: true,
+      titleEn: true,
+      parable: { select: { title: true, titleRu: true } },
+    },
+  });
+}
+
 type PageProps = { params: Promise<{ locale: string; slug: string }> };
 type DigestWithRelations = NonNullable<Awaited<ReturnType<typeof getDigestBySlug>>>;
 
@@ -102,6 +116,8 @@ export default async function DigestPage({ params }: PageProps) {
     take: 3,
   });
 
+  const tomorrow = await getTomorrowDigest();
+
   const description = pickLocalized(digest.parable.contentRu, digest.parable.content, locale).slice(0, 160);
   const title = resolveDigestTitle(digest, locale);
 
@@ -176,6 +192,14 @@ export default async function DigestPage({ params }: PageProps) {
             parableTitleEn: d.parable.title,
             slug: d.slug as string,
           }))}
+          tomorrow={
+            tomorrow
+              ? {
+                  titleRu: tomorrow.titleRu ?? tomorrow.parable.titleRu ?? tomorrow.parable.title,
+                  titleEn: tomorrow.titleEn ?? tomorrow.parable.title,
+                }
+              : null
+          }
         />
       </main>
     </>
