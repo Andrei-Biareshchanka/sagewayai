@@ -6,8 +6,13 @@ import { generateReflection, generateDigestTitle } from './anthropic';
 import { buildDigestSlug } from './slug';
 
 const UNIQUE_CONSTRAINT_ERROR = 'P2002';
+const ONE_DAY_MS = 24 * 60 * 60 * 1000;
 
 export type DigestWithRelations = DailyDigest & { quote: Quote; parable: Parable };
+
+function addDaysToToday(days: number): Date {
+  return new Date(getTodayDate().getTime() + days * ONE_DAY_MS);
+}
 
 async function pickNextQuote(): Promise<Quote> {
   const unusedQuotes = await prisma.quote.findMany({
@@ -96,7 +101,7 @@ async function buildReflections(quote: Quote, parable: Awaited<ReturnType<typeof
   };
 }
 
-async function createDigestForToday(today: Date): Promise<DigestWithRelations> {
+export async function createDigestForDate(date: Date, isPublished: boolean): Promise<DigestWithRelations> {
   const quote = await pickNextQuote();
   const parable = await findParableForQuote(quote.id);
   const reflections = await buildReflections(quote, parable);
@@ -104,10 +109,12 @@ async function createDigestForToday(today: Date): Promise<DigestWithRelations> {
 
   return prisma.dailyDigest.create({
     data: {
-      date: today,
+      date,
       slug,
       quoteId: quote.id,
       parableId: parable.id,
+      isPublished,
+      publishedAt: isPublished ? new Date() : null,
       ...reflections,
     },
     include: { quote: true, parable: true },
@@ -128,19 +135,75 @@ function isUniqueConstraintError(error: unknown): boolean {
   );
 }
 
+// Publishes on read if it isn't already — a safety net for when the publish-and-prepare
+// cron hasn't run yet (e.g. it failed or the day's digest was only ever pre-created as
+// tomorrow's draft). Without this, a missed cron run would make today's digest
+// unreachable via GET /api/digest/daily until the next cron tick.
+async function publishDigest(digest: DigestWithRelations): Promise<DigestWithRelations> {
+  if (digest.isPublished) return digest;
+  return prisma.dailyDigest.update({
+    where: { id: digest.id },
+    data: { isPublished: true, publishedAt: new Date() },
+    include: { quote: true, parable: true },
+  });
+}
+
 export async function getDailyDigest(): Promise<DigestWithRelations> {
   const today = getTodayDate();
 
   const existing = await findDigestForDate(today);
-  if (existing) return existing;
+  if (existing) return publishDigest(existing);
 
   try {
-    return await createDigestForToday(today);
+    const created = await createDigestForDate(today, true);
+    return created;
   } catch (error) {
     if (!isUniqueConstraintError(error)) throw error;
 
     const created = await findDigestForDate(today);
     if (!created) throw error;
-    return created;
+    return publishDigest(created);
   }
+}
+
+export type PublishAndPrepareResult = {
+  published: string | null;
+  prepared: string | null;
+};
+
+// Bootstrap: on the very first run there is no pre-existing draft for `date`
+// (nothing has ever run before), so it's created and published in one step
+// instead of only publishing an existing draft — otherwise that day would
+// never get a digest at all.
+async function publishDraftForDate(date: Date): Promise<string | null> {
+  const digest = await findDigestForDate(date);
+  if (!digest) {
+    const created = await createDigestForDate(date, true);
+    return created.slug;
+  }
+  if (!digest.isPublished) {
+    const updated = await publishDigest(digest);
+    return updated.slug;
+  }
+  return null;
+}
+
+async function prepareDraftForDate(date: Date): Promise<string | null> {
+  const existing = await findDigestForDate(date);
+  if (existing) return null;
+  const created = await createDigestForDate(date, false);
+  return created.slug;
+}
+
+// Called by the publish-digest cron, scheduled at 22:00 UTC = 01:00 Moscow time
+// (UTC+3, no DST) — deliberately anchored to MSK, the primary RU/BY audience's clock.
+// At that moment `getTodayDate()` (UTC) is still "today" — UTC midnight hasn't rolled
+// over yet — but it's already the start of MSK's *next* calendar day. So the digest
+// this run is responsible for publishing is dated UTC-today + 1, not UTC-today (that
+// one was already published by the previous run); the one to pre-create as a draft
+// is UTC-today + 2.
+export async function publishTodayAndPrepareTomorrow(): Promise<PublishAndPrepareResult> {
+  const published = await publishDraftForDate(addDaysToToday(1));
+  const prepared = await prepareDraftForDate(addDaysToToday(2));
+  return { published, prepared };
 }
