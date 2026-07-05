@@ -159,7 +159,7 @@ export default async function HomePage({ params }: PageProps) {
           </div>
         )}
 
-        <CTABlock />
+        <CTABlock source="homepage_cta" />
       </main>
     </>
   );
