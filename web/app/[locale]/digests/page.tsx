@@ -93,7 +93,7 @@ export async function generateMetadata({ params, searchParams }: PageProps): Pro
 
 async function getCategories() {
   return prisma.category.findMany({
-    where: { parables: { some: { digests: { some: { slug: { not: null } } } } } },
+    where: { parables: { some: { digests: { some: { slug: { not: null }, isPublished: true } } } } },
     select: { name: true, nameRu: true, slug: true, color: true },
     orderBy: { name: 'asc' },
   });
@@ -102,6 +102,7 @@ async function getCategories() {
 function buildDigestsWhere(categorySlug: string | undefined) {
   return {
     slug: { not: null },
+    isPublished: true,
     ...(categorySlug ? { parable: { category: { slug: categorySlug } } } : {}),
   };
 }

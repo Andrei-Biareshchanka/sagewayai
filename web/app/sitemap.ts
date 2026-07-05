@@ -14,7 +14,7 @@ function localeAlternates(buildPath: (locale: Locale) => string) {
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const digests = await prisma.dailyDigest.findMany({
     select: { date: true, slug: true },
-    where: { slug: { not: null } },
+    where: { slug: { not: null }, isPublished: true },
     orderBy: { date: 'desc' },
   });
 

@@ -4344,6 +4344,8 @@ export namespace Prisma {
     conclusionRu: string | null
     questionEn: string | null
     questionRu: string | null
+    isPublished: boolean | null
+    publishedAt: Date | null
     createdAt: Date | null
   }
 
@@ -4359,6 +4361,8 @@ export namespace Prisma {
     conclusionRu: string | null
     questionEn: string | null
     questionRu: string | null
+    isPublished: boolean | null
+    publishedAt: Date | null
     createdAt: Date | null
   }
 
@@ -4374,6 +4378,8 @@ export namespace Prisma {
     conclusionRu: number
     questionEn: number
     questionRu: number
+    isPublished: number
+    publishedAt: number
     createdAt: number
     _all: number
   }
@@ -4391,6 +4397,8 @@ export namespace Prisma {
     conclusionRu?: true
     questionEn?: true
     questionRu?: true
+    isPublished?: true
+    publishedAt?: true
     createdAt?: true
   }
 
@@ -4406,6 +4414,8 @@ export namespace Prisma {
     conclusionRu?: true
     questionEn?: true
     questionRu?: true
+    isPublished?: true
+    publishedAt?: true
     createdAt?: true
   }
 
@@ -4421,6 +4431,8 @@ export namespace Prisma {
     conclusionRu?: true
     questionEn?: true
     questionRu?: true
+    isPublished?: true
+    publishedAt?: true
     createdAt?: true
     _all?: true
   }
@@ -4509,6 +4521,8 @@ export namespace Prisma {
     conclusionRu: string
     questionEn: string
     questionRu: string
+    isPublished: boolean
+    publishedAt: Date | null
     createdAt: Date
     _count: DailyDigestCountAggregateOutputType | null
     _min: DailyDigestMinAggregateOutputType | null
@@ -4541,6 +4555,8 @@ export namespace Prisma {
     conclusionRu?: boolean
     questionEn?: boolean
     questionRu?: boolean
+    isPublished?: boolean
+    publishedAt?: boolean
     createdAt?: boolean
     quote?: boolean | QuoteDefaultArgs<ExtArgs>
     parable?: boolean | ParableDefaultArgs<ExtArgs>
@@ -4558,6 +4574,8 @@ export namespace Prisma {
     conclusionRu?: boolean
     questionEn?: boolean
     questionRu?: boolean
+    isPublished?: boolean
+    publishedAt?: boolean
     createdAt?: boolean
     quote?: boolean | QuoteDefaultArgs<ExtArgs>
     parable?: boolean | ParableDefaultArgs<ExtArgs>
@@ -4575,6 +4593,8 @@ export namespace Prisma {
     conclusionRu?: boolean
     questionEn?: boolean
     questionRu?: boolean
+    isPublished?: boolean
+    publishedAt?: boolean
     createdAt?: boolean
     quote?: boolean | QuoteDefaultArgs<ExtArgs>
     parable?: boolean | ParableDefaultArgs<ExtArgs>
@@ -4592,10 +4612,12 @@ export namespace Prisma {
     conclusionRu?: boolean
     questionEn?: boolean
     questionRu?: boolean
+    isPublished?: boolean
+    publishedAt?: boolean
     createdAt?: boolean
   }
 
-  export type DailyDigestOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "date" | "slug" | "titleEn" | "titleRu" | "quoteId" | "parableId" | "conclusionEn" | "conclusionRu" | "questionEn" | "questionRu" | "createdAt", ExtArgs["result"]["dailyDigest"]>
+  export type DailyDigestOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "date" | "slug" | "titleEn" | "titleRu" | "quoteId" | "parableId" | "conclusionEn" | "conclusionRu" | "questionEn" | "questionRu" | "isPublished" | "publishedAt" | "createdAt", ExtArgs["result"]["dailyDigest"]>
   export type DailyDigestInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     quote?: boolean | QuoteDefaultArgs<ExtArgs>
     parable?: boolean | ParableDefaultArgs<ExtArgs>
@@ -4627,6 +4649,8 @@ export namespace Prisma {
       conclusionRu: string
       questionEn: string
       questionRu: string
+      isPublished: boolean
+      publishedAt: Date | null
       createdAt: Date
     }, ExtArgs["result"]["dailyDigest"]>
     composites: {}
@@ -5064,6 +5088,8 @@ export namespace Prisma {
     readonly conclusionRu: FieldRef<"DailyDigest", 'String'>
     readonly questionEn: FieldRef<"DailyDigest", 'String'>
     readonly questionRu: FieldRef<"DailyDigest", 'String'>
+    readonly isPublished: FieldRef<"DailyDigest", 'Boolean'>
+    readonly publishedAt: FieldRef<"DailyDigest", 'DateTime'>
     readonly createdAt: FieldRef<"DailyDigest", 'DateTime'>
   }
     
@@ -14002,6 +14028,8 @@ export namespace Prisma {
     conclusionRu: 'conclusionRu',
     questionEn: 'questionEn',
     questionRu: 'questionRu',
+    isPublished: 'isPublished',
+    publishedAt: 'publishedAt',
     createdAt: 'createdAt'
   };
 
@@ -14409,6 +14437,8 @@ export namespace Prisma {
     conclusionRu?: StringFilter<"DailyDigest"> | string
     questionEn?: StringFilter<"DailyDigest"> | string
     questionRu?: StringFilter<"DailyDigest"> | string
+    isPublished?: BoolFilter<"DailyDigest"> | boolean
+    publishedAt?: DateTimeNullableFilter<"DailyDigest"> | Date | string | null
     createdAt?: DateTimeFilter<"DailyDigest"> | Date | string
     quote?: XOR<QuoteScalarRelationFilter, QuoteWhereInput>
     parable?: XOR<ParableScalarRelationFilter, ParableWhereInput>
@@ -14426,6 +14456,8 @@ export namespace Prisma {
     conclusionRu?: SortOrder
     questionEn?: SortOrder
     questionRu?: SortOrder
+    isPublished?: SortOrder
+    publishedAt?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     quote?: QuoteOrderByWithRelationInput
     parable?: ParableOrderByWithRelationInput
@@ -14447,6 +14479,8 @@ export namespace Prisma {
     conclusionRu?: StringFilter<"DailyDigest"> | string
     questionEn?: StringFilter<"DailyDigest"> | string
     questionRu?: StringFilter<"DailyDigest"> | string
+    isPublished?: BoolFilter<"DailyDigest"> | boolean
+    publishedAt?: DateTimeNullableFilter<"DailyDigest"> | Date | string | null
     createdAt?: DateTimeFilter<"DailyDigest"> | Date | string
     quote?: XOR<QuoteScalarRelationFilter, QuoteWhereInput>
     parable?: XOR<ParableScalarRelationFilter, ParableWhereInput>
@@ -14464,6 +14498,8 @@ export namespace Prisma {
     conclusionRu?: SortOrder
     questionEn?: SortOrder
     questionRu?: SortOrder
+    isPublished?: SortOrder
+    publishedAt?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     _count?: DailyDigestCountOrderByAggregateInput
     _max?: DailyDigestMaxOrderByAggregateInput
@@ -14485,6 +14521,8 @@ export namespace Prisma {
     conclusionRu?: StringWithAggregatesFilter<"DailyDigest"> | string
     questionEn?: StringWithAggregatesFilter<"DailyDigest"> | string
     questionRu?: StringWithAggregatesFilter<"DailyDigest"> | string
+    isPublished?: BoolWithAggregatesFilter<"DailyDigest"> | boolean
+    publishedAt?: DateTimeNullableWithAggregatesFilter<"DailyDigest"> | Date | string | null
     createdAt?: DateTimeWithAggregatesFilter<"DailyDigest"> | Date | string
   }
 
@@ -15147,6 +15185,8 @@ export namespace Prisma {
     conclusionRu: string
     questionEn: string
     questionRu: string
+    isPublished?: boolean
+    publishedAt?: Date | string | null
     createdAt?: Date | string
     quote: QuoteCreateNestedOneWithoutDigestsInput
     parable: ParableCreateNestedOneWithoutDigestsInput
@@ -15164,6 +15204,8 @@ export namespace Prisma {
     conclusionRu: string
     questionEn: string
     questionRu: string
+    isPublished?: boolean
+    publishedAt?: Date | string | null
     createdAt?: Date | string
   }
 
@@ -15177,6 +15219,8 @@ export namespace Prisma {
     conclusionRu?: StringFieldUpdateOperationsInput | string
     questionEn?: StringFieldUpdateOperationsInput | string
     questionRu?: StringFieldUpdateOperationsInput | string
+    isPublished?: BoolFieldUpdateOperationsInput | boolean
+    publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     quote?: QuoteUpdateOneRequiredWithoutDigestsNestedInput
     parable?: ParableUpdateOneRequiredWithoutDigestsNestedInput
@@ -15194,6 +15238,8 @@ export namespace Prisma {
     conclusionRu?: StringFieldUpdateOperationsInput | string
     questionEn?: StringFieldUpdateOperationsInput | string
     questionRu?: StringFieldUpdateOperationsInput | string
+    isPublished?: BoolFieldUpdateOperationsInput | boolean
+    publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -15209,6 +15255,8 @@ export namespace Prisma {
     conclusionRu: string
     questionEn: string
     questionRu: string
+    isPublished?: boolean
+    publishedAt?: Date | string | null
     createdAt?: Date | string
   }
 
@@ -15222,6 +15270,8 @@ export namespace Prisma {
     conclusionRu?: StringFieldUpdateOperationsInput | string
     questionEn?: StringFieldUpdateOperationsInput | string
     questionRu?: StringFieldUpdateOperationsInput | string
+    isPublished?: BoolFieldUpdateOperationsInput | boolean
+    publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -15237,6 +15287,8 @@ export namespace Prisma {
     conclusionRu?: StringFieldUpdateOperationsInput | string
     questionEn?: StringFieldUpdateOperationsInput | string
     questionRu?: StringFieldUpdateOperationsInput | string
+    isPublished?: BoolFieldUpdateOperationsInput | boolean
+    publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -15991,6 +16043,8 @@ export namespace Prisma {
     conclusionRu?: SortOrder
     questionEn?: SortOrder
     questionRu?: SortOrder
+    isPublished?: SortOrder
+    publishedAt?: SortOrder
     createdAt?: SortOrder
   }
 
@@ -16006,6 +16060,8 @@ export namespace Prisma {
     conclusionRu?: SortOrder
     questionEn?: SortOrder
     questionRu?: SortOrder
+    isPublished?: SortOrder
+    publishedAt?: SortOrder
     createdAt?: SortOrder
   }
 
@@ -16021,6 +16077,8 @@ export namespace Prisma {
     conclusionRu?: SortOrder
     questionEn?: SortOrder
     questionRu?: SortOrder
+    isPublished?: SortOrder
+    publishedAt?: SortOrder
     createdAt?: SortOrder
   }
 
@@ -17050,6 +17108,8 @@ export namespace Prisma {
     conclusionRu: string
     questionEn: string
     questionRu: string
+    isPublished?: boolean
+    publishedAt?: Date | string | null
     createdAt?: Date | string
     quote: QuoteCreateNestedOneWithoutDigestsInput
   }
@@ -17062,6 +17122,8 @@ export namespace Prisma {
     conclusionRu: string
     questionEn: string
     questionRu: string
+    isPublished?: boolean
+    publishedAt?: Date | string | null
     createdAt?: Date | string
   }
 
@@ -17177,6 +17239,8 @@ export namespace Prisma {
     conclusionRu?: StringFilter<"DailyDigest"> | string
     questionEn?: StringFilter<"DailyDigest"> | string
     questionRu?: StringFilter<"DailyDigest"> | string
+    isPublished?: BoolFilter<"DailyDigest"> | boolean
+    publishedAt?: DateTimeNullableFilter<"DailyDigest"> | Date | string | null
     createdAt?: DateTimeFilter<"DailyDigest"> | Date | string
   }
 
@@ -17212,6 +17276,8 @@ export namespace Prisma {
     conclusionRu: string
     questionEn: string
     questionRu: string
+    isPublished?: boolean
+    publishedAt?: Date | string | null
     createdAt?: Date | string
     parable: ParableCreateNestedOneWithoutDigestsInput
   }
@@ -17224,6 +17290,8 @@ export namespace Prisma {
     conclusionRu: string
     questionEn: string
     questionRu: string
+    isPublished?: boolean
+    publishedAt?: Date | string | null
     createdAt?: Date | string
   }
 
@@ -17852,6 +17920,8 @@ export namespace Prisma {
     conclusionRu: string
     questionEn: string
     questionRu: string
+    isPublished?: boolean
+    publishedAt?: Date | string | null
     createdAt?: Date | string
   }
 
@@ -17882,6 +17952,8 @@ export namespace Prisma {
     conclusionRu?: StringFieldUpdateOperationsInput | string
     questionEn?: StringFieldUpdateOperationsInput | string
     questionRu?: StringFieldUpdateOperationsInput | string
+    isPublished?: BoolFieldUpdateOperationsInput | boolean
+    publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     quote?: QuoteUpdateOneRequiredWithoutDigestsNestedInput
   }
@@ -17894,6 +17966,8 @@ export namespace Prisma {
     conclusionRu?: StringFieldUpdateOperationsInput | string
     questionEn?: StringFieldUpdateOperationsInput | string
     questionRu?: StringFieldUpdateOperationsInput | string
+    isPublished?: BoolFieldUpdateOperationsInput | boolean
+    publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -17905,6 +17979,8 @@ export namespace Prisma {
     conclusionRu?: StringFieldUpdateOperationsInput | string
     questionEn?: StringFieldUpdateOperationsInput | string
     questionRu?: StringFieldUpdateOperationsInput | string
+    isPublished?: BoolFieldUpdateOperationsInput | boolean
+    publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -17931,6 +18007,8 @@ export namespace Prisma {
     conclusionRu: string
     questionEn: string
     questionRu: string
+    isPublished?: boolean
+    publishedAt?: Date | string | null
     createdAt?: Date | string
   }
 
@@ -17941,6 +18019,8 @@ export namespace Prisma {
     conclusionRu?: StringFieldUpdateOperationsInput | string
     questionEn?: StringFieldUpdateOperationsInput | string
     questionRu?: StringFieldUpdateOperationsInput | string
+    isPublished?: BoolFieldUpdateOperationsInput | boolean
+    publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     parable?: ParableUpdateOneRequiredWithoutDigestsNestedInput
   }
@@ -17953,6 +18033,8 @@ export namespace Prisma {
     conclusionRu?: StringFieldUpdateOperationsInput | string
     questionEn?: StringFieldUpdateOperationsInput | string
     questionRu?: StringFieldUpdateOperationsInput | string
+    isPublished?: BoolFieldUpdateOperationsInput | boolean
+    publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -17964,6 +18046,8 @@ export namespace Prisma {
     conclusionRu?: StringFieldUpdateOperationsInput | string
     questionEn?: StringFieldUpdateOperationsInput | string
     questionRu?: StringFieldUpdateOperationsInput | string
+    isPublished?: BoolFieldUpdateOperationsInput | boolean
+    publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 

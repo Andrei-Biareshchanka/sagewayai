@@ -11,15 +11,15 @@ export const revalidate = 86400;
 export async function generateStaticParams() {
   const digests = await prisma.dailyDigest.findMany({
     select: { slug: true },
-    where: { slug: { not: null } },
+    where: { slug: { not: null }, isPublished: true },
     orderBy: { date: 'desc' },
   });
   return LOCALES.flatMap((locale) => digests.map((d) => ({ locale, slug: d.slug as string })));
 }
 
 async function getDigestBySlug(slug: string) {
-  return prisma.dailyDigest.findUnique({
-    where: { slug },
+  return prisma.dailyDigest.findFirst({
+    where: { slug, isPublished: true },
     include: {
       quote: true,
       parable: { include: { category: true } },
@@ -92,7 +92,7 @@ export default async function DigestPage({ params }: PageProps) {
   if (!digest) notFound();
 
   const related = await prisma.dailyDigest.findMany({
-    where: { slug: { not: slug } },
+    where: { slug: { not: slug }, isPublished: true },
     select: {
       date: true,
       slug: true,
