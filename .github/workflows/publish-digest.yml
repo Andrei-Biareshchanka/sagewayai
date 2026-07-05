@@ -1,0 +1,57 @@
+name: Publish daily digest
+
+on:
+  schedule:
+    - cron: '0 22 * * *'  # 22:00 UTC = 01:00 Moscow Time (UTC+3, no DST)
+  workflow_dispatch:       # allow manual trigger from GitHub UI
+
+jobs:
+  publish:
+    name: Publish today's digest and prepare tomorrow's draft
+    runs-on: ubuntu-latest
+    steps:
+      - name: Wake up server
+        run: |
+          for i in $(seq 1 20); do
+            echo "Attempt $i / 20..."
+            status=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 "${{ secrets.API_URL }}/api/health" 2>/dev/null) || status="000"
+            echo "HTTP status: $status"
+            if [ "$status" = "200" ]; then
+              echo "Server is up"
+              exit 0
+            fi
+            echo "Server not ready, waiting 10s..."
+            sleep 10
+          done
+          echo "Server did not wake up in time"
+          exit 1
+
+      - name: Wait for database
+        run: |
+          for i in $(seq 1 10); do
+            echo "DB check $i / 10..."
+            status=$(curl -s -o /dev/null -w "%{http_code}" --max-time 20 "${{ secrets.API_URL }}/api/health/db" 2>/dev/null) || status="000"
+            echo "HTTP status: $status"
+            if [ "$status" = "200" ]; then
+              echo "Database ready"
+              exit 0
+            fi
+            echo "DB not ready, waiting 15s..."
+            sleep 15
+          done
+          echo "Database did not become ready in time"
+          exit 1
+
+      - name: Trigger publish-and-prepare endpoint
+        run: |
+          response=$(curl -f --max-time 120 -X POST "${{ secrets.API_URL }}/api/admin/publish-and-prepare" \
+            -H "x-publish-secret: ${{ secrets.ADMIN_PUBLISH_SECRET }}" \
+            -H "Content-Type: application/json")
+
+          echo "Response: $response"
+
+          published=$(echo "$response" | jq -r '.published')
+          prepared=$(echo "$response" | jq -r '.prepared')
+
+          echo "Published: $published"
+          echo "Prepared: $prepared"
