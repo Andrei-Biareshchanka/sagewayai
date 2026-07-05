@@ -152,6 +152,8 @@ Client wrapper used on the homepage. Receives bilingual data from the server com
 ### CTABlock
 Full conversion block: headline, 4 content bullets (цитата → притча → рефлексия → вопрос), centered Telegram button. Used at the bottom of `/` and `/d/[slug]`. Fully bilingual.
 
+Requires a `source: string` prop — fired as `gtag('event', 'telegram_subscribe_click', { source })` on button click (same `window.gtag` global declared in `ShareButton.tsx`), so GA4 can attribute subscribes by page. Callers: `homepage_cta` (`app/[locale]/page.tsx`), `digest_cta` (`DigestPageContent`). `CTAButton.tsx` (legacy, unused, different copy) is not instrumented.
+
 ### DigestPageContent
 Renders the full digest page. Reads `lang` from context, picks the correct language fields, and renders `DigestBlock` (passing `title`, `date`, `category`, `shareUrl`/`shareTitle`) plus its own breadcrumb nav, related-digests grid, and `CTABlock` around it.
 

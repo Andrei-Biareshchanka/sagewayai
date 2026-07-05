@@ -94,7 +94,7 @@ export function DigestPageContent({ digest, related }: DigestPageContentProps) {
         </section>
       )}
 
-      <CTABlock />
+      <CTABlock source="digest_cta" />
     </div>
   );
 }

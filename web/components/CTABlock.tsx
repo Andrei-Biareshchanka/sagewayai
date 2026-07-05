@@ -19,9 +19,17 @@ const PERKS = {
   ],
 } as const;
 
-export function CTABlock() {
+interface CTABlockProps {
+  source: string;
+}
+
+export function CTABlock({ source }: CTABlockProps) {
   const { lang } = useLanguage();
   const isRu = lang === 'ru';
+
+  const handleSubscribeClick = () => {
+    window.gtag?.('event', 'telegram_subscribe_click', { source });
+  };
 
   return (
     <div className="bg-sage-light rounded-card p-6 sm:p-8 space-y-5">
@@ -43,6 +51,7 @@ export function CTABlock() {
           href={BOT_URL}
           target="_blank"
           rel="noopener noreferrer"
+          onClick={handleSubscribeClick}
           className="inline-flex items-center gap-2.5 bg-sage hover:bg-sage-dark text-white font-sans font-medium rounded-card px-6 py-3 transition-colors"
         >
         <TelegramIcon />
