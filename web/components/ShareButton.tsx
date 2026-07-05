@@ -119,7 +119,7 @@ export function ShareButton({ url, title, text }: ShareButtonProps) {
     <div ref={ref} className="relative inline-block">
       <button
         onClick={handleShareClick}
-        className="inline-flex items-center gap-1.5 font-sans text-sm font-medium text-sage-dark bg-sage-pill hover:bg-sage-pill-hover rounded-full px-3 py-1.5 transition-colors"
+        className="flex items-center gap-2 font-sans text-sm font-medium text-sage-dark bg-sage-light hover:bg-sage-pill-hover rounded-full px-4 py-2 transition-colors"
       >
         <ShareIcon />
         {copied ? (lang === 'ru' ? 'Скопировано!' : 'Copied!') : lang === 'ru' ? 'Поделиться' : 'Share'}

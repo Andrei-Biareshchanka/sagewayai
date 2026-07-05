@@ -4,11 +4,9 @@ import { format } from 'date-fns';
 import { ru, enUS } from 'date-fns/locale';
 import Link from 'next/link';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { colors } from '@/lib/brand';
 import { SITE_URL } from '@/lib/config';
 import { CTABlock } from '@/components/CTABlock';
-import { ShareButton } from '@/components/ShareButton';
-import { TomorrowTeaser, type TomorrowDigestData } from '@/components/TomorrowTeaser';
+import { DigestBlock } from '@/components/DigestBlock';
 
 interface BilingualDigest {
   slug: string;
@@ -34,10 +32,9 @@ interface RelatedDigest {
 interface DigestPageContentProps {
   digest: BilingualDigest;
   related: RelatedDigest[];
-  tomorrow: TomorrowDigestData | null;
 }
 
-export function DigestPageContent({ digest, related, tomorrow }: DigestPageContentProps) {
+export function DigestPageContent({ digest, related }: DigestPageContentProps) {
   const { lang } = useLanguage();
 
   const digestTitle = lang === 'ru' ? digest.titleRu : digest.titleEn;
@@ -59,64 +56,19 @@ export function DigestPageContent({ digest, related, tomorrow }: DigestPageConte
         <span>{lang === 'ru' ? 'Дайджест дня' : 'Daily Digest'}</span>
       </nav>
 
-      <h1 className="font-serif text-3xl font-semibold text-ink">{digestTitle}</h1>
-
-      <div className="flex items-center gap-3">
-        <p className="font-sans text-sm text-muted">
-          {format(digest.date, 'd MMMM yyyy', { locale: dateLocale })}
-        </p>
-        <Link
-          href={`/${lang}/digests?category=${digest.category.slug}`}
-          className="font-sans text-xs font-medium text-sage-dark bg-sage-pill hover:bg-sage-pill-hover rounded-full px-2 py-0.5 transition-colors"
-        >
-          {lang === 'ru' ? digest.category.nameRu ?? digest.category.name : digest.category.name}
-        </Link>
-        <ShareButton
-          url={`${SITE_URL}/${lang}/d/${digest.slug}?utm_source=share&utm_medium=social`}
-          title={digestTitle}
-          text={`"${quoteText}" — ${quoteAuthor}`}
-        />
-      </div>
-
-      <figure className="relative pl-12">
-        <span
-          aria-hidden="true"
-          className="absolute top-0 left-0 font-serif text-[6rem] text-sage opacity-20 leading-none select-none"
-        >
-          &ldquo;
-        </span>
-        <blockquote className="font-serif italic text-2xl text-ink leading-relaxed">
-          {quoteText}
-        </blockquote>
-        <figcaption className="font-sans text-sm text-muted text-right mt-3">
-          — {quoteAuthor}
-        </figcaption>
-      </figure>
-
-      <hr className="border-[var(--color-border)]" />
-
-      <h2 className="font-serif text-2xl font-semibold text-ink">{parableTitle}</h2>
-
-      <p className="font-serif text-lg text-ink" style={{ lineHeight: '1.9' }}>
-        {parableContent}
-      </p>
-
-      <div
-        className="bg-sage-light rounded-card p-6 space-y-2 border-l-4"
-        style={{ borderLeftColor: colors.sage }}
-      >
-        <p className="font-sans text-sm font-medium text-sage">
-          {lang === 'ru' ? '💡 Резюме' : '💡 Summary'}
-        </p>
-        <p className="font-serif text-base text-ink">{conclusion}</p>
-      </div>
-
-      <div className="bg-sage-pill rounded-card p-6 space-y-2">
-        <p className="font-sans text-sm font-medium text-sage-dark">
-          {lang === 'ru' ? '❓ Вопрос' : '❓ Question'}
-        </p>
-        <p className="font-sans text-lg text-ink">{question}</p>
-      </div>
+      <DigestBlock
+        title={digestTitle}
+        data={{
+          quote: { text: quoteText, author: quoteAuthor },
+          parable: { title: parableTitle, content: parableContent },
+          conclusion,
+          question,
+        }}
+        date={digest.date}
+        category={digest.category}
+        shareUrl={`${SITE_URL}/${lang}/d/${digest.slug}?utm_source=share&utm_medium=social`}
+        shareTitle={digestTitle}
+      />
 
       {related.length > 0 && (
         <section className="mt-12 space-y-4">
@@ -141,8 +93,6 @@ export function DigestPageContent({ digest, related, tomorrow }: DigestPageConte
           </div>
         </section>
       )}
-
-      <TomorrowTeaser tomorrow={tomorrow} />
 
       <CTABlock />
     </div>
