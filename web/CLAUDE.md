@@ -9,7 +9,7 @@ This file provides guidance to Claude Code when working with the **web** (Next.j
 
 Next.js App Router SEO site with three goals:
 1. Generate organic traffic through digest pages (`/d/[slug]`)
-2. Give visitors a situation-based wisdom search (without Telegram)
+2. Give visitors a situation-based wisdom search (without Telegram) — **scaffolded but not yet live**: `SituationSearch.tsx` and `/api/situation` exist in the codebase but are not rendered/reachable from any page (see "Orphaned code" note below)
 3. Convert visitors into Telegram bot subscribers (@sagewayai_bot)
 
 ## Stack
@@ -68,7 +68,7 @@ web/
 │       ├── og/
 │       │   └── route.tsx       # Edge: OG image 1200x630 — NOTE: .tsx not .ts (JSX inside)
 │       └── situation/
-│           └── route.ts        # Proxy to Express /api/digest/situation (forwards real IP)
+│           └── route.ts        # Proxy to Express /api/digest/situation (forwards real IP) — ORPHANED: only caller is the unrendered SituationSearch.tsx
 ├── components/
 │   ├── Navbar.tsx              # 'use client' — logo + LanguageToggle (reads/sets LanguageContext), links prefixed with /{lang}
 │   ├── Footer.tsx              # 'use client' — © 2026 SagewayAI · slogan, switches RU/EN via LanguageContext
@@ -76,7 +76,7 @@ web/
 │   ├── CTABlock.tsx            # 'use client' — full CTA section: headline + 4 bullets + button
 │   ├── DigestBlock.tsx         # 'use client' — quote + parable + reflection + question; reads lang from context
 │   ├── HomeDailyDigest.tsx     # 'use client' — bilingual wrapper for homepage digest, reads lang from context
-│   ├── SituationSearch.tsx     # 'use client' — wisdom search form with cookie-based rate limit
+│   ├── SituationSearch.tsx     # 'use client' — wisdom search form with cookie-based rate limit — ORPHANED: not imported/rendered by any page (no `/search` route exists yet); dead code as of 2026-07
 │   ├── TomorrowTeaser.tsx      # 'use client' — preview of tomorrow's not-yet-published digest title; renders null if no draft exists
 │   └── LanguageToggle.tsx      # 'use client' — custom RU/EN dropdown (presentational, controlled)
 ├── contexts/
@@ -116,7 +116,7 @@ LanguageProvider (app/[locale]/layout.tsx body, lang comes from params.locale)
   └── HomeDailyDigest.tsx → reads { lang } → picks RU or EN content fields, renders DigestBlock
   └── DigestPageContent.tsx → reads { lang } → picks RU or EN content fields, renders DigestBlock
   └── CTABlock.tsx        → reads { lang } → bilingual headline, bullets, button text
-  └── SituationSearch.tsx → reads { lang } → bilingual UI + sends lang to API
+  └── SituationSearch.tsx → reads { lang } → bilingual UI + sends lang to API (ORPHANED — component exists but is never rendered, see "Key components" note)
 ```
 
 **Rule:** never add a local `lang` state to a component — always use `useLanguage()` from context.
@@ -128,10 +128,10 @@ LanguageProvider (app/[locale]/layout.tsx body, lang comes from params.locale)
 ## Key components
 
 ### DigestBlock
-The single shared component rendering a digest's content — used by `HomeDailyDigest` (homepage), `DigestPageContent` (`/d/[slug]`), and `SituationSearch` (AI wisdom search result). Client component. Accepts single-language `DigestData`; reads `lang` from context for labels only (Мудрость дня, Вопрос, Резюме) and for date formatting/category link prefixing. Content itself stays in whatever language the caller passed — doesn't re-fetch on lang change. Shows the quote and full parable text unconditionally (no truncation, no link to `/d/[slug]` — removed to stop duplicating almost the entire digest page for a near-identical "read more" click). Question and Summary (`conclusion` field — an AI-generated takeaway, not the quoted author's own words, hence "Резюме"/"Summary" rather than "Размышление"/"Reflection") are both always visible, no collapse/toggle.
+The single shared component rendering a digest's content — used by `HomeDailyDigest` (homepage) and `DigestPageContent` (`/d/[slug]`). Also referenced by `SituationSearch` (AI wisdom search result), but that caller is currently orphaned — not rendered on any live page — so in practice `DigestBlock` is only reached via the two live callers. Client component. Accepts single-language `DigestData`; reads `lang` from context for labels only (Мудрость дня, Вопрос, Резюме) and for date formatting/category link prefixing. Content itself stays in whatever language the caller passed — doesn't re-fetch on lang change. Shows the quote and full parable text unconditionally (no truncation, no link to `/d/[slug]` — removed to stop duplicating almost the entire digest page for a near-identical "read more" click). Question and Summary (`conclusion` field — an AI-generated takeaway, not the quoted author's own words, hence "Резюме"/"Summary" rather than "Размышление"/"Reflection") are both always visible, no collapse/toggle.
 
 All props besides `data` are optional, since callers differ in what they have available:
-- `title` — rendered as the page `<h1>` inside the card; omitted by `SituationSearch` (a live search result has no separate digest title, only the parable's own title, already rendered as `<h2>`)
+- `title` — rendered as the page `<h1>` inside the card; omitted by `SituationSearch` (a live search result has no separate digest title, only the parable's own title, already rendered as `<h2>`) — note `SituationSearch` is currently orphaned (see above)
 - `date` / `category` — rendered as a row at the top of the card (date left, category pill right, linking to `/{lang}/digests?category=[slug]`); either can be omitted independently, the row itself is skipped if neither is present
 - `shareUrl` / `shareTitle` — when provided, renders `ShareButton` in a bordered-top row after the Summary/Question boxes
 
@@ -267,7 +267,7 @@ Card titles use `line-clamp-2 min-h-[3rem]` — `line-clamp` alone only caps hei
 Optional `?category=[slug]` filters to one `Category` (only categories with at least one published digest are listed, via `Category.parables.some.digests.some`). `generateMetadata` builds a per-category, per-locale title/canonical when the filter is active, with `alternates.languages` pointing at the sibling locale's `/digests` URL (same query string). `DigestCategoryFilter` renders an "All" pill plus one pill per category, all prefixed with `/{lang}`; `DigestPagination` preserves the `category` param across page links, also prefixed with `/{lang}`.
 
 ### POST /api/situation
-Proxy to Express backend. Reads real user IP from `x-forwarded-for`, forwards it for IP-based rate limiting.
+**Currently orphaned** — this route exists and works, but its only caller is `SituationSearch.tsx`, which is not imported or rendered by any page (no `/search` route exists yet — the JSON-LD `SearchAction` on the homepage points at `/search?q={search_term_string}` as a placeholder for future Google sitelinks searchbox support, ahead of the route actually existing). Proxy to Express backend. Reads real user IP from `x-forwarded-for`, forwards it for IP-based rate limiting.
 
 ### GET /api/og
 Edge runtime. Returns 1200×630 OG image. Uses `colors` from `lib/brand.ts` (CSS variables don't work in ImageResponse inline styles).
@@ -281,6 +281,8 @@ Background is `colors.sageLight` (light theme, not the older dark gradient). Two
 Fonts (Inter 700/500/400-italic, Lora 400-italic) are fetched at request time from the Google Fonts CSS API (`loadGoogleFont` helper) — only the weights actually used for the current mode are fetched, scoped to the exact text being rendered via the API's `text=` param (handles Cyrillic automatically). All colors come from `lib/brand.ts` — no hardcoded hex in this file.
 
 ## Rate limiting
+
+> Applies to the `/api/situation` flow, which is currently orphaned (see "Key components" and "Routes" above) — documented here since the rate-limiting code itself is live and correct, just unreachable from the UI today.
 
 **Client-side (cookie):** `SituationSearch` checks cookie `swai_situation_used_at` (24h cooldown).
 

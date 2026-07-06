@@ -15,7 +15,7 @@ SagewayAI — a parable library organized by category. Every day a new random pa
 | **v1** | Parables + categories + daily parable on home page |
 | **v2** | Auth + email subscription + category preferences |
 | **v3** | Success stories as a second content type |
-| **v4** | AI search by situation (Vercel AI SDK + Groq) |
+| **v4** | AI search by situation (planned: Vercel AI SDK + Groq) — not yet wired up; see `web/CLAUDE.md` for current unused/orphaned scaffolding |
 
 ## Architecture
 
