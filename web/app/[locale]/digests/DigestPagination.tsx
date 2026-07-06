@@ -20,8 +20,6 @@ function pageHref(lang: Lang, page: number, categorySlug: string | undefined): s
 export function DigestPagination({ page, totalPages, categorySlug }: DigestPaginationProps) {
   const { lang } = useLanguage();
 
-  if (totalPages <= 1) return null;
-
   return (
     <nav className="flex items-center justify-between pt-4 font-sans text-sm">
       {page > 1 ? (

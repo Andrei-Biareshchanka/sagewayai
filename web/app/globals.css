@@ -1,6 +1,10 @@
 @import "tailwindcss";
 @config "../tailwind.config.ts";
 
+html {
+  scrollbar-gutter: stable;
+}
+
 :root {
   --color-sage: #5C9E65;
   --color-sage-light: #EBF5EC;
