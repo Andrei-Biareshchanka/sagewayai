@@ -35,7 +35,7 @@ export function DigestsArchiveContent({
 
       <DigestCategoryFilter categories={categories} selectedCategorySlug={selectedCategorySlug} />
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 min-h-[300px]">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 min-h-[300px] items-start">
         {digests.map((digest) => (
           <DigestCard key={digest.slug} digest={digest} dateLocale={dateLocale} />
         ))}
