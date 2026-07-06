@@ -148,7 +148,7 @@ export default async function DigestsArchivePage({ params, searchParams }: PageP
   const data = await loadArchiveData(rawPage, rawCategory);
 
   return (
-    <main className="flex-1 max-w-[1200px] mx-auto px-4 sm:px-6 py-12">
+    <main className="flex-1 w-full max-w-[1200px] mx-auto px-4 sm:px-6 py-12">
       <DigestsArchiveContent
         digests={toDigestSummaries(data.digests)}
         categories={data.categories}
