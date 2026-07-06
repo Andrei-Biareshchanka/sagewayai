@@ -141,7 +141,7 @@ export default async function DigestPage({ params }: PageProps) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <main className="flex-1 max-w-[680px] mx-auto px-4 sm:px-6 py-12">
+      <main className="flex-1 w-full max-w-[680px] mx-auto px-4 sm:px-6 py-12">
         <DigestPageContent
           digest={{
             slug,

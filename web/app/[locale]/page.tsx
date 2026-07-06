@@ -113,7 +113,7 @@ export default async function HomePage({ params }: PageProps) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(buildWebsiteJsonLd()) }}
       />
-      <main className="flex-1 max-w-[680px] mx-auto px-4 sm:px-6 py-12">
+      <main className="flex-1 w-full max-w-[680px] mx-auto px-4 sm:px-6 py-12">
         {digest && (
           <div className="mb-12">
             <HomeDailyDigest
