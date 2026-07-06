@@ -57,7 +57,7 @@ web/
 │   │       ├── DigestsArchiveContent.tsx       # Client coordinator — breadcrumb + category filter + grid + pagination
 │   │       ├── DigestArchiveBreadcrumb.tsx     # Client — bilingual breadcrumb
 │   │       ├── DigestCategoryFilter.tsx        # Client — "All" + category pills, links to /{lang}/digests?category=slug
-│   │       ├── DigestCard.tsx                  # Client — single digest card (category badge + AI title + date)
+│   │       ├── DigestCard.tsx                  # Client — single digest card (category badge + AI title + date + "Read" link)
 │   │       └── DigestPagination.tsx            # Client — prev/next page links, preserves ?category=
 │   ├── globals.css             # Tailwind v4 import + CSS color variables
 │   ├── generated/
@@ -260,7 +260,9 @@ Includes JSON-LD `Article` schema and full OpenGraph metadata. `jsonLd` includes
 `generateMetadata` resolves the page `<title>` via `resolveDigestTitle(digest, locale)`, which uses `lib/locale-content.ts`'s `pickLocalized()` against `digest.titleRu`/`titleEn` (AI-generated, stored in DB), falling back to the parable title. Description is built from the locale-picked quote snippet + parable moral for unique, content-rich SEO snippets per page. `buildOgImageUrl()` (local helper) builds the `/api/og` URL with `title`, `quote` (truncated to 200 chars), `author`, and `lang=${locale}` — used for both `openGraph.images` and `twitter.images`, and reused for the JSON-LD `image` field. `alternates.languages` points the current locale at itself and the other locale at its own `/d/[slug]` URL — never both at the same URL.
 
 ### GET /[locale]/digests
-Paginated archive of all **published** daily digests (`?page=N`, 12 per page, `revalidate = 3600`, `isPublished: true` on both the digest list query and the category-counter query). Lists `titleRu`/`titleEn` (AI-generated, fallback to parable title) + date + category badge, linking to `/{lang}/d/[slug]`. Linked from `Navbar` ("Архив" / "Archive") and included in `app/sitemap.ts`. Pages beyond 1 are `noindex` to avoid duplicate-content SEO issues.
+Paginated archive of all **published** daily digests (`?page=N`, 12 per page, `revalidate = 3600`, `isPublished: true` on both the digest list query and the category-counter query). Lists `titleRu`/`titleEn` (AI-generated, fallback to parable title) + date + category badge + a "Читать"/"Read" link, linking to `/{lang}/d/[slug]`. Linked from `Navbar` ("Архив" / "Archive") and included in `app/sitemap.ts`. Pages beyond 1 are `noindex` to avoid duplicate-content SEO issues.
+
+Card titles use `line-clamp-2 min-h-[3rem]` — `line-clamp` alone only caps height at 2 lines but doesn't reserve that space for shorter titles, so without the explicit `min-h` cards with 1-line vs 2-line titles rendered at different heights, making the grid look uneven and shift depending on which digests were in the current filtered view. The grid container itself also carries `min-h-[300px]` (~2 rows) so categories with very few digests don't collapse the page height dramatically compared to a full page — both are mitigations for perceived layout shift when switching categories, not changes to the fixed `grid-cols-1 sm:grid-cols-2 md:grid-cols-3` column layout (card width itself never depends on item count).
 
 Optional `?category=[slug]` filters to one `Category` (only categories with at least one published digest are listed, via `Category.parables.some.digests.some`). `generateMetadata` builds a per-category, per-locale title/canonical when the filter is active, with `alternates.languages` pointing at the sibling locale's `/digests` URL (same query string). `DigestCategoryFilter` renders an "All" pill plus one pill per category, all prefixed with `/{lang}`; `DigestPagination` preserves the `category` param across page links, also prefixed with `/{lang}`.
 
