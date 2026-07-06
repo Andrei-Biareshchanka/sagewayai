@@ -31,17 +31,20 @@ export function DigestCard({ digest, dateLocale }: DigestCardProps) {
   return (
     <Link
       href={`/${lang}/d/${digest.slug}`}
-      className="block bg-white border border-[var(--color-border)] rounded-card p-4 hover:border-sage transition-colors space-y-2"
+      className="flex flex-col bg-white border border-[var(--color-border)] rounded-card p-4 hover:border-sage transition-colors space-y-2"
     >
       <span className="inline-block font-sans text-xs font-medium text-sage-dark bg-sage-pill rounded-full px-2 py-0.5">
         {lang === 'ru' ? digest.category.nameRu ?? digest.category.name : digest.category.name}
       </span>
-      <p className="font-serif text-base font-medium text-ink line-clamp-2">
+      <p className="font-serif text-base font-medium text-ink line-clamp-2 min-h-[3rem]">
         {lang === 'ru' ? digest.titleRu : digest.titleEn}
       </p>
       <p className="font-sans text-xs text-muted">
         {format(digest.date, 'd MMM yyyy', { locale: dateLocale })}
       </p>
+      <span className="font-sans text-xs font-medium text-sage self-end mt-auto pt-1">
+        {lang === 'ru' ? 'Читать →' : 'Read →'}
+      </span>
     </Link>
   );
 }
