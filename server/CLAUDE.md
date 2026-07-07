@@ -13,6 +13,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with th
 - Resend for email (v2)
 - Vitest for tests
 
+## Deployment (Railway)
+
+`app.listen()` in `src/index.ts` binds explicitly to `0.0.0.0`, not just `PORT` — binding to the default host inside a container means Railway's healthcheck (which hits `/api/health` from outside the container's network namespace) can't reach the process, and the deploy fails with "service unavailable" / "never became healthy" even though the build succeeded.
+
 ## Commands
 
 ```bash
