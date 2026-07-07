@@ -63,6 +63,8 @@ scripts/
 
 Using **Prisma 7** — `prisma.config.ts` at server root. Schema at `prisma/schema.prisma`.
 
+Prisma 7 removed `url` from the schema's `datasource` block entirely — the connection URL lives only in `prisma.config.ts`'s `datasource.url`, via the `env()` helper from `prisma/config` (not raw `process.env[...]`). Using `process.env` directly there triggers a known Prisma 7 regression ([prisma#28983](https://github.com/prisma/prisma/issues/28983)) where `prisma migrate deploy` fails with `"The datasource.url property is required"` during Docker builds, even though the value is set correctly.
+
 Always import the shared instance — never instantiate inline:
 
 ```ts
