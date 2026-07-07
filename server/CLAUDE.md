@@ -17,7 +17,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with th
 
 `app.listen()` in `src/index.ts` binds explicitly to a host, not just `PORT` — binding to the default host inside a container means Railway's healthcheck (which hits `/api/health` from outside the container's network namespace) can't reach the process, and the deploy fails with "service unavailable" / "never became healthy" even though the build succeeded and the process is alive (visible as nonzero CPU/memory in Railway metrics with zero request traffic).
 
-The host is `'::'` (IPv6 any-address), not `'0.0.0.0'` (IPv4-only) — Railway's containers are dual-stack, and its healthcheck prober can reach the container over IPv6. On Linux, binding to `'::'` accepts both IPv4 and IPv6 connections (dual-stack socket), so this doesn't break plain IPv4 access.
+**Binds to both `'::'` and `'0.0.0.0'`, not just one.** Whether a given host's default sysctl makes `'::'` dual-stack (covering IPv4 too) or IPv6-only (`IPV6_V6ONLY=1`) isn't something to assume — it's a host-level setting we don't control on Railway. Binding only to `'0.0.0.0'` previously left the TCP healthcheck passing (Railway's prober may reach it over IPv6) while real HTTP traffic through Railway's edge got `502 Application failed to respond`. Binding only to `'::'` didn't fix it either, which is consistent with the host *not* being dual-stack. So `src/index.ts` now listens on `'::'` first, then attempts a second explicit listener on `'0.0.0.0'` on the same port — if the host is already dual-stack this second bind fails with `EADDRINUSE`, which is caught and logged as a no-op (already covered); if the host is IPv6-only, this second bind is what actually gives IPv4 clients a path in.
 
 ## Commands
 
