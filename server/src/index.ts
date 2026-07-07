@@ -80,12 +80,23 @@ export function createApp() {
 const PORT = process.env.PORT ?? 3001;
 const app = createApp();
 
-const server = app.listen(Number(PORT), '::', () => {
+function applyTimeouts(server: import('http').Server) {
+  server.keepAliveTimeout = 65_000;
+  server.headersTimeout = 66_000;
+}
+
+const ipv6Server = app.listen(Number(PORT), '::', () => {
   console.log(`Server running on port ${PORT}`);
 });
+applyTimeouts(ipv6Server);
 
-server.keepAliveTimeout = 65_000;
-server.headersTimeout = 66_000;
+const ipv4Server = app.listen(Number(PORT), '0.0.0.0');
+applyTimeouts(ipv4Server);
+ipv4Server.on('error', (err: NodeJS.ErrnoException) => {
+  if (err.code !== 'EADDRINUSE') {
+    console.error('IPv4 listener error:', err);
+  }
+});
 
 setInterval(async () => {
   await prisma.situationRequest.deleteMany({
