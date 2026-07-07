@@ -71,6 +71,8 @@ Prisma 7 removed `url` from the schema's `datasource` block entirely — the con
 
 Because `env("DIRECT_URL")` throws instead of returning `undefined`, both `RUN npx prisma generate` steps in the `Dockerfile` also need a placeholder `ENV DIRECT_URL=...` set beforehand — Railway only injects real env vars into the *running* container, not into the image build process, and `generate` never actually connects to the database, so a placeholder value is sufficient there. The placeholder is overridden by Railway's real env var at container runtime, which is what `migrate deploy` in `CMD` actually uses.
 
+**`railway.toml`'s `[deploy] startCommand` overrides the `Dockerfile`'s `CMD` at runtime**, even though Railway uses the Dockerfile for the build itself — don't assume the `CMD` line is what actually runs in production. `startCommand` must not call `npm start`: the `start` script in `package.json` includes `npx prisma migrate resolve --rolled-back <migration> || true`, a one-off command for recovering from a specific historical failed migration, and it can hang indefinitely in the container with no output, silently preventing the server from ever starting (all healthcheck attempts then fail with "service unavailable" even though the process is alive and consuming CPU/memory). `startCommand` runs `npx prisma migrate deploy && node dist/index.js` directly instead.
+
 Always import the shared instance — never instantiate inline:
 
 ```ts
