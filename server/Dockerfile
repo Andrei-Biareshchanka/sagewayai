@@ -12,7 +12,7 @@ RUN npm ci
 COPY tsconfig.json ./
 COPY src ./src/
 
-ENV DATABASE_URL="postgresql://user:password@localhost:5432/placeholder"
+ENV DIRECT_URL="postgresql://user:password@localhost:5432/placeholder"
 RUN npx prisma generate
 RUN npm run build
 
@@ -27,7 +27,7 @@ COPY prisma.config.ts ./
 
 RUN npm ci --omit=dev
 
-ENV DATABASE_URL="postgresql://user:password@localhost:5432/placeholder"
+ENV DIRECT_URL="postgresql://user:password@localhost:5432/placeholder"
 RUN npx prisma generate
 
 COPY --from=builder /app/dist ./dist
