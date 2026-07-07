@@ -15,7 +15,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with th
 
 ## Deployment (Railway)
 
-`app.listen()` in `src/index.ts` binds explicitly to `0.0.0.0`, not just `PORT` — binding to the default host inside a container means Railway's healthcheck (which hits `/api/health` from outside the container's network namespace) can't reach the process, and the deploy fails with "service unavailable" / "never became healthy" even though the build succeeded.
+`app.listen()` in `src/index.ts` binds explicitly to a host, not just `PORT` — binding to the default host inside a container means Railway's healthcheck (which hits `/api/health` from outside the container's network namespace) can't reach the process, and the deploy fails with "service unavailable" / "never became healthy" even though the build succeeded and the process is alive (visible as nonzero CPU/memory in Railway metrics with zero request traffic).
+
+The host is `'::'` (IPv6 any-address), not `'0.0.0.0'` (IPv4-only) — Railway's containers are dual-stack, and its healthcheck prober can reach the container over IPv6. On Linux, binding to `'::'` accepts both IPv4 and IPv6 connections (dual-stack socket), so this doesn't break plain IPv4 access.
 
 ## Commands
 

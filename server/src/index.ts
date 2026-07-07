@@ -80,7 +80,7 @@ export function createApp() {
 const PORT = process.env.PORT ?? 3001;
 const app = createApp();
 
-app.listen(Number(PORT), '0.0.0.0', () => {
+app.listen(Number(PORT), '::', () => {
   console.log(`Server running on port ${PORT}`);
 });
 
