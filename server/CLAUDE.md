@@ -63,7 +63,9 @@ scripts/
 
 Using **Prisma 7** — `prisma.config.ts` at server root. Schema at `prisma/schema.prisma`.
 
-Prisma 7 removed `url` from the schema's `datasource` block entirely — the connection URL lives only in `prisma.config.ts`'s `datasource.url`, via the `env()` helper from `prisma/config` (not raw `process.env[...]`). Using `process.env` directly there triggers a known Prisma 7 regression ([prisma#28983](https://github.com/prisma/prisma/issues/28983)) where `prisma migrate deploy` fails with `"The datasource.url property is required"` during Docker builds, even though the value is set correctly.
+Prisma 7 removed `url` from the schema's `datasource` block entirely — the connection URL lives only in `prisma.config.ts`'s `datasource.url`, via the `env()` helper from `prisma/config` (not raw `process.env[...]`, which is silently `undefined`-tolerant and can mask a missing variable).
+
+**`Dockerfile` must `COPY prisma.config.ts ./`** in both the `builder` and `runner` stages, alongside `COPY prisma ./prisma/`. Without it, `npx prisma migrate deploy` can't find the datasource URL at all and fails with `"The datasource.url property is required in your Prisma config file when using prisma migrate deploy"` — this looks like a Prisma config/env bug ([prisma#28983](https://github.com/prisma/prisma/issues/28983) describes a similar-sounding error) but in this repo's case the real cause was simpler: the config file was just missing from the image.
 
 Always import the shared instance — never instantiate inline:
 
