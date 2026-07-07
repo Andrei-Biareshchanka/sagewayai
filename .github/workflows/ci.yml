@@ -21,6 +21,8 @@ jobs:
 
       - name: Generate Prisma client (server)
         run: cd server && npx prisma generate
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/sagewayai
 
       - name: Server type-check
         run: cd server && npx tsc --noEmit
@@ -49,6 +51,8 @@ jobs:
           cache-dependency-path: server/package-lock.json
       - run: npm ci
       - run: npx prisma generate
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/sagewayai
       - run: npm test
         env:
           JWT_SECRET: test-jwt-secret-for-ci
