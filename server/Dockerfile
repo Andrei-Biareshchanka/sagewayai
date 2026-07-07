@@ -12,7 +12,9 @@ RUN npm ci
 COPY tsconfig.json ./
 COPY src ./src/
 
-ENV DIRECT_URL="postgresql://user:password@localhost:5432/placeholder"
+# Not a real connection string — prisma generate only checks that DIRECT_URL is set, never connects.
+# The real value is injected by Railway at container runtime for `prisma migrate deploy`.
+ENV DIRECT_URL="unused-during-build"
 RUN npx prisma generate
 RUN npm run build
 
@@ -27,7 +29,9 @@ COPY prisma.config.ts ./
 
 RUN npm ci --omit=dev
 
-ENV DIRECT_URL="postgresql://user:password@localhost:5432/placeholder"
+# Not a real connection string — prisma generate only checks that DIRECT_URL is set, never connects.
+# The real value is injected by Railway at container runtime for `prisma migrate deploy`.
+ENV DIRECT_URL="unused-during-build"
 RUN npx prisma generate
 
 COPY --from=builder /app/dist ./dist
