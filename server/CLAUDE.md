@@ -67,6 +67,8 @@ Prisma 7 removed `url` from the schema's `datasource` block entirely — the con
 
 **`Dockerfile` must `COPY prisma.config.ts ./`** in both the `builder` and `runner` stages, alongside `COPY prisma ./prisma/`. Without it, `npx prisma migrate deploy` can't find the datasource URL at all and fails with `"The datasource.url property is required in your Prisma config file when using prisma migrate deploy"` — this looks like a Prisma config/env bug ([prisma#28983](https://github.com/prisma/prisma/issues/28983) describes a similar-sounding error) but in this repo's case the real cause was simpler: the config file was just missing from the image.
 
+Because `env("DATABASE_URL")` throws instead of returning `undefined`, both `RUN npx prisma generate` steps in the `Dockerfile` also need a placeholder `ENV DATABASE_URL=...` set beforehand — Railway only injects the real `DATABASE_URL` into the *running* container, not into the image build process, and `generate` never actually connects to the database, so a placeholder value is sufficient there. The placeholder is overridden by Railway's real env var at container runtime, which is what `migrate deploy` in `CMD` actually uses.
+
 Always import the shared instance — never instantiate inline:
 
 ```ts
