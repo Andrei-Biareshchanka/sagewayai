@@ -80,9 +80,12 @@ export function createApp() {
 const PORT = process.env.PORT ?? 3001;
 const app = createApp();
 
-app.listen(Number(PORT), '::', () => {
+const server = app.listen(Number(PORT), '::', () => {
   console.log(`Server running on port ${PORT}`);
 });
+
+server.keepAliveTimeout = 65_000;
+server.headersTimeout = 66_000;
 
 setInterval(async () => {
   await prisma.situationRequest.deleteMany({
