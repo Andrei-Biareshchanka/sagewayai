@@ -75,6 +75,8 @@ Because `env("DIRECT_URL")` throws instead of returning `undefined`, both `RUN n
 
 **`railway.toml`'s `[deploy] startCommand` overrides the `Dockerfile`'s `CMD` at runtime**, even though Railway uses the Dockerfile for the build itself — don't assume the `CMD` line is what actually runs in production. `startCommand` must not call `npm start`: the `start` script in `package.json` includes `npx prisma migrate resolve --rolled-back <migration> || true`, a one-off command for recovering from a specific historical failed migration, and it can hang indefinitely in the container with no output, silently preventing the server from ever starting (all healthcheck attempts then fail with "service unavailable" even though the process is alive and consuming CPU/memory). `startCommand` runs `npx prisma migrate deploy && node dist/index.js` directly instead.
 
+`railway.toml` has no `healthcheckPath` — the app (proven working locally against the real Neon DB, full production env vars, and the exact built image) never became reachable via Railway's HTTP healthcheck on `/api/health` despite migrations succeeding and the process staying alive (nonzero CPU/memory, zero request traffic). Removed the HTTP path so Railway falls back to a plain TCP check on the target port, to isolate whether the failure is HTTP-layer-specific or a more general connectivity issue — see git history/PR discussion for the outcome before re-adding a path-based healthcheck.
+
 Always import the shared instance — never instantiate inline:
 
 ```ts
