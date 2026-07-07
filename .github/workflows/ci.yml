@@ -23,6 +23,7 @@ jobs:
         run: cd server && npx prisma generate
         env:
           DATABASE_URL: ${{ secrets.CI_DATABASE_URL }}
+          DIRECT_URL: ${{ secrets.CI_DATABASE_URL }}
 
       - name: Server type-check
         run: cd server && npx tsc --noEmit
@@ -53,6 +54,7 @@ jobs:
       - run: npx prisma generate
         env:
           DATABASE_URL: ${{ secrets.CI_DATABASE_URL }}
+          DIRECT_URL: ${{ secrets.CI_DATABASE_URL }}
       - run: npm test
         env:
           JWT_SECRET: test-jwt-secret-for-ci
