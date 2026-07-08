@@ -171,6 +171,14 @@ After broadcasting to subscribers, `broadcastDailyParable()` also calls `publish
 
 The channel post differs from the subscriber DM: no spoiler tag on the reflection (shown in full), no truncation on the parable, and it leads with the digest's AI-generated title (`digest.title`) in bold. An inline "Читать на сайте →" button links to `https://sagewayai.com/ru/d/{slug}` for readers who want to save or share the page.
 
+### Backfilling channel history
+
+`scripts/publish-history-to-channel.ts` — one-off, manual-only script to post already-published digests to the channel (e.g. to seed history right after enabling `TELEGRAM_CHANNEL_ID`). Takes the last N published `DailyDigest` records (oldest first), posts each via the same `formatChannelDigest`/`buildChannelKeyboard` as the daily broadcast, with a 2s delay between posts to stay under Telegram's rate limit. Skips records missing a `slug` instead of failing the run. Not wired into any cron.
+
+```bash
+npx tsx scripts/publish-history-to-channel.ts --limit=5   # default limit is 5
+```
+
 ## Environment variables
 
 | Variable | Required | Description |
