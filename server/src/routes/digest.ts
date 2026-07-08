@@ -35,6 +35,8 @@ function localizeParable(parable: DigestWithRelations['parable'], lang: Lang) {
 function localizeDigest(digest: DigestWithRelations, lang: Lang) {
   return {
     date: digest.date,
+    slug: digest.slug,
+    title: lang === 'ru' ? digest.titleRu ?? digest.titleEn : digest.titleEn ?? digest.titleRu,
     quote: localizeQuote(digest.quote, lang),
     parable: localizeParable(digest.parable, lang),
     conclusion: lang === 'ru' ? digest.conclusionRu : digest.conclusionEn,

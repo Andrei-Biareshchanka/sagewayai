@@ -5,6 +5,8 @@ const API_URL = process.env['SAGEWAYAI_API_URL'] ?? 'http://localhost:3001';
 
 const digestSchema = z.object({
   date: z.string(),
+  slug: z.string().nullable(),
+  title: z.string().nullable(),
   quote: z.object({
     text: z.string(),
     author: z.string(),
@@ -32,7 +34,7 @@ export async function fetchDailyDigest(language: Language): Promise<Digest> {
   return result.data;
 }
 
-const situationDigestSchema = digestSchema.omit({ date: true });
+const situationDigestSchema = digestSchema.omit({ date: true, slug: true, title: true });
 
 export async function fetchSituationDigest(situation: string, language: Language, chatId: number): Promise<Digest> {
   const response = await fetch(`${API_URL}/api/digest/situation`, {
@@ -48,5 +50,5 @@ export async function fetchSituationDigest(situation: string, language: Language
   if (!result.success) {
     throw new Error(`Invalid situation digest response: ${result.error.issues[0]?.message}`);
   }
-  return { ...result.data, date: new Date().toISOString() };
+  return { ...result.data, date: new Date().toISOString(), slug: null, title: null };
 }

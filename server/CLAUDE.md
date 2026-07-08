@@ -108,7 +108,7 @@ Seed categories: Wisdom, Motivation, Leadership, Journey, Loss, Risk, Trust, Mea
 
 Digests are created a day ahead of publication ("tomorrow's teaser") and only made visible to end users on their own day, via `isPublished`/`publishedAt`.
 
-**`GET /api/digest/daily` → `getDailyDigest()`** — used by the Telegram bot (`web/` reads `DailyDigest` directly via its own Prisma client, not this endpoint):
+**`GET /api/digest/daily` → `getDailyDigest()`** — used by the Telegram bot (`web/` reads `DailyDigest` directly via its own Prisma client, not this endpoint). Response includes `slug` and a localized `title` (`titleRu`/`titleEn` with fallback to the other language if one is missing) alongside `quote`/`parable`/`conclusion`/`question` — the bot uses `slug` to link back to `/{locale}/d/{slug}` when publishing to the `@sagewayai` channel (see `telegram-bot/CLAUDE.md`):
 1. Check if today's date has a record in `DailyDigest`.
 2. If yes — auto-publish it if it isn't already (`publishDigest()`, idempotent no-op if already published). This is a safety net for when the publish-and-prepare cron missed its run: the bot shouldn't stay stuck just because the cron didn't fire.
 3. If no — pick next quote (unused first, then LRU), find best matching parable via vector similarity (excluding parables already paired with this quote, and — when possible — parables used in any digest within the last 14 days), generate EN+RU reflections **and AI titles** via Claude in parallel, generate slug, create record with `isPublished: true` (this is an on-demand creation for *today*, not a draft).

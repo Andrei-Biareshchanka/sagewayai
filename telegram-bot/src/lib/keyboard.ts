@@ -1,4 +1,4 @@
-import { Keyboard } from 'grammy';
+import { InlineKeyboard, Keyboard } from 'grammy';
 import { Digest } from './digestApi';
 import { Language, t } from './i18n';
 import { getBotUsername } from './botInfo';
@@ -8,6 +8,10 @@ export function buildKeyboard(language: Language): Keyboard {
     .text(t(language, 'situationButton'))
     .resized()
     .persistent();
+}
+
+export function buildChannelKeyboard(url: string): InlineKeyboard {
+  return new InlineKeyboard().url('Читать на сайте →', url);
 }
 
 export function buildShareUrl(language: Language, digest: Digest, chatId?: number): string {
