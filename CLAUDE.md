@@ -164,7 +164,7 @@ Configured in `.claude/settings.json` (committed):
 
 | Workflow | Schedule | What it does |
 |---|---|---|
-| `.github/workflows/send-daily.yml` | `08:00 UTC` daily | Emails the (legacy v1) `DailyParable` of the day to `EmailSubscriber`s via `POST /api/admin/send-daily` |
+| `.github/workflows/send-daily.yml` | **Disabled** (`workflow_dispatch` only, no schedule) | Legacy v1 flow — emails the day's `DailyParable` to `EmailSubscriber`s via `POST /api/admin/send-daily`. Scheduled trigger removed 2026-07-08: the email template links to routes (`/parables/:id`, `/subscription/manage`) that no longer exist on the current site, so every scheduled send was 404-ing for recipients. Kept as manual-only in case it's revived with fixed links. |
 | `.github/workflows/publish-digest.yml` | `22:00 UTC` daily (= `01:00` Moscow time, UTC+3, no DST — anchored to the primary RU/BY audience's clock) | Calls `POST /api/admin/publish-and-prepare`: publishes the pre-created `DailyDigest` draft for its day and pre-creates the *next* day's draft. See `server/CLAUDE.md`'s "Daily digest logic" for the full publish/bootstrap logic and why the cron time offsets dates by +1/+2 relative to UTC-today. |
 
 Both workflows retry a Railway cold start (wake-up loop against `/api/health`, then `/api/health/db`) before calling their respective admin endpoint, and are guarded by a secret header (`x-send-secret` / `x-publish-secret`) checked against a `GitHub Actions` repo secret — not JWT/session auth, since these run outside any user session.
