@@ -45,8 +45,9 @@ Claude Sonnet 4.6      ← generates reflection + question (once/day, cached in 
 | `src/lib/analytics.ts` | `trackEvent()` — fire-and-forget event tracking to BotEvent table |
 | `src/lib/digestApi.ts` | HTTP client to `GET /api/digest/daily?lang=` and `POST /api/digest/situation` |
 | `src/lib/formatDigest.ts` | Formats digest as MarkdownV2 with spoiler on reflection |
-| `src/lib/broadcast.ts` | Daily broadcast to all active subscribers |
-| `src/lib/keyboard.ts` | `buildKeyboard()` — reply keyboard; `buildShareUrl()` — MarkdownV2-safe share link embedded by `formatDigest` |
+| `src/lib/broadcast.ts` | Daily broadcast to all active subscribers; also publishes the same digest to the `@sagewayai` channel |
+| `src/lib/formatChannelDigest.ts` | Formats the RU digest as MarkdownV2 for the channel post — bold AI-generated title, full parable text (no truncation, no spoiler) |
+| `src/lib/keyboard.ts` | `buildKeyboard()` — reply keyboard; `buildShareUrl()` — MarkdownV2-safe share link embedded by `formatDigest`; `buildChannelKeyboard()` — inline "Читать на сайте →" button for the channel post |
 | `src/lib/syncCommands.ts` | Per-user dynamic slash menu via `setMyCommands` |
 | `src/lib/i18n.ts` | All EN/RU strings — single source of truth |
 | `src/lib/botInfo.ts` | Stores bot username after `bot.init()` |
@@ -166,6 +167,10 @@ After subscribe/unsubscribe/language change, `syncUserCommands()` calls `bot.api
 
 Runs daily at 8:00 server time via `setTimeout` + `setInterval` in `src/index.ts`. Digest is cached in `DailyDigest` DB table — Claude API called only once per day regardless of subscriber count.
 
+After broadcasting to subscribers, `broadcastDailyParable()` also calls `publishToChannel()`, which posts the same day's digest to the `@sagewayai` Telegram channel (`TELEGRAM_CHANNEL_ID` env var). It reuses the same in-memory `digestCache` populated by the subscriber loop — no extra API call. Always publishes in Russian (`lang=ru`), since the channel's audience is RU-primary regardless of individual subscriber language preferences. No-ops silently if `TELEGRAM_CHANNEL_ID` is unset or the digest has no `slug` (older digests predating the slug field) — a broadcast to subscribers should never fail because the channel post can't be built.
+
+The channel post differs from the subscriber DM: no spoiler tag on the reflection (shown in full), no truncation on the parable, and it leads with the digest's AI-generated title (`digest.title`) in bold. An inline "Читать на сайте →" button links to `https://sagewayai.com/ru/d/{slug}` for readers who want to save or share the page.
+
 ## Environment variables
 
 | Variable | Required | Description |
@@ -174,6 +179,7 @@ Runs daily at 8:00 server time via `setTimeout` + `setInterval` in `src/index.ts
 | `DATABASE_URL` | Yes | PostgreSQL connection string |
 | `SAGEWAYAI_API_URL` | Yes | Main server URL (default: `http://localhost:3001`) |
 | `ADMIN_CHAT_ID` | No | Your Telegram chat ID — enables `/stats` command |
+| `TELEGRAM_CHANNEL_ID` | No | `@sagewayai` — public channel username. Enables daily channel publishing alongside the subscriber broadcast; broadcast still runs normally if unset |
 
 ## What's been built (as of 2026-06-27)
 
@@ -189,6 +195,7 @@ Runs daily at 8:00 server time via `setTimeout` + `setInterval` in `src/index.ts
 - [x] "🎯 For my situation" button — situation-based digest, rate-limited 1/day
 - [x] Event tracking — BotEvent table, 8 event types, fire-and-forget
 - [x] Referral system — share link → referredBy stored → credited in /stats and /settings
+- [x] Daily digest published to `@sagewayai` channel alongside the subscriber broadcast (RU, full text, inline site link)
 
 ## Potential next features
 

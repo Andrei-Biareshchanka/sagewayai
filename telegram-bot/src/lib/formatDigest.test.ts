@@ -3,6 +3,8 @@ import { formatDigest } from './formatDigest';
 
 const digest = {
   date: '2026-06-25',
+  slug: 'the-mountain-climber-seneca',
+  title: 'The Climb Is the Point',
   quote: { text: 'Difficulties strengthen the mind.', author: 'Seneca' },
   parable: { title: 'The Mountain Climber', content: 'A climber faced a steep ridge.' },
   conclusion: 'Growth comes from the climb, not the summit.',

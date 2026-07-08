@@ -2,9 +2,13 @@ import { Bot } from 'grammy';
 import { prisma } from './prisma';
 import { Digest, fetchDailyDigest } from './digestApi';
 import { formatDigest } from './formatDigest';
-import { buildKeyboard, buildShareUrl } from './keyboard';
+import { formatChannelDigest } from './formatChannelDigest';
+import { buildKeyboard, buildChannelKeyboard, buildShareUrl } from './keyboard';
 import { isSupportedLanguage, Language, t } from './i18n';
 import { trackEvent } from './analytics';
+
+const CHANNEL_LANGUAGE: Language = 'ru';
+const CHANNEL_BASE_URL = 'https://sagewayai.com';
 
 async function getDigestCached(cache: Map<Language, Digest>, language: Language): Promise<Digest> {
   const cached = cache.get(language);
@@ -13,6 +17,25 @@ async function getDigestCached(cache: Map<Language, Digest>, language: Language)
   const digest = await fetchDailyDigest(language);
   cache.set(language, digest);
   return digest;
+}
+
+async function publishToChannel(bot: Bot, digestCache: Map<Language, Digest>): Promise<void> {
+  const channelId = process.env['TELEGRAM_CHANNEL_ID'];
+  if (!channelId) return;
+
+  const digest = await getDigestCached(digestCache, CHANNEL_LANGUAGE);
+  if (!digest.slug) return;
+
+  const dateLabel = new Date(digest.date).toLocaleDateString('ru-RU', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  });
+
+  await bot.api.sendMessage(channelId, formatChannelDigest(digest, dateLabel), {
+    parse_mode: 'MarkdownV2',
+    reply_markup: buildChannelKeyboard(`${CHANNEL_BASE_URL}/ru/d/${digest.slug}`),
+  });
 }
 
 export async function broadcastDailyParable(bot: Bot): Promise<void> {
@@ -47,4 +70,6 @@ export async function broadcastDailyParable(bot: Bot): Promise<void> {
       });
     }
   }
+
+  await publishToChannel(bot, digestCache);
 }
