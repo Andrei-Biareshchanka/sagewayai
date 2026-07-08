@@ -21,7 +21,7 @@ function sleep(ms: number): Promise<void> {
 
 async function fetchPublishedDigests(limit: number) {
   return prisma.dailyDigest.findMany({
-    where: { isPublished: true },
+    where: { isPublished: true, slug: { not: null } },
     orderBy: { date: 'asc' },
     take: limit,
     include: { quote: true, parable: true },
