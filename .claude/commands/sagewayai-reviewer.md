@@ -40,7 +40,7 @@ Review the current changes (or specified files) against SagewayAI architecture r
 - Functions under 20 lines; extract helpers with descriptive names
 - No magic strings or numbers — use named constants
 - No commented-out code, no dead code
-- No `console.log` left in committed code (use proper error propagation)
+- No `console.log` left in committed code (use proper error propagation) — does not apply to `scripts/` directories, where `console.log` is the intended progress/output mechanism for one-off CLI scripts (see `server/scripts/*.ts`)
 
 ### Prisma
 
