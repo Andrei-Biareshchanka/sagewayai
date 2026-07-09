@@ -26,13 +26,7 @@ async function publishToChannel(bot: Bot, digestCache: Map<Language, Digest>): P
   const digest = await getDigestCached(digestCache, CHANNEL_LANGUAGE);
   if (!digest.slug) return;
 
-  const dateLabel = new Date(digest.date).toLocaleDateString('ru-RU', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-  });
-
-  await bot.api.sendMessage(channelId, formatChannelDigest(digest, dateLabel), {
+  await bot.api.sendMessage(channelId, formatChannelDigest(digest), {
     parse_mode: 'MarkdownV2',
     reply_markup: buildChannelKeyboard(`${CHANNEL_BASE_URL}/ru/d/${digest.slug}`),
   });

@@ -169,7 +169,9 @@ Runs daily at 8:00 server time via `setTimeout` + `setInterval` in `src/index.ts
 
 After broadcasting to subscribers, `broadcastDailyParable()` also calls `publishToChannel()`, which posts the same day's digest to the `@sagewayai` Telegram channel (`TELEGRAM_CHANNEL_ID` env var). It reuses the same in-memory `digestCache` populated by the subscriber loop — no extra API call. Always publishes in Russian (`lang=ru`), since the channel's audience is RU-primary regardless of individual subscriber language preferences. No-ops silently if `TELEGRAM_CHANNEL_ID` is unset or the digest has no `slug` (older digests predating the slug field) — a broadcast to subscribers should never fail because the channel post can't be built.
 
-The channel post differs from the subscriber DM: no spoiler tag on the reflection (shown in full), no truncation on the parable, and it leads with the digest's AI-generated title (`digest.title`) in bold. An inline "Читать на сайте →" button links to `https://sagewayai.com/ru/d/{slug}` for readers who want to save or share the page.
+The channel post differs from the subscriber DM: no spoiler tag on the reflection (shown in full), no date header, and it leads with the digest's AI-generated title (`digest.title`) in bold. The parable title and full parable text are rendered together as a single Telegram MarkdownV2 blockquote (every line prefixed with `>`, paragraphs separated by a bare `>` line) — Telegram renders consecutive `>`-prefixed lines as one continuous quoted block. `Вывод`/`Вопрос дня` section headers are bold. An inline "Читать на сайте →" button links to `https://sagewayai.com/ru/d/{slug}` for readers who want to save or share the page.
+
+Telegram's Bot API has no way to set a custom text/blockquote color per message — formatting color always follows each viewer's own client theme, not something the sender can override. `formatChannelDigest()` doesn't attempt to fake this.
 
 ### Backfilling channel history
 

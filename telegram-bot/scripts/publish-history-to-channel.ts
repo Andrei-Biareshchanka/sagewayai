@@ -48,19 +48,11 @@ function toChannelDigest(record: PublishedDigest): Digest {
   };
 }
 
-function formatDateLabel(isoDate: string): string {
-  return new Date(isoDate).toLocaleDateString('ru-RU', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-  });
-}
-
 async function publishDigest(bot: Bot, channelId: string, record: PublishedDigest): Promise<boolean> {
   const digest = toChannelDigest(record);
   if (!digest.slug) return false;
 
-  await bot.api.sendMessage(channelId, formatChannelDigest(digest, formatDateLabel(digest.date)), {
+  await bot.api.sendMessage(channelId, formatChannelDigest(digest), {
     parse_mode: 'MarkdownV2',
     reply_markup: buildChannelKeyboard(`${CHANNEL_BASE_URL}/ru/d/${digest.slug}`),
   });
