@@ -5,24 +5,32 @@ function buildTitleLines(title: string | null): string[] {
   return title ? [`*${escapeMarkdown(title)}*`, ''] : [];
 }
 
-function buildBodyLines(digest: Digest, dateLabel: string): string[] {
+function buildParableBlockquoteLines(title: string, content: string): string[] {
+  const titleBlock = `>📖 *${escapeMarkdown(title)}*`;
+  const paragraphBlocks = content.split('\n\n').map((paragraph) =>
+    escapeMarkdown(paragraph)
+      .split('\n')
+      .map((line) => `>${line}`)
+      .join('\n'),
+  );
+  return [titleBlock, ...paragraphBlocks].join('\n>\n').split('\n');
+}
+
+function buildBodyLines(digest: Digest): string[] {
   return [
-    `✨ Мудрость дня \\| ${escapeMarkdown(dateLabel)}`,
-    '',
     `💬 ${escapeMarkdown(digest.quote.text)}`,
     `— ${escapeMarkdown(digest.quote.author)}`,
     '',
-    `📖 ${escapeMarkdown(digest.parable.title)}`,
-    escapeMarkdown(digest.parable.content),
+    ...buildParableBlockquoteLines(digest.parable.title, digest.parable.content),
     '',
-    '💡 Вывод',
+    '💡 *Вывод*',
     escapeMarkdown(digest.conclusion),
     '',
-    '❓ Вопрос дня',
+    '❓ *Вопрос дня*',
     escapeMarkdown(digest.question),
   ];
 }
 
-export function formatChannelDigest(digest: Digest, dateLabel: string): string {
-  return [...buildTitleLines(digest.title), ...buildBodyLines(digest, dateLabel)].join('\n');
+export function formatChannelDigest(digest: Digest): string {
+  return [...buildTitleLines(digest.title), ...buildBodyLines(digest)].join('\n');
 }
