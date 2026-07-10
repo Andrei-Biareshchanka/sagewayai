@@ -56,7 +56,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const quoteSnippet = pickLocalized(digest.quote.textRu, digest.quote.text, locale).slice(0, 80);
   const moral = pickLocalized(digest.parable.moralRu, digest.parable.moral, locale);
   const description = `«${quoteSnippet}» — ${moral}`.slice(0, 160);
-  const ogImageUrl = buildOgImageUrl(digest, title, locale);
+  const ogImageUrl = digest.imageUrl ?? buildOgImageUrl(digest, title, locale);
+  const ogImage = digest.imageUrl ? { url: ogImageUrl } : { url: ogImageUrl, width: 1200, height: 630 };
   const canonical = `${SITE_URL}/${locale}/d/${slug}`;
 
   return {
@@ -67,7 +68,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       description,
       type: 'article',
       publishedTime: digest.date.toISOString(),
-      images: [{ url: ogImageUrl, width: 1200, height: 630 }],
+      images: [ogImage],
     },
     twitter: {
       images: [ogImageUrl],
@@ -126,7 +127,7 @@ export default async function DigestPage({ params }: PageProps) {
         url: `${SITE_URL}/favicon.svg`,
       },
     },
-    image: buildOgImageUrl(digest, title, locale),
+    image: digest.imageUrl ?? buildOgImageUrl(digest, title, locale),
     inLanguage: locale,
     isPartOf: {
       '@type': 'WebSite',
@@ -146,6 +147,7 @@ export default async function DigestPage({ params }: PageProps) {
           digest={{
             slug,
             date: digest.date,
+            imageUrl: digest.imageUrl,
             titleRu: digest.titleRu ?? digest.parable.titleRu ?? digest.parable.title,
             titleEn: digest.titleEn ?? digest.parable.title,
             quote: {

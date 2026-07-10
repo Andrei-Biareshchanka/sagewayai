@@ -51,6 +51,7 @@ model DailyDigest {
   slug         String?   @unique
   titleEn      String?
   titleRu      String?
+  imageUrl     String?
   quote        Quote     @relation(fields: [quoteId], references: [id])
   quoteId      String
   parable      Parable   @relation(fields: [parableId], references: [id])
