@@ -11,6 +11,7 @@ import { DigestBlock } from '@/components/DigestBlock';
 interface BilingualDigest {
   slug: string;
   date: Date;
+  imageUrl: string | null;
   titleRu: string;
   titleEn: string;
   quote: { textRu: string; textEn: string; authorRu: string; authorEn: string };
@@ -66,6 +67,7 @@ export function DigestPageContent({ digest, related }: DigestPageContentProps) {
         }}
         date={digest.date}
         category={digest.category}
+        imageUrl={digest.imageUrl ?? undefined}
         shareUrl={`${SITE_URL}/${lang}/d/${digest.slug}?utm_source=share&utm_medium=social`}
         shareTitle={digestTitle}
       />

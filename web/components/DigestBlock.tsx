@@ -27,9 +27,10 @@ interface DigestBlockProps {
   category?: DigestCategory;
   shareUrl?: string;
   shareTitle?: string;
+  imageUrl?: string;
 }
 
-export function DigestBlock({ title, data, date, category, shareUrl, shareTitle }: DigestBlockProps) {
+export function DigestBlock({ title, data, date, category, shareUrl, shareTitle, imageUrl }: DigestBlockProps) {
   const { lang } = useLanguage();
   const { quote, parable, conclusion, question } = data;
   const dateLocale = lang === 'ru' ? ru : enUS;
@@ -44,6 +45,15 @@ export function DigestBlock({ title, data, date, category, shareUrl, shareTitle 
       </div>
 
       <div className="border border-sage-pill rounded-2xl p-6 md:p-8 space-y-6">
+        {imageUrl && (
+          <img
+            src={imageUrl}
+            alt={title ?? parable.title}
+            loading="lazy"
+            className="w-full h-auto rounded-xl object-cover mb-2"
+          />
+        )}
+
         {(date || category) && (
           <div className="flex justify-between items-center">
             {date ? (
