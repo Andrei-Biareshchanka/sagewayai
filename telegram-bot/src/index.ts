@@ -51,6 +51,10 @@ bot.catch((err) => {
   process.stderr.write(`Bot error: ${err}\n`);
 });
 
+process.on('unhandledRejection', (reason) => {
+  process.stderr.write(`Unhandled rejection: ${reason}\n`);
+});
+
 scheduleDailyBroadcast(bot);
 
 bot.api.setMyCommands([

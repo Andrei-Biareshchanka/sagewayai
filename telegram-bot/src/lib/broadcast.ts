@@ -26,10 +26,14 @@ async function publishToChannel(bot: Bot, digestCache: Map<Language, Digest>): P
   const digest = await getDigestCached(digestCache, CHANNEL_LANGUAGE);
   if (!digest.slug) return;
 
-  await bot.api.sendMessage(channelId, formatChannelDigest(digest), {
-    parse_mode: 'MarkdownV2',
-    reply_markup: buildChannelKeyboard(`${CHANNEL_BASE_URL}/ru/d/${digest.slug}`),
-  });
+  try {
+    await bot.api.sendMessage(channelId, formatChannelDigest(digest), {
+      parse_mode: 'MarkdownV2',
+      reply_markup: buildChannelKeyboard(`${CHANNEL_BASE_URL}/ru/d/${digest.slug}`),
+    });
+  } catch (error) {
+    process.stderr.write(`Failed to publish digest to channel: ${error}\n`);
+  }
 }
 
 export async function broadcastDailyParable(bot: Bot): Promise<void> {
