@@ -4617,7 +4617,7 @@ export namespace Prisma {
     createdAt?: boolean
   }
 
-  export type DailyDigestOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "date" | "slug" | "titleEn" | "titleRu" | "imageUrl" | "quoteId" | "parableId" | "conclusionEn" | "conclusionRu" | "questionEn" | "questionRu" | "isPublished" | "publishedAt" | "createdAt", ExtArgs["result"]["dailyDigest"]>
+  export type DailyDigestOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "date" | "slug" | "titleEn" | "titleRu" | "imageUrl" | "imageAltRu" | "imageAltEn" | "quoteId" | "parableId" | "conclusionEn" | "conclusionRu" | "questionEn" | "questionRu" | "isPublished" | "publishedAt" | "createdAt", ExtArgs["result"]["dailyDigest"]>
   export type DailyDigestInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     quote?: boolean | QuoteDefaultArgs<ExtArgs>
     parable?: boolean | ParableDefaultArgs<ExtArgs>
@@ -4644,6 +4644,8 @@ export namespace Prisma {
       titleEn: string | null
       titleRu: string | null
       imageUrl: string | null
+      imageAltRu: string | null
+      imageAltEn: string | null
       quoteId: string
       parableId: string
       conclusionEn: string
@@ -5084,6 +5086,8 @@ export namespace Prisma {
     readonly titleEn: FieldRef<"DailyDigest", 'String'>
     readonly titleRu: FieldRef<"DailyDigest", 'String'>
     readonly imageUrl: FieldRef<"DailyDigest", 'String'>
+    readonly imageAltRu: FieldRef<"DailyDigest", 'String'>
+    readonly imageAltEn: FieldRef<"DailyDigest", 'String'>
     readonly quoteId: FieldRef<"DailyDigest", 'String'>
     readonly parableId: FieldRef<"DailyDigest", 'String'>
     readonly conclusionEn: FieldRef<"DailyDigest", 'String'>
@@ -14025,6 +14029,8 @@ export namespace Prisma {
     titleEn: 'titleEn',
     titleRu: 'titleRu',
     imageUrl: 'imageUrl',
+    imageAltRu: 'imageAltRu',
+    imageAltEn: 'imageAltEn',
     quoteId: 'quoteId',
     parableId: 'parableId',
     conclusionEn: 'conclusionEn',
