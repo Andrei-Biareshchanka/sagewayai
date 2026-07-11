@@ -148,6 +148,8 @@ export default async function DigestPage({ params }: PageProps) {
             slug,
             date: digest.date,
             imageUrl: digest.imageUrl,
+            imageAltRu: digest.imageAltRu,
+            imageAltEn: digest.imageAltEn,
             titleRu: digest.titleRu ?? digest.parable.titleRu ?? digest.parable.title,
             titleEn: digest.titleEn ?? digest.parable.title,
             quote: {

@@ -28,9 +28,10 @@ interface DigestBlockProps {
   shareUrl?: string;
   shareTitle?: string;
   imageUrl?: string;
+  imageAlt?: string;
 }
 
-export function DigestBlock({ title, data, date, category, shareUrl, shareTitle, imageUrl }: DigestBlockProps) {
+export function DigestBlock({ title, data, date, category, shareUrl, shareTitle, imageUrl, imageAlt }: DigestBlockProps) {
   const { lang } = useLanguage();
   const { quote, parable, conclusion, question } = data;
   const dateLocale = lang === 'ru' ? ru : enUS;
@@ -48,7 +49,7 @@ export function DigestBlock({ title, data, date, category, shareUrl, shareTitle,
         {imageUrl && (
           <img
             src={imageUrl}
-            alt={title ?? parable.title}
+            alt={imageAlt ?? title ?? parable.title}
             loading="lazy"
             className="w-full h-auto rounded-xl object-cover mb-2"
           />

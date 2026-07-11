@@ -12,6 +12,8 @@ interface BilingualDigest {
   slug: string;
   date: Date;
   imageUrl: string | null;
+  imageAltRu: string | null;
+  imageAltEn: string | null;
   titleRu: string;
   titleEn: string;
   quote: { textRu: string; textEn: string; authorRu: string; authorEn: string };
@@ -45,6 +47,7 @@ export function DigestPageContent({ digest, related }: DigestPageContentProps) {
   const parableContent = lang === 'ru' ? digest.parable.contentRu : digest.parable.contentEn;
   const conclusion = lang === 'ru' ? digest.conclusionRu : digest.conclusionEn;
   const question = lang === 'ru' ? digest.questionRu : digest.questionEn;
+  const imageAlt = (lang === 'ru' ? digest.imageAltRu : digest.imageAltEn) ?? undefined;
   const dateLocale = lang === 'ru' ? ru : enUS;
 
   return (
@@ -68,6 +71,7 @@ export function DigestPageContent({ digest, related }: DigestPageContentProps) {
         date={digest.date}
         category={digest.category}
         imageUrl={digest.imageUrl ?? undefined}
+        imageAlt={imageAlt}
         shareUrl={`${SITE_URL}/${lang}/d/${digest.slug}?utm_source=share&utm_medium=social`}
         shareTitle={digestTitle}
       />
