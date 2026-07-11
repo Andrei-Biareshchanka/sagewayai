@@ -10,6 +10,11 @@ import { trackEvent } from './analytics';
 const CHANNEL_LANGUAGE: Language = 'ru';
 const CHANNEL_BASE_URL = 'https://sagewayai.com';
 const ADMIN_CHAT_ID = process.env['ADMIN_CHAT_ID'];
+const CHANNEL_PUBLISH_DELAY_MS = 15 * 60 * 1000;
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
 
 type ChannelPublishResult =
   | { status: 'published'; slug: string }
@@ -105,6 +110,12 @@ export async function broadcastDailyParable(bot: Bot): Promise<void> {
   }
 
   process.stdout.write(`Daily broadcast: sent to ${sent}/${subscribers.length} subscribers (${deactivated} deactivated)\n`);
+
+  // Deliberate offset from the subscriber broadcast: the exact cause of the 2026-07-11
+  // missing channel post was never conclusively identified from logs. If it was a
+  // transient issue tied to the 8:00 broadcast window itself (server cold start, load),
+  // spacing the channel post out reduces the chance of hitting the same window twice.
+  await sleep(CHANNEL_PUBLISH_DELAY_MS);
 
   const channelResult = await publishToChannel(bot, digestCache);
   await notifyAdmin(bot, buildBroadcastReport(sent, subscribers.length, deactivated, channelResult));
