@@ -4,6 +4,7 @@ import { format } from 'date-fns';
 import type { Locale } from 'date-fns';
 import Link from 'next/link';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { pickLocalized } from '@/lib/locale-content';
 
 export interface DigestCategorySummary {
   name: string;
@@ -34,7 +35,7 @@ export function DigestCard({ digest, dateLocale }: DigestCardProps) {
       className="flex flex-col bg-white border border-[var(--color-border)] rounded-card p-4 hover:border-sage transition-colors space-y-2"
     >
       <p className="font-serif text-base font-medium text-ink line-clamp-2 min-h-[3rem]">
-        {lang === 'ru' ? digest.titleRu : digest.titleEn}
+        {pickLocalized(digest.titleRu, digest.titleEn, lang)}
       </p>
       <p className="font-sans text-xs text-muted">
         {format(digest.date, 'd MMM yyyy', { locale: dateLocale })}

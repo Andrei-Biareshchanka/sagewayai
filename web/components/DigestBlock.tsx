@@ -5,6 +5,7 @@ import { ru, enUS } from 'date-fns/locale';
 import Link from 'next/link';
 import { colors } from '@/lib/brand';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { pickLocalized } from '@/lib/locale-content';
 import { ShareButton } from './ShareButton';
 
 export interface DigestData {
@@ -35,7 +36,7 @@ export function DigestBlock({ title, data, date, category, shareUrl, shareTitle,
   const { lang } = useLanguage();
   const { quote, parable, conclusion, question } = data;
   const dateLocale = lang === 'ru' ? ru : enUS;
-  const categoryName = category ? (lang === 'ru' ? category.nameRu ?? category.name : category.name) : null;
+  const categoryName = category ? pickLocalized(category.nameRu, category.name, lang) : null;
 
   return (
     <div className="space-y-3">
