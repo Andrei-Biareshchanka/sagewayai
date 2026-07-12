@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { getDailyParable } from '../lib/daily';
 import { prisma } from '../lib/prisma';
 import { searchParablesBySemantic } from '../services/search';
+import { pickLocalized, type Lang } from '../lib/locale-content';
 
 const parablesRouter = Router();
 
@@ -16,8 +17,6 @@ const listQuerySchema = z.object({
 });
 
 const notFound = (msg: string) => Object.assign(new Error(msg), { status: 404 });
-
-type Lang = 'en' | 'ru';
 
 type RawParable = {
   id: string;
@@ -36,15 +35,12 @@ type RawParable = {
 
 function localizeParable(parable: RawParable, lang: Lang) {
   const { titleRu, contentRu, moralRu, ...rest } = parable;
-  if (lang === 'ru') {
-    return {
-      ...rest,
-      title:   titleRu   ?? parable.title,
-      content: contentRu ?? parable.content,
-      moral:   moralRu   ?? parable.moral,
-    };
-  }
-  return rest;
+  return {
+    ...rest,
+    title:   pickLocalized(titleRu, parable.title, lang),
+    content: pickLocalized(contentRu, parable.content, lang),
+    moral:   pickLocalized(moralRu, parable.moral, lang),
+  };
 }
 
 const searchBodySchema = z.object({
