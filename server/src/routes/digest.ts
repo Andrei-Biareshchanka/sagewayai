@@ -5,27 +5,26 @@ import { getDailyDigest, DigestWithRelations } from '../lib/dailyDigest';
 import { getEmbedding } from '../lib/voyage';
 import { generateReflection } from '../lib/anthropic';
 import { prisma } from '../lib/prisma';
+import { pickLocalized, type Lang } from '../lib/locale-content';
 
 const digestRouter = Router();
 
 const langSchema = z.enum(['en', 'ru']).default('en');
 
-type Lang = 'en' | 'ru';
-
 function localizeQuote(quote: DigestWithRelations['quote'], lang: Lang) {
   return {
     id: quote.id,
-    text: lang === 'ru' ? quote.textRu ?? quote.text : quote.text,
-    author: lang === 'ru' ? quote.authorRu ?? quote.author : quote.author,
+    text: pickLocalized(quote.textRu, quote.text, lang),
+    author: pickLocalized(quote.authorRu, quote.author, lang),
   };
 }
 
 function localizeParable(parable: DigestWithRelations['parable'], lang: Lang) {
   return {
     id: parable.id,
-    title: lang === 'ru' ? parable.titleRu ?? parable.title : parable.title,
-    content: lang === 'ru' ? parable.contentRu ?? parable.content : parable.content,
-    moral: lang === 'ru' ? parable.moralRu ?? parable.moral : parable.moral,
+    title: pickLocalized(parable.titleRu, parable.title, lang),
+    content: pickLocalized(parable.contentRu, parable.content, lang),
+    moral: pickLocalized(parable.moralRu, parable.moral, lang),
     source: parable.source,
     readTime: parable.readTime,
     categoryId: parable.categoryId,
@@ -36,11 +35,11 @@ function localizeDigest(digest: DigestWithRelations, lang: Lang) {
   return {
     date: digest.date,
     slug: digest.slug,
-    title: lang === 'ru' ? digest.titleRu ?? digest.titleEn : digest.titleEn ?? digest.titleRu,
+    title: pickLocalized(digest.titleRu, digest.titleEn, lang),
     quote: localizeQuote(digest.quote, lang),
     parable: localizeParable(digest.parable, lang),
-    conclusion: lang === 'ru' ? digest.conclusionRu : digest.conclusionEn,
-    question: lang === 'ru' ? digest.questionRu : digest.questionEn,
+    conclusion: pickLocalized(digest.conclusionRu, digest.conclusionEn, lang),
+    question: pickLocalized(digest.questionRu, digest.questionEn, lang),
   };
 }
 
@@ -117,18 +116,18 @@ digestRouter.post('/situation', async (req, res) => {
     return;
   }
 
-  const parableText = lang === 'ru' ? parableRow.contentRu ?? parableRow.content : parableRow.content;
-  const quoteText   = lang === 'ru' ? quoteRow.textRu ?? quoteRow.text : quoteRow.text;
+  const parableText = pickLocalized(parableRow.contentRu, parableRow.content, lang);
+  const quoteText   = pickLocalized(quoteRow.textRu, quoteRow.text, lang);
 
   const reflection = await generateReflection(quoteText, parableText, lang);
 
   res.json({
     quote: {
       text:   quoteText,
-      author: lang === 'ru' ? quoteRow.authorRu ?? quoteRow.author : quoteRow.author,
+      author: pickLocalized(quoteRow.authorRu, quoteRow.author, lang),
     },
     parable: {
-      title:   lang === 'ru' ? parableRow.titleRu ?? parableRow.title : parableRow.title,
+      title:   pickLocalized(parableRow.titleRu, parableRow.title, lang),
       content: parableText,
     },
     conclusion: reflection.conclusion,
