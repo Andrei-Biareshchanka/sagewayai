@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { t } from '@/lib/i18n';
 import { LanguageToggle } from './LanguageToggle';
 
 export function Navbar() {
@@ -31,7 +32,7 @@ export function Navbar() {
             href={`/${lang}/digests`}
             className="font-sans text-sm text-muted hover:text-ink transition-colors"
           >
-            {lang === 'ru' ? 'Архив' : 'Archive'}
+            {t(lang, 'archiveLink')}
           </Link>
           <LanguageToggle lang={lang} onChange={setLang} />
         </div>

@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { SITE_URL } from '@/lib/config';
 import { pickLocalized } from '@/lib/locale-content';
+import { t } from '@/lib/i18n';
 import { CTABlock } from '@/components/CTABlock';
 import { DigestBlock } from '@/components/DigestBlock';
 import { useLocalizedDigest, type BilingualDigestContent } from '@/hooks/useLocalizedDigest';
@@ -37,10 +38,10 @@ export function DigestPageContent({ digest, related }: DigestPageContentProps) {
     <div className="space-y-8">
       <nav className="font-sans text-sm text-muted flex items-center gap-1.5">
         <Link href={`/${lang}`} className="hover:text-ink transition-colors">
-          {lang === 'ru' ? 'Главная' : 'Home'}
+          {t(lang, 'navHome')}
         </Link>
         <span>/</span>
-        <span>{lang === 'ru' ? 'Дайджест дня' : 'Daily Digest'}</span>
+        <span>{t(lang, 'navDigestOfDay')}</span>
       </nav>
 
       <DigestBlock
@@ -57,7 +58,7 @@ export function DigestPageContent({ digest, related }: DigestPageContentProps) {
       {related.length > 0 && (
         <section className="mt-12 space-y-4">
           <h2 className="font-serif text-xl font-semibold text-ink">
-            {lang === 'ru' ? 'Другие дайджесты' : 'Other digests'}
+            {t(lang, 'otherDigests')}
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             {related.map((item) => (

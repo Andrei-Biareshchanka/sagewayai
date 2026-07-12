@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { colors } from '@/lib/brand';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { pickLocalized } from '@/lib/locale-content';
+import { t } from '@/lib/i18n';
 import { ShareButton } from './ShareButton';
 
 export interface DigestData {
@@ -42,7 +43,7 @@ export function DigestBlock({ title, data, date, category, shareUrl, shareTitle,
     <div className="space-y-3">
       <div className="flex justify-end">
         <span className="text-xs font-medium text-sage bg-sage-pill px-3 py-1.5 rounded-full">
-          {lang === 'ru' ? 'Мудрость дня' : 'Daily wisdom'}
+          {t(lang, 'dailyWisdomBadge')}
         </span>
       </div>
 
@@ -102,14 +103,14 @@ export function DigestBlock({ title, data, date, category, shareUrl, shareTitle,
           style={{ borderLeftColor: colors.sage }}
         >
           <p className="font-sans text-sm font-medium text-sage">
-            {lang === 'ru' ? '💡 Резюме' : '💡 Summary'}
+            {t(lang, 'summaryLabel')}
           </p>
           <p className="font-serif text-base text-ink">{conclusion}</p>
         </div>
 
         <div className="bg-sage-pill rounded-card p-4 space-y-1">
           <p className="font-sans text-sm font-medium text-sage-dark">
-            {lang === 'ru' ? '❓ Вопрос' : '❓ Question'}
+            {t(lang, 'questionLabel')}
           </p>
           <p className="font-sans text-base text-ink">{question}</p>
         </div>
