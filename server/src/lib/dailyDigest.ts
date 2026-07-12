@@ -14,6 +14,10 @@ function addDaysToToday(days: number): Date {
   return new Date(getTodayDate().getTime() + days * ONE_DAY_MS);
 }
 
+function addDays(date: Date, days: number): Date {
+  return new Date(date.getTime() + days * ONE_DAY_MS);
+}
+
 async function pickNextQuote(): Promise<Quote> {
   const unusedQuotes = await prisma.quote.findMany({
     where: { digests: { none: {} } },
@@ -195,6 +199,31 @@ async function prepareDraftForDate(date: Date): Promise<string | null> {
   return created.slug;
 }
 
+// Keeps a rolling buffer of unpublished future drafts so there's always enough
+// lead time to manually attach images before each digest publishes. Tops up to
+// `target` by creating drafts for consecutive dates past whatever the furthest
+// existing digest (of any status) is — never creates a date that's already taken.
+export async function ensureDraftBuffer(target: number): Promise<number> {
+  const existingDrafts = await prisma.dailyDigest.count({ where: { isPublished: false } });
+  const needed = target - existingDrafts;
+  if (needed <= 0) return 0;
+
+  const furthest = await prisma.dailyDigest.findFirst({
+    orderBy: { date: 'desc' },
+    select: { date: true },
+  });
+  let cursor = furthest ? new Date(furthest.date) : getTodayDate();
+
+  for (let i = 0; i < needed; i++) {
+    cursor = addDays(cursor, 1);
+    await createDigestForDate(cursor, false);
+  }
+  return needed;
+}
+
+const DRAFT_BUFFER_TARGET = 10;
+const DRAFT_BUFFER_REPLENISH_THRESHOLD = 7;
+
 // Called by the publish-digest cron, scheduled at 22:00 UTC = 01:00 Moscow time
 // (UTC+3, no DST) — deliberately anchored to MSK, the primary RU/BY audience's clock.
 // At that moment `getTodayDate()` (UTC) is still "today" — UTC midnight hasn't rolled
@@ -205,5 +234,13 @@ async function prepareDraftForDate(date: Date): Promise<string | null> {
 export async function publishTodayAndPrepareTomorrow(): Promise<PublishAndPrepareResult> {
   const published = await publishDraftForDate(addDaysToToday(1));
   const prepared = await prepareDraftForDate(addDaysToToday(2));
+
+  // Beyond the standing 1-day-ahead draft above, keep a deeper buffer topped up
+  // so there's always several days of lead time to manually prepare digest images.
+  const remainingDrafts = await prisma.dailyDigest.count({ where: { isPublished: false } });
+  if (remainingDrafts <= DRAFT_BUFFER_REPLENISH_THRESHOLD) {
+    await ensureDraftBuffer(DRAFT_BUFFER_TARGET);
+  }
+
   return { published, prepared };
 }

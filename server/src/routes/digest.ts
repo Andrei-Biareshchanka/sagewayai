@@ -35,6 +35,7 @@ function localizeDigest(digest: DigestWithRelations, lang: Lang) {
   return {
     date: digest.date,
     slug: digest.slug,
+    imageUrl: digest.imageUrl,
     title: pickLocalized(digest.titleRu, digest.titleEn, lang),
     quote: localizeQuote(digest.quote, lang),
     parable: localizeParable(digest.parable, lang),

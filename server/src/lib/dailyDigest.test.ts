@@ -8,6 +8,7 @@ vi.mock('./prisma', () => ({
       findFirst: vi.fn(),
       create: vi.fn(),
       update: vi.fn(),
+      count: vi.fn(),
     },
     quote: {
       findMany: vi.fn(),
@@ -35,6 +36,7 @@ const mockPrisma = prisma as unknown as {
     findFirst: ReturnType<typeof vi.fn>;
     create: ReturnType<typeof vi.fn>;
     update: ReturnType<typeof vi.fn>;
+    count: ReturnType<typeof vi.fn>;
   };
   quote: {
     findMany: ReturnType<typeof vi.fn>;
@@ -274,6 +276,7 @@ describe('publishTodayAndPrepareTomorrow', () => {
     mockGenerateReflection.mockResolvedValue({ conclusion: 'c', question: 'q?' });
     mockGenerateDigestTitle.mockResolvedValue('Тестовый заголовок');
     mockPrisma.dailyDigest.create.mockResolvedValue(prepared);
+    mockPrisma.dailyDigest.count.mockResolvedValue(8); // above the replenish threshold — no buffer top-up
 
     const result = await publishTodayAndPrepareTomorrow();
 
@@ -287,6 +290,7 @@ describe('publishTodayAndPrepareTomorrow', () => {
     mockPrisma.dailyDigest.findUnique
       .mockResolvedValueOnce(MOCK_DIGEST_ROW) // findDigestForDate(digestDateToPublish) — already published
       .mockResolvedValueOnce(MOCK_DIGEST_ROW); // findDigestForDate(digestDateToPrepare) — already exists
+    mockPrisma.dailyDigest.count.mockResolvedValue(8); // above the replenish threshold — no buffer top-up
 
     const result = await publishTodayAndPrepareTomorrow();
 
@@ -312,6 +316,7 @@ describe('publishTodayAndPrepareTomorrow', () => {
     mockPrisma.dailyDigest.create
       .mockResolvedValueOnce(publishedFromScratch)
       .mockResolvedValueOnce(prepared);
+    mockPrisma.dailyDigest.count.mockResolvedValue(8); // above the replenish threshold — no buffer top-up
 
     const result = await publishTodayAndPrepareTomorrow();
 
@@ -325,5 +330,37 @@ describe('publishTodayAndPrepareTomorrow', () => {
       expect.objectContaining({ data: expect.objectContaining({ isPublished: false, publishedAt: null }) }),
     );
     expect(mockPrisma.dailyDigest.update).not.toHaveBeenCalled();
+  });
+
+  it('tops up the draft buffer to 10 when it drops to the replenish threshold', async () => {
+    const draftToPublish = { ...MOCK_DIGEST_ROW, id: 'digest-publish', slug: 'publish-slug', isPublished: false };
+    const published = { ...draftToPublish, isPublished: true, publishedAt: new Date() };
+    const prepared = { ...MOCK_DIGEST_ROW, id: 'digest-prepare', slug: 'prepare-slug', isPublished: false };
+
+    // Default fallback for buildDigestSlug's uniqueness checks — without this, once the
+    // two queued values below are consumed, the mock falls through to whatever a *prior*
+    // test in this file left as findUnique's base implementation (clearAllMocks() only
+    // resets call history, not mockResolvedValue defaults), which can be truthy and send
+    // buildDigestSlug's `while (true)` uniqueness loop spinning forever.
+    mockPrisma.dailyDigest.findUnique.mockResolvedValue(null);
+    mockPrisma.dailyDigest.findUnique
+      .mockResolvedValueOnce(draftToPublish) // findDigestForDate(digestDateToPublish) — existing draft
+      .mockResolvedValueOnce(null);          // findDigestForDate(digestDateToPrepare)
+    mockPrisma.dailyDigest.update.mockResolvedValue(published);
+    // furthest-date lookup for ensureDraftBuffer also goes through findFirst — same mock
+    // used for slug-uniqueness checks, so just resolve every findFirst call to null/no-match.
+    mockPrisma.dailyDigest.findFirst.mockResolvedValue(null);
+    mockPrisma.quote.findMany.mockResolvedValue([MOCK_QUOTE]);
+    mockFindParableForQuote.mockResolvedValue(MOCK_PARABLE_MATCH);
+    mockGenerateReflection.mockResolvedValue({ conclusion: 'c', question: 'q?' });
+    mockGenerateDigestTitle.mockResolvedValue('Тестовый заголовок');
+    mockPrisma.dailyDigest.create.mockResolvedValue(prepared);
+    // 6 remaining drafts (≤ threshold of 7) → ensureDraftBuffer(10) should create 4 more.
+    mockPrisma.dailyDigest.count.mockResolvedValue(6);
+
+    await publishTodayAndPrepareTomorrow();
+
+    // 1 create for prepareDraftForDate(digestDateToPrepare) + 4 for the buffer top-up.
+    expect(mockPrisma.dailyDigest.create).toHaveBeenCalledTimes(5);
   });
 });
