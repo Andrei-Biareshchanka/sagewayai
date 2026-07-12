@@ -1,6 +1,7 @@
 'use client';
 
 import { useLanguage } from '@/contexts/LanguageContext';
+import { pickLocalized } from '@/lib/locale-content';
 
 export interface TomorrowDigestData {
   titleRu: string;
@@ -16,7 +17,7 @@ export function TomorrowTeaser({ tomorrow }: TomorrowTeaserProps) {
 
   if (!tomorrow) return null;
 
-  const title = lang === 'ru' ? tomorrow.titleRu : tomorrow.titleEn;
+  const title = pickLocalized(tomorrow.titleRu, tomorrow.titleEn, lang);
 
   return (
     <div className="bg-canvas border border-sage-pill rounded-2xl p-8 text-center space-y-2.5">

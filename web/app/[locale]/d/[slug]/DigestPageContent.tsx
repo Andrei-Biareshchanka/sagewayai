@@ -5,6 +5,7 @@ import { ru, enUS } from 'date-fns/locale';
 import Link from 'next/link';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { SITE_URL } from '@/lib/config';
+import { pickLocalized } from '@/lib/locale-content';
 import { CTABlock } from '@/components/CTABlock';
 import { DigestBlock } from '@/components/DigestBlock';
 
@@ -40,13 +41,13 @@ interface DigestPageContentProps {
 export function DigestPageContent({ digest, related }: DigestPageContentProps) {
   const { lang } = useLanguage();
 
-  const digestTitle = lang === 'ru' ? digest.titleRu : digest.titleEn;
-  const quoteText = lang === 'ru' ? digest.quote.textRu : digest.quote.textEn;
-  const quoteAuthor = lang === 'ru' ? digest.quote.authorRu : digest.quote.authorEn;
-  const parableTitle = lang === 'ru' ? digest.parable.titleRu : digest.parable.titleEn;
-  const parableContent = lang === 'ru' ? digest.parable.contentRu : digest.parable.contentEn;
-  const conclusion = lang === 'ru' ? digest.conclusionRu : digest.conclusionEn;
-  const question = lang === 'ru' ? digest.questionRu : digest.questionEn;
+  const digestTitle = pickLocalized(digest.titleRu, digest.titleEn, lang);
+  const quoteText = pickLocalized(digest.quote.textRu, digest.quote.textEn, lang);
+  const quoteAuthor = pickLocalized(digest.quote.authorRu, digest.quote.authorEn, lang);
+  const parableTitle = pickLocalized(digest.parable.titleRu, digest.parable.titleEn, lang);
+  const parableContent = pickLocalized(digest.parable.contentRu, digest.parable.contentEn, lang);
+  const conclusion = pickLocalized(digest.conclusionRu, digest.conclusionEn, lang);
+  const question = pickLocalized(digest.questionRu, digest.questionEn, lang);
   const imageAlt = (lang === 'ru' ? digest.imageAltRu : digest.imageAltEn) ?? undefined;
   const dateLocale = lang === 'ru' ? ru : enUS;
 
@@ -89,7 +90,7 @@ export function DigestPageContent({ digest, related }: DigestPageContentProps) {
                 className="block bg-white border border-[var(--color-border)] rounded-card p-4 hover:border-sage transition-colors space-y-1"
               >
                 <p className="font-serif text-sm font-medium text-ink line-clamp-2">
-                  {lang === 'ru' ? item.parableTitleRu : item.parableTitleEn}
+                  {pickLocalized(item.parableTitleRu, item.parableTitleEn, lang)}
                 </p>
                 <p className="font-sans text-xs text-muted">
                   {format(item.date, 'd MMM yyyy', { locale: dateLocale })}

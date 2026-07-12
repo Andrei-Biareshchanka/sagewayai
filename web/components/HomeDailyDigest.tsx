@@ -2,6 +2,7 @@
 
 import { useLanguage } from '@/contexts/LanguageContext';
 import { SITE_URL } from '@/lib/config';
+import { pickLocalized } from '@/lib/locale-content';
 import { DigestBlock, type DigestCategory } from './DigestBlock';
 
 interface BilingualDailyData {
@@ -24,22 +25,22 @@ interface HomeDailyDigestProps {
 
 export function HomeDailyDigest({ data }: HomeDailyDigestProps) {
   const { lang } = useLanguage();
-  const title = lang === 'ru' ? data.titleRu : data.titleEn;
+  const title = pickLocalized(data.titleRu, data.titleEn, lang);
 
   return (
     <DigestBlock
       title={title}
       data={{
         quote: {
-          text: lang === 'ru' ? data.quote.textRu : data.quote.textEn,
-          author: lang === 'ru' ? data.quote.authorRu : data.quote.authorEn,
+          text: pickLocalized(data.quote.textRu, data.quote.textEn, lang),
+          author: pickLocalized(data.quote.authorRu, data.quote.authorEn, lang),
         },
         parable: {
-          title: lang === 'ru' ? data.parable.titleRu : data.parable.titleEn,
-          content: lang === 'ru' ? data.parable.contentRu : data.parable.contentEn,
+          title: pickLocalized(data.parable.titleRu, data.parable.titleEn, lang),
+          content: pickLocalized(data.parable.contentRu, data.parable.contentEn, lang),
         },
-        conclusion: lang === 'ru' ? data.conclusionRu : data.conclusionEn,
-        question: lang === 'ru' ? data.questionRu : data.questionEn,
+        conclusion: pickLocalized(data.conclusionRu, data.conclusionEn, lang),
+        question: pickLocalized(data.questionRu, data.questionEn, lang),
       }}
       date={data.date}
       category={data.category}
