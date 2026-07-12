@@ -44,6 +44,12 @@ async function publishToChannel(bot: Bot, digestCache: Map<Language, Digest>): P
       return { status: 'skipped', reason: 'no_slug' };
     }
 
+    // Sent as its own message, ahead of the text — a caption is capped at 1024 chars,
+    // far shorter than the channel's untruncated full parable text.
+    if (digest.imageUrl) {
+      await bot.api.sendPhoto(channelId, digest.imageUrl);
+    }
+
     await bot.api.sendMessage(channelId, formatChannelDigest(digest), {
       parse_mode: 'MarkdownV2',
       reply_markup: buildChannelKeyboard(`${CHANNEL_BASE_URL}/ru/d/${digest.slug}`),
@@ -93,6 +99,10 @@ export async function broadcastDailyParable(bot: Bot): Promise<void> {
     const chatIdNumber = Number(subscriber.chatId);
 
     try {
+      if (digest.imageUrl) {
+        await bot.api.sendPhoto(chatIdNumber, digest.imageUrl);
+      }
+
       const labels = {
         revealHint: t(language, 'revealHint'),
         labelReflection: t(language, 'labelReflection'),
