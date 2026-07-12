@@ -46,15 +46,6 @@ export function DigestBlock({ title, data, date, category, shareUrl, shareTitle,
       </div>
 
       <div className="border border-sage-pill rounded-2xl p-6 md:p-8 space-y-6">
-        {imageUrl && (
-          <img
-            src={imageUrl}
-            alt={imageAlt ?? title ?? parable.title}
-            loading="lazy"
-            className="w-full h-auto rounded-xl object-cover mb-2"
-          />
-        )}
-
         {(date || category) && (
           <div className="flex justify-between items-center">
             {date ? (
@@ -89,6 +80,15 @@ export function DigestBlock({ title, data, date, category, shareUrl, shareTitle,
             — {quote.author}
           </figcaption>
         </figure>
+
+        {imageUrl && (
+          <img
+            src={imageUrl}
+            alt={imageAlt ?? title ?? parable.title}
+            loading="lazy"
+            className="w-full h-auto rounded-xl object-cover"
+          />
+        )}
 
         <hr className="border-[var(--color-border)]" />
 
