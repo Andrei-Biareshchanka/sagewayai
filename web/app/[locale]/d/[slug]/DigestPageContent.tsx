@@ -8,21 +8,11 @@ import { SITE_URL } from '@/lib/config';
 import { pickLocalized } from '@/lib/locale-content';
 import { CTABlock } from '@/components/CTABlock';
 import { DigestBlock } from '@/components/DigestBlock';
+import { useLocalizedDigest, type BilingualDigestContent } from '@/hooks/useLocalizedDigest';
 
-interface BilingualDigest {
+interface BilingualDigest extends BilingualDigestContent {
   slug: string;
   date: Date;
-  imageUrl: string | null;
-  imageAltRu: string | null;
-  imageAltEn: string | null;
-  titleRu: string;
-  titleEn: string;
-  quote: { textRu: string; textEn: string; authorRu: string; authorEn: string };
-  parable: { titleRu: string; titleEn: string; contentRu: string; contentEn: string };
-  conclusionRu: string;
-  conclusionEn: string;
-  questionRu: string;
-  questionEn: string;
   category: { name: string; nameRu: string | null; slug: string };
 }
 
@@ -40,15 +30,7 @@ interface DigestPageContentProps {
 
 export function DigestPageContent({ digest, related }: DigestPageContentProps) {
   const { lang } = useLanguage();
-
-  const digestTitle = pickLocalized(digest.titleRu, digest.titleEn, lang);
-  const quoteText = pickLocalized(digest.quote.textRu, digest.quote.textEn, lang);
-  const quoteAuthor = pickLocalized(digest.quote.authorRu, digest.quote.authorEn, lang);
-  const parableTitle = pickLocalized(digest.parable.titleRu, digest.parable.titleEn, lang);
-  const parableContent = pickLocalized(digest.parable.contentRu, digest.parable.contentEn, lang);
-  const conclusion = pickLocalized(digest.conclusionRu, digest.conclusionEn, lang);
-  const question = pickLocalized(digest.questionRu, digest.questionEn, lang);
-  const imageAlt = (lang === 'ru' ? digest.imageAltRu : digest.imageAltEn) ?? undefined;
+  const { title: digestTitle, imageAlt, data } = useLocalizedDigest(digest, lang);
   const dateLocale = lang === 'ru' ? ru : enUS;
 
   return (
@@ -63,12 +45,7 @@ export function DigestPageContent({ digest, related }: DigestPageContentProps) {
 
       <DigestBlock
         title={digestTitle}
-        data={{
-          quote: { text: quoteText, author: quoteAuthor },
-          parable: { title: parableTitle, content: parableContent },
-          conclusion,
-          question,
-        }}
+        data={data}
         date={digest.date}
         category={digest.category}
         imageUrl={digest.imageUrl ?? undefined}
