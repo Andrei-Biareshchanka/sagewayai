@@ -6,6 +6,7 @@ function buildDigest(overrides: Partial<Digest> = {}): Digest {
   return {
     date: '2026-07-10',
     slug: 'the-captain-and-the-storm',
+    imageUrl: null,
     title: 'Штурвал держат изнутри, не снаружи',
     quote: { text: 'Не событие расстраивает человека, а его суждение о нём.', author: 'Марк Аврелий' },
     parable: {

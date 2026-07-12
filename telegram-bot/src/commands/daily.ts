@@ -20,6 +20,9 @@ export async function handleDaily(ctx: Context): Promise<void> {
 
   try {
     const digest = await fetchDailyDigest(language);
+    if (digest.imageUrl) {
+      await ctx.replyWithPhoto(digest.imageUrl);
+    }
     const labels = {
       revealHint: t(language, 'revealHint'),
       labelReflection: t(language, 'labelReflection'),
