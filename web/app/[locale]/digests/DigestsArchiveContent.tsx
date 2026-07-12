@@ -2,6 +2,7 @@
 
 import { ru, enUS } from 'date-fns/locale';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { t } from '@/lib/i18n';
 import { DigestArchiveBreadcrumb } from './DigestArchiveBreadcrumb';
 import { DigestCard, type DigestSummary, type DigestCategorySummary } from './DigestCard';
 import { DigestCategoryFilter } from './DigestCategoryFilter';
@@ -30,7 +31,7 @@ export function DigestsArchiveContent({
       <DigestArchiveBreadcrumb />
 
       <h1 className="font-serif text-3xl font-semibold text-ink">
-        {lang === 'ru' ? 'Архив дайджестов' : 'Digest archive'}
+        {t(lang, 'archiveTitle')}
       </h1>
 
       <DigestCategoryFilter categories={categories} selectedCategorySlug={selectedCategorySlug} />

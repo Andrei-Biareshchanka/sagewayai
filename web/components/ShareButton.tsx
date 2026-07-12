@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { t } from '@/lib/i18n';
 
 declare global {
   interface Window {
@@ -122,7 +123,7 @@ export function ShareButton({ url, title, text }: ShareButtonProps) {
         className="flex items-center gap-2 font-sans text-sm font-medium text-sage-dark bg-sage-light hover:bg-sage-pill-hover rounded-full px-4 py-2 transition-colors"
       >
         <ShareIcon />
-        {copied ? (lang === 'ru' ? 'Скопировано!' : 'Copied!') : lang === 'ru' ? 'Поделиться' : 'Share'}
+        {copied ? t(lang, 'shareCopied') : t(lang, 'shareLabel')}
       </button>
 
       {open && (
@@ -158,7 +159,7 @@ export function ShareButton({ url, title, text }: ShareButtonProps) {
             onClick={handleCopyLink}
             className="flex w-full items-center gap-2 px-4 py-2 text-left text-sm text-ink hover:bg-sage-light transition-colors"
           >
-            <LinkIcon /> {lang === 'ru' ? 'Скопировать ссылку' : 'Copy link'}
+            <LinkIcon /> {t(lang, 'copyLink')}
           </button>
         </div>
       )}

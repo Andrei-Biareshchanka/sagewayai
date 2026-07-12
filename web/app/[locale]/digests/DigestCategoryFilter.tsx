@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useLanguage, type Lang } from '@/contexts/LanguageContext';
 import { pickLocalized } from '@/lib/locale-content';
+import { t } from '@/lib/i18n';
 import type { DigestCategorySummary } from './DigestCard';
 
 interface DigestCategoryFilterProps {
@@ -32,7 +33,7 @@ export function DigestCategoryFilter({
         href={pillHref(lang, undefined)}
         className={`font-sans text-sm font-medium rounded-full px-3 py-1 transition-colors ${pillClassName(!selectedCategorySlug)}`}
       >
-        {lang === 'ru' ? 'Все' : 'All'}
+        {t(lang, 'categoryAll')}
       </Link>
       {categories.map((category) => (
         <Link

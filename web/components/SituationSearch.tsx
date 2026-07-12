@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { DigestBlock, type DigestData } from './DigestBlock';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { formatCountdown } from '@/lib/formatTime';
+import { t } from '@/lib/i18n';
 
 const COOKIE_NAME = 'swai_situation_used_at';
 const COOLDOWN_MS = 86_400_000;
@@ -95,7 +96,7 @@ export function SituationSearch() {
         const body = (await res.json()) as { error?: string };
         setState({
           kind: 'error',
-          message: body.error ?? (lang === 'ru' ? 'Что-то пошло не так' : 'Something went wrong'),
+          message: body.error ?? t(lang, 'situationErrorGeneric'),
         });
         return;
       }
@@ -106,15 +107,12 @@ export function SituationSearch() {
     } catch {
       setState({
         kind: 'error',
-        message: lang === 'ru' ? 'Ошибка сети. Попробуйте снова.' : 'Network error. Please try again.',
+        message: t(lang, 'situationNetworkError'),
       });
     }
   }
 
-  const placeholder =
-    lang === 'ru'
-      ? 'Например: не могу принять важное решение, чувствую тревогу перед переменами...'
-      : "For example: I can't make an important decision, feeling anxious about changes...";
+  const placeholder = t(lang, 'situationPlaceholder');
 
   const isLoading = state.kind === 'loading';
 
@@ -122,12 +120,10 @@ export function SituationSearch() {
     <section className="bg-white border border-[var(--color-border)] rounded-card p-6 sm:p-8">
       <div className="mb-4">
         <h2 className="font-serif text-2xl text-ink">
-          {lang === 'ru' ? 'Мудрость для этого момента' : 'Wisdom for this moment'}
+          {t(lang, 'situationHeading')}
         </h2>
         <p className="font-sans text-sm text-muted mt-1">
-          {lang === 'ru'
-            ? 'Опишите ситуацию — получите притчу и рефлексию'
-            : 'Describe the situation — get a parable and reflection'}
+          {t(lang, 'situationSubheading')}
         </p>
       </div>
 
@@ -150,15 +146,13 @@ export function SituationSearch() {
             className="flex items-center gap-2 bg-sage hover:bg-sage-dark text-white font-sans font-medium rounded-card px-5 py-3 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
           >
             {isLoading && <Spinner />}
-            {isLoading
-              ? lang === 'ru' ? 'Подбираем мудрость...' : 'Finding wisdom...'
-              : lang === 'ru' ? 'Найти мудрость' : 'Find wisdom'}
+            {isLoading ? t(lang, 'situationLoadingButton') : t(lang, 'situationFindButton')}
           </button>
         </form>
       ) : state.kind === 'rate_limited' ? (
         <div className="py-4 space-y-2">
           <p className="font-sans text-sm text-muted">
-            {lang === 'ru' ? 'Следующий запрос через' : 'Next request in'}{' '}
+            {t(lang, 'situationNextRequestIn')}{' '}
             <span className="font-medium text-ink">{formatCountdown(state.msLeft)}</span>
           </p>
         </div>
@@ -169,7 +163,7 @@ export function SituationSearch() {
             onClick={() => setState({ kind: 'idle' })}
             className="font-sans text-sm text-muted hover:text-ink transition-colors underline underline-offset-2"
           >
-            {lang === 'ru' ? 'Новый поиск' : 'New search'}
+            {t(lang, 'situationNewSearch')}
           </button>
         </div>
       ) : null}

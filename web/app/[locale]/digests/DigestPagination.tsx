@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useLanguage, type Lang } from '@/contexts/LanguageContext';
+import { t } from '@/lib/i18n';
 
 interface DigestPaginationProps {
   page: number;
@@ -24,17 +25,17 @@ export function DigestPagination({ page, totalPages, categorySlug }: DigestPagin
     <nav className="flex items-center justify-between pt-4 font-sans text-sm">
       {page > 1 ? (
         <Link href={pageHref(lang, page - 1, categorySlug)} className="text-sage hover:text-sage-dark">
-          {lang === 'ru' ? '← Назад' : '← Previous'}
+          {t(lang, 'prevPage')}
         </Link>
       ) : (
         <span />
       )}
       <span className="text-muted">
-        {lang === 'ru' ? `Страница ${page} из ${totalPages}` : `Page ${page} of ${totalPages}`}
+        {t(lang, 'pageOfTotal').replace('{page}', String(page)).replace('{total}', String(totalPages))}
       </span>
       {page < totalPages ? (
         <Link href={pageHref(lang, page + 1, categorySlug)} className="text-sage hover:text-sage-dark">
-          {lang === 'ru' ? 'Вперёд →' : 'Next →'}
+          {t(lang, 'nextPage')}
         </Link>
       ) : (
         <span />

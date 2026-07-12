@@ -5,6 +5,7 @@ import type { Locale } from 'date-fns';
 import Link from 'next/link';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { pickLocalized } from '@/lib/locale-content';
+import { t } from '@/lib/i18n';
 
 export interface DigestCategorySummary {
   name: string;
@@ -41,7 +42,7 @@ export function DigestCard({ digest, dateLocale }: DigestCardProps) {
         {format(digest.date, 'd MMM yyyy', { locale: dateLocale })}
       </p>
       <span className="font-sans text-xs font-medium text-sage self-end mt-auto pt-1">
-        {lang === 'ru' ? 'Читать →' : 'Read →'}
+        {t(lang, 'readMore')}
       </span>
     </Link>
   );

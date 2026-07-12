@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import { colors } from '@/lib/brand';
+import { t } from '@/lib/i18n';
 
 export type FontConfig = {
   name: string;
@@ -140,7 +141,7 @@ function deriveOgContent(params: OgParams) {
   const { quote, author, lang } = params;
   const isDigest = quote.length > 0;
   const quoteText = truncate(quote, 120);
-  const slogan = lang === 'ru' ? 'Мудрость каждый день' : 'Daily Wisdom';
+  const slogan = t(lang, 'dailyWisdomTagline');
   return { isDigest, quoteText, author, slogan };
 }
 

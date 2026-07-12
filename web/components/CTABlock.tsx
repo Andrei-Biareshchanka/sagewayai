@@ -1,6 +1,7 @@
 'use client';
 
 import { useLanguage } from '@/contexts/LanguageContext';
+import { t } from '@/lib/i18n';
 
 const BOT_URL = process.env.NEXT_PUBLIC_BOT_URL ?? 'https://t.me/sagewayai_bot';
 
@@ -25,7 +26,6 @@ interface CTABlockProps {
 
 export function CTABlock({ source }: CTABlockProps) {
   const { lang } = useLanguage();
-  const isRu = lang === 'ru';
 
   const handleSubscribeClick = () => {
     window.gtag?.('event', 'telegram_subscribe_click', { source });
@@ -34,7 +34,7 @@ export function CTABlock({ source }: CTABlockProps) {
   return (
     <div className="bg-sage-light rounded-card p-6 sm:p-8 space-y-5">
       <h2 className="font-serif text-xl font-semibold text-ink">
-        {isRu ? 'Получайте мудрость каждое утро' : 'Receive wisdom every morning'}
+        {t(lang, 'ctaHeading')}
       </h2>
 
       <ul className="space-y-3">
@@ -55,7 +55,7 @@ export function CTABlock({ source }: CTABlockProps) {
           className="inline-flex items-center gap-2.5 bg-sage hover:bg-sage-dark text-white font-sans font-medium rounded-card px-6 py-3 transition-colors"
         >
         <TelegramIcon />
-          {isRu ? 'Подписаться в Telegram' : 'Subscribe on Telegram'}
+          {t(lang, 'subscribeButton')}
         </a>
       </div>
     </div>
