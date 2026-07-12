@@ -7,8 +7,7 @@ import { prisma } from '../lib/prisma';
 import { getDailyParable } from '../lib/daily';
 import { sendDailyParableEmail } from '../lib/email';
 import { publishTodayAndPrepareTomorrow } from '../lib/dailyDigest';
-
-type Lang = 'en' | 'ru';
+import { pickLocalized, type Lang } from '../lib/locale-content';
 
 function isValidLang(lang: string): lang is Lang {
   return lang === 'en' || lang === 'ru';
@@ -18,14 +17,11 @@ function localizeParable(parable: {
   title: string; content: string; moral: string;
   titleRu: string | null; contentRu: string | null; moralRu: string | null;
 }, lang: Lang) {
-  if (lang === 'ru') {
-    return {
-      title:   parable.titleRu   ?? parable.title,
-      content: parable.contentRu ?? parable.content,
-      moral:   parable.moralRu   ?? parable.moral,
-    };
-  }
-  return { title: parable.title, content: parable.content, moral: parable.moral };
+  return {
+    title:   pickLocalized(parable.titleRu, parable.title, lang),
+    content: pickLocalized(parable.contentRu, parable.content, lang),
+    moral:   pickLocalized(parable.moralRu, parable.moral, lang),
+  };
 }
 
 const adminRouter = Router();
