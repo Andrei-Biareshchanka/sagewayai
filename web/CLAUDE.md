@@ -86,10 +86,16 @@ web/
 │   ├── brand.ts                # Centralized color + font constants (use for ImageResponse inline styles)
 │   ├── slug.ts                 # generateSlug(title) via transliteration library
 │   ├── locales.ts              # LOCALES = ['ru', 'en'], Locale type, isLocale() guard — single source of truth for supported locales
-│   ├── locale-content.ts       # pickLocalized(ru, en, locale) — selects a bilingual DB field by the actual route locale (server-side only)
+│   ├── locale-content.ts       # pickLocalized(ru, en, locale) — selects a bilingual DB field; used both server-side (metadata/OG) and client-side (via useLocalizedDigest and directly)
+│   ├── i18n.ts                 # t(lang, key) — static UI copy (labels, headings, errors), not DB content; TranslationKey = keyof typeof translations.ru enforces valid keys
 │   ├── formatTime.ts           # formatCountdown(ms) → "23h 45m"
 │   ├── config.ts               # SITE_URL — canonical domain, used for metadataBase, canonical tags, sitemap, robots
-│   └── og-image.tsx            # buildOgImage() — used by app/api/og/route.tsx, see GET /api/og below
+│   └── og-image.tsx            # buildOgImage() — used by app/api/og/route.tsx, see GET /api/og below; slogan text goes through i18n.ts too
+├── hooks/
+│   └── useLocalizedDigest.ts   # useLocalizedDigest(digest: BilingualDigestContent, lang) → { title, imageAlt, data: DigestData } — shared by HomeDailyDigest and DigestPageContent
+├── scripts/
+│   ├── list-upcoming-digests.ts  # npm run digests:upcoming — lists unpublished drafts + image status
+│   └── set-digest-image.ts       # npm run digests:set-image -- <slug> <path> <altRu> <altEn> — uploads to Vercel Blob, writes imageUrl/imageAltRu/imageAltEn
 ├── prisma/
 │   └── schema.prisma           # Copy of server/prisma/schema.prisma (read access only)
 ├── public/
@@ -112,9 +118,9 @@ web/
 LanguageProvider (app/[locale]/layout.tsx body, lang comes from params.locale)
   └── Navbar.tsx          → reads { lang, setLang } → renders LanguageToggle, links prefixed with /{lang}
   └── Footer.tsx          → reads { lang } → switches slogan text
-  └── DigestBlock.tsx     → reads { lang } → switches labels (Мудрость дня / Daily Wisdom etc.) + date locale + category link prefix
-  └── HomeDailyDigest.tsx → reads { lang } → picks RU or EN content fields, renders DigestBlock
-  └── DigestPageContent.tsx → reads { lang } → picks RU or EN content fields, renders DigestBlock
+  └── DigestBlock.tsx     → reads { lang } → labels via i18n.ts's t(lang, key) + date locale + category link prefix (pickLocalized)
+  └── HomeDailyDigest.tsx → reads { lang } → useLocalizedDigest(digest, lang) picks content fields, renders DigestBlock
+  └── DigestPageContent.tsx → reads { lang } → useLocalizedDigest(digest, lang) picks content fields, renders DigestBlock
   └── CTABlock.tsx        → reads { lang } → bilingual headline, bullets, button text
   └── SituationSearch.tsx → reads { lang } → bilingual UI + sends lang to API (ORPHANED — component exists but is never rendered, see "Key components" note)
 ```
@@ -123,16 +129,17 @@ LanguageProvider (app/[locale]/layout.tsx body, lang comes from params.locale)
 
 `LanguageToggle` is a **presentational** component — receives `lang` + `onChange` as props. Only `Navbar` wires it to the context.
 
-**Server-side locale selection:** `generateMetadata`, JSON-LD, and OG image URL building can't reach the client context — they use `lib/locale-content.ts`'s `pickLocalized(ru, en, locale)` with the actual route `params.locale`, instead of the old hardcoded RU-first `??` fallback chains. Old unprefixed URLs (`/`, `/d/:slug`, `/digests`) 308-redirect to their `/ru` equivalent via `next.config.ts`.
+**`pickLocalized` vs `i18n.ts`:** two different concerns, both centralized. `lib/locale-content.ts`'s `pickLocalized(ru, en, locale)` selects a *DB-content* field (title, quote, parable text) with a same-language-first fallback — used server-side (`generateMetadata`, JSON-LD, OG image URL building, which can't reach client context) and client-side (`DigestBlock`, `useLocalizedDigest`). `lib/i18n.ts`'s `t(lang, key)` is for *static UI copy* (button labels, headings, error messages) — no DB content, no fallback semantics, just a typed dictionary. Don't reintroduce raw `lang === 'ru' ? x : y` ternaries for either case — both were fully swept from the codebase 2026-07-12 (see `.claude/docs/adr/0004-picklocalized-and-i18n.md`), including a real bug class the raw ternaries had (no fallback when a `*Ru` field is null on the `ru` locale). Old unprefixed URLs (`/`, `/d/:slug`, `/digests`) 308-redirect to their `/ru` equivalent via `next.config.ts`.
 
 ## Key components
 
 ### DigestBlock
-The single shared component rendering a digest's content — used by `HomeDailyDigest` (homepage) and `DigestPageContent` (`/d/[slug]`). Also referenced by `SituationSearch` (AI wisdom search result), but that caller is currently orphaned — not rendered on any live page — so in practice `DigestBlock` is only reached via the two live callers. Client component. Accepts single-language `DigestData`; reads `lang` from context for labels only (Мудрость дня, Вопрос, Резюме) and for date formatting/category link prefixing. Content itself stays in whatever language the caller passed — doesn't re-fetch on lang change. Shows the quote and full parable text unconditionally (no truncation, no link to `/d/[slug]` — removed to stop duplicating almost the entire digest page for a near-identical "read more" click). Question and Summary (`conclusion` field — an AI-generated takeaway, not the quoted author's own words, hence "Резюме"/"Summary" rather than "Размышление"/"Reflection") are both always visible, no collapse/toggle.
+The single shared component rendering a digest's content — used by `HomeDailyDigest` (homepage) and `DigestPageContent` (`/d/[slug]`). Also referenced by `SituationSearch` (AI wisdom search result), but that caller is currently orphaned — not rendered on any live page — so in practice `DigestBlock` is only reached via the two live callers. Client component. Accepts single-language `DigestData`; reads `lang` from context for `i18n.ts` labels (Мудрость дня, Вопрос, Резюме — `t(lang, key)`, not inline ternaries) and for date formatting/category link prefixing (`pickLocalized`). Content itself stays in whatever language the caller passed — doesn't re-fetch on lang change. Shows the quote and full parable text unconditionally (no truncation, no link to `/d/[slug]` — removed to stop duplicating almost the entire digest page for a near-identical "read more" click). Question and Summary (`conclusion` field — an AI-generated takeaway, not the quoted author's own words, hence "Резюме"/"Summary" rather than "Размышление"/"Reflection") are both always visible, no collapse/toggle.
 
 All props besides `data` are optional, since callers differ in what they have available:
 - `title` — rendered as the page `<h1>` inside the card; omitted by `SituationSearch` (a live search result has no separate digest title, only the parable's own title, already rendered as `<h2>`) — note `SituationSearch` is currently orphaned (see above)
 - `date` / `category` — rendered as a row at the top of the card (date left, category pill right, linking to `/{lang}/digests?category=[slug]`); either can be omitted independently, the row itself is skipped if neither is present
+- `imageUrl` / `imageAlt` — when `imageUrl` is set, renders an `<img>` between the quote and the parable divider (`rounded-xl object-cover`, no fixed aspect ratio); renders nothing at all when unset, no layout shift or placeholder box. `alt` falls back to `title` then the parable title when `imageAlt` isn't set (older/un-annotated images) — see `.claude/docs/adr/0003-digest-images.md` for why `imageAlt` needed its own field pair (`imageAltRu`/`imageAltEn`) instead of reusing the digest title as alt text
 - `shareUrl` / `shareTitle` — when provided, renders `ShareButton` in a bordered-top row after the Summary/Question boxes
 
 Layout: the "Мудрость дня"/"Daily wisdom" pill sits **above** the bordered card (not inside it) as a page-level eyebrow; the card itself (`border border-sage-pill rounded-2xl`) wraps everything from the date/category row through the ShareButton.
@@ -147,7 +154,7 @@ Rendered from two places, each threading the digest's `slug` down to build `url`
 - `DigestPageContent` (`/[locale]/d/[slug]`; `slug` added to `BilingualDigest`, always present since the page 404s otherwise)
 
 ### HomeDailyDigest
-Client wrapper used on the homepage. Receives bilingual data from the server component (`page.tsx`), including `date` and `category`, and picks the correct language fields based on `useLanguage()`. Renders `DigestBlock`, forwarding `title`, `date`, `category`, and (when the digest has a `slug`) `shareUrl`/`shareTitle`.
+Client wrapper used on the homepage. Receives bilingual data from the server component (`page.tsx`), including `date`, `category`, `imageUrl`/`imageAltRu`/`imageAltEn`, and resolves the current-language fields via `useLocalizedDigest()`. Renders `DigestBlock`, forwarding `title`, `date`, `category`, `imageUrl`/`imageAlt`, and (when the digest has a `slug`) `shareUrl`/`shareTitle`. Image support was added 2026-07-12 — before that, the homepage digest never showed an image even when one was set (only `/d/[slug]` did); see `.claude/docs/adr/0004-picklocalized-and-i18n.md`.
 
 ### CTABlock
 Full conversion block: headline, 4 content bullets (цитата → притча → рефлексия → вопрос), centered Telegram button. Used at the bottom of `/` and `/d/[slug]`. Fully bilingual.
@@ -155,7 +162,7 @@ Full conversion block: headline, 4 content bullets (цитата → притч�
 Requires a `source: string` prop — fired as `gtag('event', 'telegram_subscribe_click', { source })` on button click (same `window.gtag` global declared in `ShareButton.tsx`), so GA4 can attribute subscribes by page. Callers: `homepage_cta` (`app/[locale]/page.tsx`), `digest_cta` (`DigestPageContent`). `CTAButton.tsx` (legacy, unused, different copy) is not instrumented.
 
 ### DigestPageContent
-Renders the full digest page. Reads `lang` from context, picks the correct language fields, and renders `DigestBlock` (passing `title`, `date`, `category`, `shareUrl`/`shareTitle`) plus its own breadcrumb nav, related-digests grid, and `CTABlock` around it.
+Renders the full digest page. Reads `lang` from context, resolves content fields via `useLocalizedDigest()`, and renders `DigestBlock` (passing `title`, `date`, `category`, `imageUrl`/`imageAlt`, `shareUrl`/`shareTitle`) plus its own breadcrumb nav (labels via `i18n.ts`), related-digests grid, and `CTABlock` around it.
 
 The digest title (`titleRu`/`titleEn`, resolved server-side with fallback to the parable title) is passed as `DigestBlock`'s `title` and rendered as the page's `<h1>` — matches `<title>`/OG so search snippets and the on-page heading agree. The parable's own title is rendered as `<h2>` right above the parable text (inside `DigestBlock`), so it stays visible without competing with the digest `<h1>`.
 
