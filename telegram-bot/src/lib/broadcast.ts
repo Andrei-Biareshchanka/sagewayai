@@ -18,7 +18,7 @@ function sleep(ms: number): Promise<void> {
 
 type ChannelPublishResult =
   | { status: 'published'; slug: string }
-  | { status: 'skipped' }
+  | { status: 'skipped'; reason: 'no_channel_id' | 'no_slug' }
   | { status: 'error'; message: string };
 
 async function getDigestCached(cache: Map<Language, Digest>, language: Language): Promise<Digest> {
@@ -32,11 +32,17 @@ async function getDigestCached(cache: Map<Language, Digest>, language: Language)
 
 async function publishToChannel(bot: Bot, digestCache: Map<Language, Digest>): Promise<ChannelPublishResult> {
   const channelId = process.env['TELEGRAM_CHANNEL_ID'];
-  if (!channelId) return { status: 'skipped' };
+  if (!channelId) {
+    process.stderr.write('Skipped channel publish: TELEGRAM_CHANNEL_ID is not set\n');
+    return { status: 'skipped', reason: 'no_channel_id' };
+  }
 
   try {
     const digest = await getDigestCached(digestCache, CHANNEL_LANGUAGE);
-    if (!digest.slug) return { status: 'skipped' };
+    if (!digest.slug) {
+      process.stderr.write(`Skipped channel publish: digest has no slug (date=${digest.date})\n`);
+      return { status: 'skipped', reason: 'no_slug' };
+    }
 
     await bot.api.sendMessage(channelId, formatChannelDigest(digest), {
       parse_mode: 'MarkdownV2',
@@ -55,7 +61,7 @@ function buildBroadcastReport(sent: number, total: number, deactivated: number, 
     channel.status === 'published'
       ? `✅ Channel: published (${channel.slug})`
       : channel.status === 'skipped'
-        ? '⏭️ Channel: skipped (no TELEGRAM_CHANNEL_ID or no slug)'
+        ? `⏭️ Channel: skipped (${channel.reason === 'no_channel_id' ? 'TELEGRAM_CHANNEL_ID not set' : 'digest has no slug'})`
         : `⚠️ Channel: FAILED — ${channel.message}`;
 
   return ['📣 Daily broadcast report', '', `✅ Subscribers: ${sent}/${total} (${deactivated} deactivated)`, channelLine].join(
