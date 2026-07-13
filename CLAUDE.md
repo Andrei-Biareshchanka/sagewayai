@@ -113,6 +113,7 @@ Defined in `.claude/skills/` — Claude Code picks them up automatically.
 | Skill | When to use |
 |-------|-------------|
 | `docs-maintainer` | Keeps `.claude/docs/` (`ARCHITECTURE.md`, `FOLLOWUPS.md`, `adr/`) current — living docs describe today's state and get edited in place, ADRs are one-time records of a decision or merged feature. `.claude/docs/` is gitignored (local-only); only `.claude/skills/` is committed. |
+| `digest-images` | Attaches a user-provided image to a digest (site + Telegram DM + channel) — find the file, compare against the parable's literal content, write bilingual alt text, upload to Vercel Blob, link in the DB, verify, clean up. Also covers listing upcoming digests, topping up the draft buffer, and fetching full digest text. See `.claude/docs/adr/0003-digest-images.md` for the design behind it. |
 
 ## Custom MCP server
 
