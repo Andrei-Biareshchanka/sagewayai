@@ -14,6 +14,7 @@ function buildDigest(overrides: Partial<Digest> = {}): Digest {
       content:
         'Был капитан, который вышел в море.\n\nБуря пришла внезапно (как всегда) - и корабль качало.\n\nОн держал штурвал крепко!',
     },
+    categoryName: 'Смысл',
     conclusion: 'Сила не в отсутствии бури, а в том, как ты держишь штурвал.',
     question: 'Что для тебя "шторм" сегодня?',
     ...overrides,
@@ -97,6 +98,11 @@ describe('formatChannelDigest', () => {
     const output = formatChannelDigest(buildDigest());
     expect(output).not.toContain('…');
   });
+
+  it('ends with the hashtag line — fixed #Мудрость #Притчи, then the digest category', () => {
+    const output = formatChannelDigest(buildDigest({ categoryName: 'Смысл' }));
+    expect(output.trimEnd().endsWith('\\#Мудрость \\#Притчи \\#Смысл')).toBe(true);
+  });
 });
 
 describe('formatChannelDigestCaption', () => {
@@ -131,5 +137,10 @@ describe('formatChannelDigestCaption', () => {
     const output = formatChannelDigestCaption(buildDigest(), siteUrl);
     expect(output.length).toBeLessThanOrEqual(1024);
     expect(output).not.toContain('…');
+  });
+
+  it('ends with the hashtag line — fixed #Мудрость #Притчи, then the digest category', () => {
+    const output = formatChannelDigestCaption(buildDigest({ categoryName: 'Риск' }), siteUrl);
+    expect(output.trimEnd().endsWith('\\#Мудрость \\#Притчи \\#Риск')).toBe(true);
   });
 });

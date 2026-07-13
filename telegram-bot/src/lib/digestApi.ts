@@ -16,6 +16,7 @@ const digestSchema = z.object({
     title: z.string(),
     content: z.string(),
   }),
+  categoryName: z.string(),
   conclusion: z.string(),
   question: z.string(),
 });
@@ -35,7 +36,7 @@ export async function fetchDailyDigest(language: Language): Promise<Digest> {
   return result.data;
 }
 
-const situationDigestSchema = digestSchema.omit({ date: true, slug: true, imageUrl: true, title: true });
+const situationDigestSchema = digestSchema.omit({ date: true, slug: true, imageUrl: true, title: true, categoryName: true });
 
 export async function fetchSituationDigest(situation: string, language: Language, chatId: number): Promise<Digest> {
   const response = await fetch(`${API_URL}/api/digest/situation`, {
@@ -51,5 +52,5 @@ export async function fetchSituationDigest(situation: string, language: Language
   if (!result.success) {
     throw new Error(`Invalid situation digest response: ${result.error.issues[0]?.message}`);
   }
-  return { ...result.data, date: new Date().toISOString(), slug: null, imageUrl: null, title: null };
+  return { ...result.data, date: new Date().toISOString(), slug: null, imageUrl: null, title: null, categoryName: '' };
 }

@@ -21,6 +21,15 @@ function buildParableBlockquoteLines(title: string, content: string): string[] {
   return [titleBlock, ...paragraphBlocks].join(BLOCKQUOTE_PARAGRAPH_SEPARATOR).split('\n');
 }
 
+// "#" is a reserved MarkdownV2 character — Telegram rejects the whole message with a
+// parse error if it appears unescaped outside of designated entity syntax. Escaping it
+// still renders a literal "#" in the final text, which Telegram's client then detects as
+// a clickable hashtag entity independently of the Markdown source (hashtag detection runs
+// on the rendered text, not the raw markup).
+function buildHashtagLine(digest: Digest): string {
+  return `\\#Мудрость \\#Притчи \\#${escapeMarkdown(digest.categoryName)}`;
+}
+
 function buildFullBodyLines(digest: Digest): string[] {
   return [
     `💬 ${escapeMarkdown(digest.quote.text)}`,
@@ -33,6 +42,8 @@ function buildFullBodyLines(digest: Digest): string[] {
     '',
     '❓ *Вопрос дня*',
     escapeMarkdown(digest.question),
+    '',
+    buildHashtagLine(digest),
   ];
 }
 
@@ -53,6 +64,8 @@ function buildCaptionBodyLines(digest: Digest, siteUrl: string): string[] {
     escapeMarkdown(digest.question),
     '',
     `[💡 Вывод — на сайте](${siteUrl})`,
+    '',
+    buildHashtagLine(digest),
   ];
 }
 
