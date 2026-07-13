@@ -8,6 +8,7 @@ const digest = {
   title: 'The Climb Is the Point',
   quote: { text: 'Difficulties strengthen the mind.', author: 'Seneca' },
   parable: { title: 'The Mountain Climber', content: 'A climber faced a steep ridge.' },
+  categoryName: 'Stoic Virtue',
   conclusion: 'Growth comes from the climb, not the summit.',
   question: 'What climb are you avoiding right now?',
 };

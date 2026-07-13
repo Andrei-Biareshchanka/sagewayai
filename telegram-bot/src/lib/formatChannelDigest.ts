@@ -21,7 +21,16 @@ function buildParableBlockquoteLines(title: string, content: string): string[] {
   return [titleBlock, ...paragraphBlocks].join(BLOCKQUOTE_PARAGRAPH_SEPARATOR).split('\n');
 }
 
-function buildBodyLines(digest: Digest): string[] {
+// "#" is a reserved MarkdownV2 character — Telegram rejects the whole message with a
+// parse error if it appears unescaped outside of designated entity syntax. Escaping it
+// still renders a literal "#" in the final text, which Telegram's client then detects as
+// a clickable hashtag entity independently of the Markdown source (hashtag detection runs
+// on the rendered text, not the raw markup).
+function buildHashtagLine(digest: Digest): string {
+  return `\\#Мудрость \\#Притчи \\#${escapeMarkdown(digest.categoryName)}`;
+}
+
+function buildFullBodyLines(digest: Digest): string[] {
   return [
     `💬 ${escapeMarkdown(digest.quote.text)}`,
     `— ${escapeMarkdown(digest.quote.author)}`,
@@ -33,18 +42,46 @@ function buildBodyLines(digest: Digest): string[] {
     '',
     '❓ *Вопрос дня*',
     escapeMarkdown(digest.question),
+    '',
+    buildHashtagLine(digest),
+  ];
+}
+
+// Used as a sendPhoto caption (see broadcast.ts) when the digest has an image, so the
+// whole post — photo + text — travels as a single forwardable/shareable message. Drops
+// the "Вывод" section (kept only in the full text-only format below) specifically to fit
+// under Telegram's much tighter caption limit; the reflection stays a reason to click
+// through to the site rather than duplicating it in the channel. The CTA line is itself
+// the link (no separate inline keyboard button — one click-through path, not two).
+function buildCaptionBodyLines(digest: Digest, siteUrl: string): string[] {
+  return [
+    `💬 ${escapeMarkdown(digest.quote.text)}`,
+    `— ${escapeMarkdown(digest.quote.author)}`,
+    '',
+    ...buildParableBlockquoteLines(digest.parable.title, digest.parable.content),
+    '',
+    '❓ *Вопрос дня*',
+    escapeMarkdown(digest.question),
+    '',
+    `[💡 Вывод — на сайте](${siteUrl})`,
+    '',
+    buildHashtagLine(digest),
   ];
 }
 
 // Telegram's sendMessage rejects text longer than this with 400 "message is too long".
 const TELEGRAM_MESSAGE_LIMIT = 4096;
+// Telegram's sendPhoto caption limit — far tighter than the message limit above.
+const TELEGRAM_CAPTION_LIMIT = 1024;
 const TRUNCATION_MARKER = '…';
 
-function renderMessage(digest: Digest): string {
-  return [...buildTitleLines(digest.title), ...buildBodyLines(digest)].join('\n');
+type BodyBuilder = (digest: Digest) => string[];
+
+function renderMessage(digest: Digest, buildBody: BodyBuilder): string {
+  return [...buildTitleLines(digest.title), ...buildBody(digest)].join('\n');
 }
 
-function truncateParableContentToFit(digest: Digest): string {
+function truncateParableContentToFit(digest: Digest, limit: number, buildBody: BodyBuilder): string {
   const original = digest.parable.content;
   let low = 0;
   let high = original.length;
@@ -55,9 +92,9 @@ function truncateParableContentToFit(digest: Digest): string {
     const lastSpace = original.lastIndexOf(' ', mid);
     const cutAt = lastSpace > 0 ? lastSpace : mid;
     const candidateContent = `${original.slice(0, cutAt).trimEnd()}${TRUNCATION_MARKER}`;
-    const candidate = renderMessage({ ...digest, parable: { ...digest.parable, content: candidateContent } });
+    const candidate = renderMessage({ ...digest, parable: { ...digest.parable, content: candidateContent } }, buildBody);
 
-    if (candidate.length <= TELEGRAM_MESSAGE_LIMIT) {
+    if (candidate.length <= limit) {
       best = candidateContent;
       low = mid + 1;
     } else {
@@ -68,10 +105,19 @@ function truncateParableContentToFit(digest: Digest): string {
   return best;
 }
 
-export function formatChannelDigest(digest: Digest): string {
-  const message = renderMessage(digest);
-  if (message.length <= TELEGRAM_MESSAGE_LIMIT) return message;
+function formatWithLimit(digest: Digest, limit: number, buildBody: BodyBuilder): string {
+  const message = renderMessage(digest, buildBody);
+  if (message.length <= limit) return message;
 
-  const content = truncateParableContentToFit(digest);
-  return renderMessage({ ...digest, parable: { ...digest.parable, content } });
+  const content = truncateParableContentToFit(digest, limit, buildBody);
+  return renderMessage({ ...digest, parable: { ...digest.parable, content } }, buildBody);
+}
+
+export function formatChannelDigest(digest: Digest): string {
+  return formatWithLimit(digest, TELEGRAM_MESSAGE_LIMIT, buildFullBodyLines);
+}
+
+// For sendPhoto's caption — shorter format (no "Вывод"), tighter limit (1024 vs 4096).
+export function formatChannelDigestCaption(digest: Digest, siteUrl: string): string {
+  return formatWithLimit(digest, TELEGRAM_CAPTION_LIMIT, (d) => buildCaptionBodyLines(d, siteUrl));
 }

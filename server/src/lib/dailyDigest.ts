@@ -1,4 +1,4 @@
-import { DailyDigest, Parable, Prisma, Quote } from '@prisma/client';
+import { Category, DailyDigest, Parable, Prisma, Quote } from '@prisma/client';
 import { prisma } from './prisma';
 import { getTodayDate } from './daily';
 import { findParableForQuote } from '../services/digest';
@@ -8,7 +8,10 @@ import { buildDigestSlug } from './slug';
 const UNIQUE_CONSTRAINT_ERROR = 'P2002';
 const ONE_DAY_MS = 24 * 60 * 60 * 1000;
 
-export type DigestWithRelations = DailyDigest & { quote: Quote; parable: Parable };
+const PARABLE_WITH_CATEGORY_INCLUDE = { category: true } as const;
+type ParableWithCategory = Parable & { category: Category };
+
+export type DigestWithRelations = DailyDigest & { quote: Quote; parable: ParableWithCategory };
 
 function addDaysToToday(days: number): Date {
   return new Date(getTodayDate().getTime() + days * ONE_DAY_MS);
@@ -121,14 +124,14 @@ export async function createDigestForDate(date: Date, isPublished: boolean): Pro
       publishedAt: isPublished ? new Date() : null,
       ...reflections,
     },
-    include: { quote: true, parable: true },
+    include: { quote: true, parable: { include: PARABLE_WITH_CATEGORY_INCLUDE } },
   });
 }
 
 function findDigestForDate(date: Date): Promise<DigestWithRelations | null> {
   return prisma.dailyDigest.findUnique({
     where: { date },
-    include: { quote: true, parable: true },
+    include: { quote: true, parable: { include: PARABLE_WITH_CATEGORY_INCLUDE } },
   });
 }
 
@@ -148,7 +151,7 @@ async function publishDigest(digest: DigestWithRelations): Promise<DigestWithRel
   return prisma.dailyDigest.update({
     where: { id: digest.id },
     data: { isPublished: true, publishedAt: new Date() },
-    include: { quote: true, parable: true },
+    include: { quote: true, parable: { include: PARABLE_WITH_CATEGORY_INCLUDE } },
   });
 }
 

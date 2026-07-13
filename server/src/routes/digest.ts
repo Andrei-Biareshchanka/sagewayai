@@ -39,6 +39,7 @@ function localizeDigest(digest: DigestWithRelations, lang: Lang) {
     title: pickLocalized(digest.titleRu, digest.titleEn, lang),
     quote: localizeQuote(digest.quote, lang),
     parable: localizeParable(digest.parable, lang),
+    categoryName: pickLocalized(digest.parable.category.nameRu, digest.parable.category.name, lang),
     conclusion: pickLocalized(digest.conclusionRu, digest.conclusionEn, lang),
     question: pickLocalized(digest.questionRu, digest.questionEn, lang),
   };
