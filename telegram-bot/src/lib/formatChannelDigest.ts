@@ -40,8 +40,9 @@ function buildFullBodyLines(digest: Digest): string[] {
 // whole post — photo + text — travels as a single forwardable/shareable message. Drops
 // the "Вывод" section (kept only in the full text-only format below) specifically to fit
 // under Telegram's much tighter caption limit; the reflection stays a reason to click
-// through to the site rather than duplicating it in the channel.
-function buildCaptionBodyLines(digest: Digest): string[] {
+// through to the site rather than duplicating it in the channel. The CTA line is itself
+// the link (no separate inline keyboard button — one click-through path, not two).
+function buildCaptionBodyLines(digest: Digest, siteUrl: string): string[] {
   return [
     `💬 ${escapeMarkdown(digest.quote.text)}`,
     `— ${escapeMarkdown(digest.quote.author)}`,
@@ -51,7 +52,7 @@ function buildCaptionBodyLines(digest: Digest): string[] {
     '❓ *Вопрос дня*',
     escapeMarkdown(digest.question),
     '',
-    '💡 Вывод — на сайте',
+    `[💡 Вывод — на сайте](${siteUrl})`,
   ];
 }
 
@@ -104,6 +105,6 @@ export function formatChannelDigest(digest: Digest): string {
 }
 
 // For sendPhoto's caption — shorter format (no "Вывод"), tighter limit (1024 vs 4096).
-export function formatChannelDigestCaption(digest: Digest): string {
-  return formatWithLimit(digest, TELEGRAM_CAPTION_LIMIT, buildCaptionBodyLines);
+export function formatChannelDigestCaption(digest: Digest, siteUrl: string): string {
+  return formatWithLimit(digest, TELEGRAM_CAPTION_LIMIT, (d) => buildCaptionBodyLines(d, siteUrl));
 }

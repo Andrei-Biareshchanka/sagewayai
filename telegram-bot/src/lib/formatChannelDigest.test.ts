@@ -100,33 +100,35 @@ describe('formatChannelDigest', () => {
 });
 
 describe('formatChannelDigestCaption', () => {
+  const siteUrl = 'https://sagewayai.com/ru/d/the-captain-and-the-storm';
+
   it('omits the "Вывод" section entirely', () => {
-    const output = formatChannelDigestCaption(buildDigest());
+    const output = formatChannelDigestCaption(buildDigest(), siteUrl);
     expect(output).not.toContain('Вывод\\*');
     expect(output).not.toContain(buildDigest().conclusion);
   });
 
-  it('points to the site for the full reflection', () => {
-    const output = formatChannelDigestCaption(buildDigest());
-    expect(output).toContain('Вывод — на сайте');
+  it('renders the CTA as a clickable link to the site, not a plain line', () => {
+    const output = formatChannelDigestCaption(buildDigest(), siteUrl);
+    expect(output).toContain(`[💡 Вывод — на сайте](${siteUrl})`);
   });
 
   it('still includes the question', () => {
-    const output = formatChannelDigestCaption(buildDigest());
+    const output = formatChannelDigestCaption(buildDigest(), siteUrl);
     expect(output).toContain('❓ *Вопрос дня*');
   });
 
   it('stays under the Telegram 1024-character caption limit for a very long parable', () => {
     const longParagraph = 'Очень длинный абзац с текстом притчи, который повторяется много раз подряд. ';
     const content = Array.from({ length: 100 }, () => longParagraph.repeat(3)).join('\n\n');
-    const output = formatChannelDigestCaption(buildDigest({ parable: { title: 'Длинная притча', content } }));
+    const output = formatChannelDigestCaption(buildDigest({ parable: { title: 'Длинная притча', content } }), siteUrl);
 
     expect(output.length).toBeLessThanOrEqual(1024);
     expect(output).toContain('…');
   });
 
   it('leaves a normal-length digest well under the caption limit without truncation', () => {
-    const output = formatChannelDigestCaption(buildDigest());
+    const output = formatChannelDigestCaption(buildDigest(), siteUrl);
     expect(output.length).toBeLessThanOrEqual(1024);
     expect(output).not.toContain('…');
   });

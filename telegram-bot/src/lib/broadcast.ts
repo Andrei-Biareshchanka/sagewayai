@@ -44,22 +44,24 @@ async function publishToChannel(bot: Bot, digestCache: Map<Language, Digest>): P
       return { status: 'skipped', reason: 'no_slug' };
     }
 
-    const keyboard = buildChannelKeyboard(`${CHANNEL_BASE_URL}/ru/d/${digest.slug}`);
+    const siteUrl = `${CHANNEL_BASE_URL}/ru/d/${digest.slug}`;
 
     if (digest.imageUrl) {
       // Single message so the whole post — photo + text — forwards/shares as one unit.
       // Uses the shorter caption format (no "Вывод" — a caption is capped at 1024 chars,
       // far tighter than a plain message; the reflection becomes a reason to click through
-      // to the site instead).
+      // to the site instead). The CTA line inside the caption is itself the link, so no
+      // separate inline keyboard button — one click-through path, not two.
       await bot.api.sendPhoto(channelId, digest.imageUrl, {
-        caption: formatChannelDigestCaption(digest),
+        caption: formatChannelDigestCaption(digest, siteUrl),
         parse_mode: 'MarkdownV2',
-        reply_markup: keyboard,
       });
     } else {
+      // No image yet, so no in-caption CTA link exists — the button is still the only
+      // click-through path here.
       await bot.api.sendMessage(channelId, formatChannelDigest(digest), {
         parse_mode: 'MarkdownV2',
-        reply_markup: keyboard,
+        reply_markup: buildChannelKeyboard(siteUrl),
       });
     }
     process.stdout.write(`Published digest to channel: ${digest.slug}\n`);
