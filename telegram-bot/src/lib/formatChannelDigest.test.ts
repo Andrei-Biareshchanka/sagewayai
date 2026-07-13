@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { formatChannelDigest } from './formatChannelDigest';
+import { formatChannelDigest, formatChannelDigestCaption } from './formatChannelDigest';
 import { Digest } from './digestApi';
 
 function buildDigest(overrides: Partial<Digest> = {}): Digest {
@@ -95,6 +95,39 @@ describe('formatChannelDigest', () => {
 
   it('leaves a short digest untouched (no truncation marker)', () => {
     const output = formatChannelDigest(buildDigest());
+    expect(output).not.toContain('…');
+  });
+});
+
+describe('formatChannelDigestCaption', () => {
+  it('omits the "Вывод" section entirely', () => {
+    const output = formatChannelDigestCaption(buildDigest());
+    expect(output).not.toContain('Вывод\\*');
+    expect(output).not.toContain(buildDigest().conclusion);
+  });
+
+  it('points to the site for the full reflection', () => {
+    const output = formatChannelDigestCaption(buildDigest());
+    expect(output).toContain('Вывод — на сайте');
+  });
+
+  it('still includes the question', () => {
+    const output = formatChannelDigestCaption(buildDigest());
+    expect(output).toContain('❓ *Вопрос дня*');
+  });
+
+  it('stays under the Telegram 1024-character caption limit for a very long parable', () => {
+    const longParagraph = 'Очень длинный абзац с текстом притчи, который повторяется много раз подряд. ';
+    const content = Array.from({ length: 100 }, () => longParagraph.repeat(3)).join('\n\n');
+    const output = formatChannelDigestCaption(buildDigest({ parable: { title: 'Длинная притча', content } }));
+
+    expect(output.length).toBeLessThanOrEqual(1024);
+    expect(output).toContain('…');
+  });
+
+  it('leaves a normal-length digest well under the caption limit without truncation', () => {
+    const output = formatChannelDigestCaption(buildDigest());
+    expect(output.length).toBeLessThanOrEqual(1024);
     expect(output).not.toContain('…');
   });
 });

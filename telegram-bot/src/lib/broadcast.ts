@@ -2,7 +2,7 @@ import { Bot } from 'grammy';
 import { prisma } from './prisma';
 import { Digest, fetchDailyDigest } from './digestApi';
 import { formatDigest } from './formatDigest';
-import { formatChannelDigest } from './formatChannelDigest';
+import { formatChannelDigest, formatChannelDigestCaption } from './formatChannelDigest';
 import { buildKeyboard, buildChannelKeyboard, buildShareUrl } from './keyboard';
 import { isSupportedLanguage, Language, t } from './i18n';
 import { trackEvent } from './analytics';
@@ -44,16 +44,24 @@ async function publishToChannel(bot: Bot, digestCache: Map<Language, Digest>): P
       return { status: 'skipped', reason: 'no_slug' };
     }
 
-    // Sent as its own message, ahead of the text — a caption is capped at 1024 chars,
-    // far shorter than the channel's untruncated full parable text.
-    if (digest.imageUrl) {
-      await bot.api.sendPhoto(channelId, digest.imageUrl);
-    }
+    const keyboard = buildChannelKeyboard(`${CHANNEL_BASE_URL}/ru/d/${digest.slug}`);
 
-    await bot.api.sendMessage(channelId, formatChannelDigest(digest), {
-      parse_mode: 'MarkdownV2',
-      reply_markup: buildChannelKeyboard(`${CHANNEL_BASE_URL}/ru/d/${digest.slug}`),
-    });
+    if (digest.imageUrl) {
+      // Single message so the whole post — photo + text — forwards/shares as one unit.
+      // Uses the shorter caption format (no "Вывод" — a caption is capped at 1024 chars,
+      // far tighter than a plain message; the reflection becomes a reason to click through
+      // to the site instead).
+      await bot.api.sendPhoto(channelId, digest.imageUrl, {
+        caption: formatChannelDigestCaption(digest),
+        parse_mode: 'MarkdownV2',
+        reply_markup: keyboard,
+      });
+    } else {
+      await bot.api.sendMessage(channelId, formatChannelDigest(digest), {
+        parse_mode: 'MarkdownV2',
+        reply_markup: keyboard,
+      });
+    }
     process.stdout.write(`Published digest to channel: ${digest.slug}\n`);
     return { status: 'published', slug: digest.slug };
   } catch (error) {
