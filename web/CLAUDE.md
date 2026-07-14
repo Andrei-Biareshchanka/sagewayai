@@ -161,6 +161,10 @@ Full conversion block: headline, 4 content bullets (цитата → притч�
 
 Requires a `source: string` prop — fired as `gtag('event', 'telegram_subscribe_click', { source })` on button click (same `window.gtag` global declared in `ShareButton.tsx`), so GA4 can attribute subscribes by page. Callers: `homepage_cta` (`app/[locale]/page.tsx`), `digest_cta` (`DigestPageContent`). `CTAButton.tsx` (legacy, unused, different copy) is not instrumented.
 
+A second, RU-only button links to the Telegram **channel** (`@sagewayai`, `NEXT_PUBLIC_CHANNEL_URL` env var, fallback `https://telegram.me/sagewayai`) — only rendered when `lang === 'ru'`, since the channel currently posts Russian-only content (`CHANNEL_LANGUAGE = 'ru'` in `telegram-bot/src/lib/broadcast.ts`). Fires `gtag('event', 'telegram_channel_click', { source })` on click.
+
+Each button has a short caption below it clarifying what it actually is, since "bot" vs "channel" isn't self-explanatory to a first-time visitor: `subscribeButton`/`subscribeCaption` ("Подключиться к боту" / "Личный дайджест каждый день + поиск мудрости по твоей ситуации") vs `channelButton`/`channelCaption` ("Подключиться к каналу" / "Все дайджесты в открытой ленте") in `i18n.ts` — mirrors the actual product difference (bot = personal DM digest + `/settings` + the situation-search command `telegram-bot/src/commands/situation.ts`, channel = public feed, no personalization). Note this bot-side situation search is a separate, already-live feature from the orphaned web `SituationSearch.tsx`/`/api/situation` scaffolding described above.
+
 ### DigestPageContent
 Renders the full digest page. Reads `lang` from context, resolves content fields via `useLocalizedDigest()`, and renders `DigestBlock` (passing `title`, `date`, `category`, `imageUrl`/`imageAlt`, `shareUrl`/`shareTitle`) plus its own breadcrumb nav (labels via `i18n.ts`), related-digests grid, and `CTABlock` around it.
 
@@ -211,7 +215,8 @@ File `web/.env.local` (not committed):
 ```env
 DATABASE_URL=postgresql://postgres:postgres@localhost:5433/sagewayai
 SAGEWAYAI_API_URL=http://localhost:3001
-NEXT_PUBLIC_BOT_URL=https://t.me/sagewayai_bot
+NEXT_PUBLIC_BOT_URL=https://telegram.me/sagewayai_bot
+NEXT_PUBLIC_CHANNEL_URL=https://telegram.me/sagewayai   # optional — RU-only channel link shown alongside the bot CTA
 NEXT_PUBLIC_GA_ID=G-XXXXXXXXXX   # optional — GA4 disabled in dev without it
 NEXT_PUBLIC_SITE_URL=https://sagewayai.com   # optional — falls back to https://sagewayai.com via lib/config.ts
 ```
@@ -219,7 +224,8 @@ NEXT_PUBLIC_SITE_URL=https://sagewayai.com   # optional — falls back to https:
 Production env vars to set in Vercel dashboard:
 - `DATABASE_URL` — production PostgreSQL connection string
 - `SAGEWAYAI_API_URL` — deployed Express server URL (Railway)
-- `NEXT_PUBLIC_BOT_URL` — `https://t.me/sagewayai_bot`
+- `NEXT_PUBLIC_BOT_URL` — `https://telegram.me/sagewayai_bot`
+- `NEXT_PUBLIC_CHANNEL_URL` — `https://telegram.me/sagewayai` (optional, RU-only channel link)
 - `NEXT_PUBLIC_GA_ID` — Google Analytics 4 Measurement ID
 - `NEXT_PUBLIC_SITE_URL` — `https://sagewayai.com` (canonical domain — same value for Production, Preview, Development)
 
