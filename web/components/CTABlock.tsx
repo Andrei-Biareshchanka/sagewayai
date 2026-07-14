@@ -3,7 +3,7 @@
 import { useLanguage } from '@/contexts/LanguageContext';
 import { t } from '@/lib/i18n';
 
-const BOT_URL = process.env.NEXT_PUBLIC_BOT_URL ?? 'https://t.me/sagewayai_bot';
+const BOT_URL = process.env.NEXT_PUBLIC_BOT_URL ?? 'https://telegram.me/sagewayai_bot';
 
 const PERKS = {
   ru: [
