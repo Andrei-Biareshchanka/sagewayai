@@ -4,6 +4,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { t } from '@/lib/i18n';
 
 const BOT_URL = process.env.NEXT_PUBLIC_BOT_URL ?? 'https://telegram.me/sagewayai_bot';
+const CHANNEL_URL = process.env.NEXT_PUBLIC_CHANNEL_URL ?? 'https://telegram.me/sagewayai';
 
 const PERKS = {
   ru: [
@@ -31,6 +32,10 @@ export function CTABlock({ source }: CTABlockProps) {
     window.gtag?.('event', 'telegram_subscribe_click', { source });
   };
 
+  const handleChannelClick = () => {
+    window.gtag?.('event', 'telegram_channel_click', { source });
+  };
+
   return (
     <div className="bg-sage-light rounded-card p-6 sm:p-8 space-y-5">
       <h2 className="font-serif text-xl font-semibold text-ink">
@@ -46,17 +51,38 @@ export function CTABlock({ source }: CTABlockProps) {
         ))}
       </ul>
 
-      <div className="flex justify-center">
-        <a
-          href={BOT_URL}
-          target="_blank"
-          rel="noopener noreferrer"
-          onClick={handleSubscribeClick}
-          className="inline-flex items-center gap-2.5 bg-sage hover:bg-sage-dark text-white font-sans font-medium rounded-card px-6 py-3 transition-colors"
-        >
-        <TelegramIcon />
-          {t(lang, 'subscribeButton')}
-        </a>
+      <div className="flex flex-col sm:flex-row justify-center items-stretch gap-4">
+        <div className="flex flex-col items-center gap-2 bg-white border border-sage-pill rounded-2xl p-5 w-full sm:w-64 text-center">
+          <span className="font-sans text-sm font-semibold text-ink">{t(lang, 'telegramBotLabel')}</span>
+          <span className="font-sans text-xs text-muted">{t(lang, 'subscribeCaption')}</span>
+          <a
+            href={BOT_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={handleSubscribeClick}
+            className="inline-flex items-center gap-2.5 bg-sage hover:bg-sage-dark text-white font-sans font-medium rounded-card px-6 py-3 transition-colors mt-auto"
+          >
+          <TelegramIcon />
+            {t(lang, 'subscribeButton')}
+          </a>
+        </div>
+
+        {lang === 'ru' && (
+          <div className="flex flex-col items-center gap-2 bg-white border border-sage-pill rounded-2xl p-5 w-full sm:w-64 text-center">
+            <span className="font-sans text-sm font-semibold text-ink">{t(lang, 'telegramChannelLabel')}</span>
+            <span className="font-sans text-xs text-muted">{t(lang, 'channelCaption')}</span>
+            <a
+              href={CHANNEL_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={handleChannelClick}
+              className="inline-flex items-center gap-2.5 bg-white border border-sage text-sage hover:bg-sage-light font-sans font-medium rounded-card px-6 py-3 transition-colors mt-auto"
+            >
+            <TelegramIcon />
+              {t(lang, 'channelButton')}
+            </a>
+          </div>
+        )}
       </div>
     </div>
   );
