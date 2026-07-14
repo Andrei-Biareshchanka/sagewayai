@@ -1,4 +1,4 @@
-const BOT_URL = process.env.NEXT_PUBLIC_BOT_URL ?? 'https://t.me/sagewayai_bot';
+const BOT_URL = process.env.NEXT_PUBLIC_BOT_URL ?? 'https://telegram.me/sagewayai_bot';
 
 export function CTAButton() {
   return (
