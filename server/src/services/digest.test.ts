@@ -45,26 +45,31 @@ describe('findParableForQuote', () => {
     expect(mockPrisma.$queryRaw).toHaveBeenCalledTimes(1);
   });
 
-  it('falls back to only the permanent pairing exclusion when cooldown exhausts every parable', async () => {
+  it('degrades the cooldown window step by step before falling back to permanent-only exclusion', async () => {
     mockPrisma.dailyDigest.findMany
       .mockResolvedValueOnce([{ parableId: 'parable-2' }]) // paired with this quote already
-      .mockResolvedValueOnce([{ parableId: 'parable-1' }, { parableId: 'parable-3' }]); // on cooldown
+      .mockResolvedValue([{ parableId: 'parable-1' }, { parableId: 'parable-3' }]); // on cooldown at every non-zero window
     mockPrisma.$queryRaw
-      .mockResolvedValueOnce([]) // no candidate left once cooldown is applied
-      .mockResolvedValueOnce([MOCK_MATCH]); // relaxed query ignoring cooldown succeeds
+      .mockResolvedValueOnce([]) // 14-day window: no candidate
+      .mockResolvedValueOnce([]) // 10-day window: no candidate
+      .mockResolvedValueOnce([]) // 7-day window: no candidate
+      .mockResolvedValueOnce([]) // 3-day window: no candidate
+      .mockResolvedValueOnce([]) // 1-day window: no candidate
+      .mockResolvedValueOnce([MOCK_MATCH]); // 0 (permanent-only): succeeds
 
     const result = await findParableForQuote('quote-1');
 
     expect(result).toEqual(MOCK_MATCH);
-    expect(mockPrisma.$queryRaw).toHaveBeenCalledTimes(2);
+    expect(mockPrisma.$queryRaw).toHaveBeenCalledTimes(6);
   });
 
-  it('throws when no parable is available even after ignoring cooldown', async () => {
-    mockPrisma.dailyDigest.findMany.mockResolvedValueOnce([]).mockResolvedValueOnce([]);
-    mockPrisma.$queryRaw.mockResolvedValueOnce([]).mockResolvedValueOnce([]);
+  it('throws when no parable is available at any cooldown step, including permanent-only', async () => {
+    mockPrisma.dailyDigest.findMany.mockResolvedValue([]);
+    mockPrisma.$queryRaw.mockResolvedValue([]);
 
     await expect(findParableForQuote('quote-1')).rejects.toThrow(
       'No available parable found for quote quote-1',
     );
+    expect(mockPrisma.$queryRaw).toHaveBeenCalledTimes(6);
   });
 });

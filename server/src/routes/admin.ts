@@ -8,6 +8,7 @@ import { getDailyParable } from '../lib/daily';
 import { sendDailyParableEmail } from '../lib/email';
 import { publishTodayAndPrepareTomorrow } from '../lib/dailyDigest';
 import { pickLocalized, type Lang } from '../lib/locale-content';
+import { notifyAdmin } from '../lib/adminAlert';
 
 function isValidLang(lang: string): lang is Lang {
   return lang === 'en' || lang === 'ru';
@@ -70,8 +71,14 @@ adminRouter.post('/publish-and-prepare', async (req: Request, res: Response) => 
     return;
   }
 
-  const result = await publishTodayAndPrepareTomorrow();
-  res.json(result);
+  try {
+    const result = await publishTodayAndPrepareTomorrow();
+    res.json(result);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    await notifyAdmin(`⚠️ publish-and-prepare failed: ${message}`);
+    throw error;
+  }
 });
 
 adminRouter.use(authenticate, requireRole('ADMIN'));

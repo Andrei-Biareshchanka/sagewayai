@@ -111,7 +111,7 @@ Digests are created a day ahead of publication ("tomorrow's teaser") and only ma
 **`GET /api/digest/daily` → `getDailyDigest()`** — used by the Telegram bot (`web/` reads `DailyDigest` directly via its own Prisma client, not this endpoint). Response includes `slug` and a localized `title` (`titleRu`/`titleEn` with fallback to the other language if one is missing) alongside `quote`/`parable`/`conclusion`/`question` — the bot uses `slug` to link back to `/{locale}/d/{slug}` when publishing to the `@sagewayai` channel (see `telegram-bot/CLAUDE.md`):
 1. Check if today's date has a record in `DailyDigest`.
 2. If yes — auto-publish it if it isn't already (`publishDigest()`, idempotent no-op if already published). This is a safety net for when the publish-and-prepare cron missed its run: the bot shouldn't stay stuck just because the cron didn't fire.
-3. If no — pick next quote (unused first, then LRU), find best matching parable via vector similarity (excluding parables already paired with this quote, and — when possible — parables used in any digest within the last 14 days), generate EN+RU reflections **and AI titles** via Claude in parallel, generate slug, create record with `isPublished: true` (this is an on-demand creation for *today*, not a draft).
+3. If no — pick next quote (unused first, then cooldown-aware selection degrading to strict LRU — see below), find best matching parable via vector similarity with the same degrading-cooldown pattern (see below), generate EN+RU reflections **and AI titles** via Claude in parallel, generate slug, create record with `isPublished: true` (this is an on-demand creation for *today*, not a draft).
 
 **`POST /api/admin/publish-and-prepare`** (`src/routes/admin.ts`) — called by `.github/workflows/publish-digest.yml`, scheduled `0 22 * * *` UTC (01:00 Moscow time, UTC+3 no DST — deliberately anchored to the primary RU/BY audience's clock, not UTC midnight). Guarded by `x-publish-secret` header matched against `ADMIN_PUBLISH_SECRET` env var (same unauthenticated-but-secret-gated pattern as `/send-daily`).
 
@@ -122,6 +122,10 @@ Digests are created a day ahead of publication ("tomorrow's teaser") and only ma
 4. If UTC-today+2 doesn't exist — create it as an unpublished draft (`createDigestForDate(date, false)`). If it already exists — no-op (idempotent against repeated/retried cron runs).
 
 Returns `{ published: slug | null, prepared: slug | null }`, logged by the workflow.
+
+If `publishTodayAndPrepareTomorrow()` throws (e.g. `findParableForQuote`/`pickNextQuote` exhausting every cooldown step — see "Parable exclusion & cooldown" and "Quote selection & cooldown" below), the route (`src/routes/admin.ts`) catches it, calls `notifyAdmin()` (`src/lib/adminAlert.ts`) with the error message, then rethrows — Express 5 forwards the rethrown rejection to `errorHandler`, so the HTTP response is still a 500 (the workflow's `curl -f` still fails the Actions job) but an admin also gets a heads-up instead of the failure going unnoticed until someone checks Actions manually.
+
+`notifyAdmin()` calls the Telegram Bot API directly (`fetch` to `api.telegram.org`, not the `telegram-bot` process — they're separate deployments) using `TELEGRAM_BOT_TOKEN`/`ADMIN_CHAT_ID` env vars, the same values already configured for `telegram-bot`'s own admin notifications (see `telegram-bot/CLAUDE.md`) — not a second bot. No-ops silently if either var is unset (e.g. local dev), same guard pattern as `email.ts`'s `RESEND_API_KEY` check.
 
 `createDigestForDate(date, isPublished)` — exported, generalized version of what used to be `createDigestForToday`; reused by both the lazy on-demand path and the cron, and by `scripts/create-tomorrow-test.ts` for manual verification.
 
@@ -145,9 +149,13 @@ It also sometimes ignores the Russian instruction and answers in English. `gener
 
 `findParableForQuote(quoteId)` finds the best vector-similarity match (`<=>`) via a safe `Prisma.sql` + `Prisma.join` parameterized query, excluding two sets of parables:
 1. **Permanent**: parables already paired with *this specific quote* (any digest, ever) — prevents the same pair from repeating.
-2. **Cooldown**: parables used in *any* digest within the last `PARABLE_COOLDOWN_DAYS` (14) — prevents the same parable resurfacing every day or two with a different quote.
+2. **Cooldown**: parables used in *any* digest within the last N days.
 
-If applying both exclusions leaves no candidate (small parable pool), it retries once with only the permanent exclusion — same graceful-degradation pattern as quote LRU selection, so a small library never throws `No available parable found` unnecessarily.
+`PARABLE_COOLDOWN_STEPS = [14, 10, 7, 3, 1, 0]` — tries each window in descending order, only relaxing to a shorter one when the stricter window has zero vector-similarity candidates. This replaced a previous single-step fallback (14 days → no cooldown at all) that could silently let a parable resurface after just a few days whenever the 14-day pool happened to be exhausted for a given quote (observed in production: "Пустой трон" repeated after only 4 days). The fixed-length steps array bounds the loop to at most 6 attempts — it cannot run forever. `0` still enforces the permanent pairing exclusion, so the loop's last resort is "any parable not already paired with this quote," never "any parable at all." Throws `No available parable found` only if even that fails (every parable is already permanently paired with this exact quote — a real data problem, not a transient squeeze).
+
+### Quote selection & cooldown (`src/lib/dailyDigest.ts`)
+
+`pickNextQuote()` mirrors the parable pattern: unused quotes first (random pick), then `QUOTE_COOLDOWN_STEPS = [14, 10, 7, 3, 1]` tried in descending order (quotes used in any digest within that window are excluded), and if every step still finds zero eligible quotes, falls back to `pickLeastRecentlyUsedQuote()` — the quote from the single oldest digest (strict LRU, guaranteed to terminate: it either returns a quote or throws if the `Quote` table itself is empty). Same fixed-length-array bound as the parable steps — this can never loop indefinitely.
 
 ## Request validation
 

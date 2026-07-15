@@ -6,6 +6,7 @@ vi.mock('./prisma', () => ({
     dailyDigest: {
       findUnique: vi.fn(),
       findFirst: vi.fn(),
+      findMany: vi.fn(),
       create: vi.fn(),
       update: vi.fn(),
       count: vi.fn(),
@@ -34,6 +35,7 @@ const mockPrisma = prisma as unknown as {
   dailyDigest: {
     findUnique: ReturnType<typeof vi.fn>;
     findFirst: ReturnType<typeof vi.fn>;
+    findMany: ReturnType<typeof vi.fn>;
     create: ReturnType<typeof vi.fn>;
     update: ReturnType<typeof vi.fn>;
     count: ReturnType<typeof vi.fn>;
@@ -118,6 +120,30 @@ describe('getDailyDigest', () => {
     expect(mockGenerateReflection).toHaveBeenCalledTimes(2);
     expect(mockGenerateDigestTitle).toHaveBeenCalledTimes(2);
     expect(mockPrisma.dailyDigest.create).toHaveBeenCalledOnce();
+  });
+
+  it('degrades through the quote cooldown steps to strict LRU when every quote is recently used', async () => {
+    mockPrisma.dailyDigest.findUnique.mockResolvedValue(null);
+    mockPrisma.quote.findMany
+      .mockResolvedValueOnce([]) // no fully-unused quotes
+      .mockResolvedValue([]); // every cooldown step (14,10,7,3,1) still finds zero eligible quotes
+    mockPrisma.dailyDigest.findMany.mockResolvedValue([{ quoteId: 'quote-1' }]); // recently used ids
+    mockPrisma.dailyDigest.findFirst
+      .mockResolvedValueOnce(MOCK_DIGEST_ROW) // pickLeastRecentlyUsedQuote's oldest-digest lookup
+      .mockResolvedValue(null); // isTitleTaken checks: not taken
+    mockFindParableForQuote.mockResolvedValue(MOCK_PARABLE_MATCH);
+    mockGenerateReflection
+      .mockResolvedValueOnce({ conclusion: 'EN conclusion', question: 'EN question?' })
+      .mockResolvedValueOnce({ conclusion: 'RU conclusion', question: 'RU question?' });
+    mockGenerateDigestTitle.mockResolvedValue('Тестовый заголовок');
+    mockPrisma.dailyDigest.create.mockResolvedValue(MOCK_DIGEST_ROW);
+
+    const result = await getDailyDigest();
+
+    expect(result).toEqual(MOCK_DIGEST_ROW);
+    expect(mockFindParableForQuote).toHaveBeenCalledWith(MOCK_QUOTE.id);
+    // 1 "unused quotes" check + 5 cooldown-step eligibility checks (14,10,7,3,1 days)
+    expect(mockPrisma.quote.findMany).toHaveBeenCalledTimes(6);
   });
 
   it('regenerates a title that already exists on another digest', async () => {
