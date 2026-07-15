@@ -14,7 +14,12 @@ type ParableMatch = {
 
 // A parable stays "on cooldown" (ineligible for a new pairing) for this many days after
 // its last use, so the same parable doesn't reappear every day or two with a new quote.
-const PARABLE_COOLDOWN_DAYS = 14;
+// Tried in descending order — each step only relaxes the window when the stricter one
+// has zero candidates, rather than jumping straight from 14 days to no cooldown at all
+// (that silent all-or-nothing fallback previously let a parable resurface after just 4
+// days when the 14-day pool happened to be exhausted). The array is fixed-length, so this
+// can never loop indefinitely: it tries at most `PARABLE_COOLDOWN_STEPS.length` times.
+const PARABLE_COOLDOWN_STEPS = [14, 10, 7, 3, 1, 0] as const;
 
 async function getPairedParableIds(quoteId: string): Promise<string[]> {
   const rows = await prisma.dailyDigest.findMany({ where: { quoteId }, select: { parableId: true } });
@@ -22,6 +27,7 @@ async function getPairedParableIds(quoteId: string): Promise<string[]> {
 }
 
 async function getRecentlyUsedParableIds(cooldownDays: number): Promise<string[]> {
+  if (cooldownDays <= 0) return [];
   const cutoff = new Date();
   cutoff.setDate(cutoff.getDate() - cooldownDays);
   const rows = await prisma.dailyDigest.findMany({
@@ -52,16 +58,16 @@ async function queryBestMatch(quoteId: string, excludeClause: Prisma.Sql): Promi
 
 export async function findParableForQuote(quoteId: string): Promise<ParableMatch> {
   const pairedParableIds = await getPairedParableIds(quoteId);
-  const recentParableIds = await getRecentlyUsedParableIds(PARABLE_COOLDOWN_DAYS);
-  const cooldownExcludeIds = Array.from(new Set([...pairedParableIds, ...recentParableIds]));
 
-  const match =
-    (await queryBestMatch(quoteId, buildExcludeClause(cooldownExcludeIds))) ??
-    (await queryBestMatch(quoteId, buildExcludeClause(pairedParableIds)));
-
-  if (!match) {
-    throw new Error(`No available parable found for quote ${quoteId}`);
+  for (const cooldownDays of PARABLE_COOLDOWN_STEPS) {
+    const recentParableIds = await getRecentlyUsedParableIds(cooldownDays);
+    const excludeIds = Array.from(new Set([...pairedParableIds, ...recentParableIds]));
+    const match = await queryBestMatch(quoteId, buildExcludeClause(excludeIds));
+    if (match) return match;
   }
 
-  return match;
+  // Reachable only if every parable is permanently paired with this exact quote already
+  // (cooldownDays=0 above still excludes `pairedParableIds`) — a real data problem, not
+  // a transient cooldown squeeze, so this should fail loudly rather than degrade further.
+  throw new Error(`No available parable found for quote ${quoteId}`);
 }

@@ -14,11 +14,22 @@ vi.mock('../lib/email', () => ({
   sendDailyParableEmail: vi.fn(),
 }));
 
+vi.mock('../lib/dailyDigest', () => ({
+  publishTodayAndPrepareTomorrow: vi.fn(),
+}));
+
+vi.mock('../lib/adminAlert', () => ({
+  notifyAdmin: vi.fn(),
+}));
+
 process.env['ADMIN_SEND_SECRET'] = 'test-secret';
+process.env['ADMIN_PUBLISH_SECRET'] = 'test-publish-secret';
 
 import { createApp } from '../index';
 import { prisma } from '../lib/prisma';
 import { sendDailyParableEmail } from '../lib/email';
+import { publishTodayAndPrepareTomorrow } from '../lib/dailyDigest';
+import { notifyAdmin } from '../lib/adminAlert';
 import { signAccessToken } from '../lib/auth';
 
 const mockPrisma = prisma as unknown as {
@@ -100,6 +111,50 @@ describe('POST /api/admin/send-daily', () => {
 
     expect(res.status).toBe(200);
     expect(res.body).toMatchObject({ sent: 1, failed: 1, total: 2 });
+  });
+});
+
+describe('POST /api/admin/publish-and-prepare', () => {
+  it('returns the publish/prepare result on success', async () => {
+    vi.mocked(publishTodayAndPrepareTomorrow).mockResolvedValue({
+      published: 'some-slug',
+      prepared: 'other-slug',
+    });
+
+    const res = await request(app)
+      .post('/api/admin/publish-and-prepare')
+      .set('x-publish-secret', 'test-publish-secret');
+
+    expect(res.status).toBe(200);
+    expect(res.body).toEqual({ published: 'some-slug', prepared: 'other-slug' });
+    expect(notifyAdmin).not.toHaveBeenCalled();
+  });
+
+  it('returns 401 without the secret header', async () => {
+    const res = await request(app).post('/api/admin/publish-and-prepare');
+    expect(res.status).toBe(401);
+  });
+
+  it('returns 401 with wrong secret', async () => {
+    const res = await request(app)
+      .post('/api/admin/publish-and-prepare')
+      .set('x-publish-secret', 'wrong-secret');
+    expect(res.status).toBe(401);
+  });
+
+  it('notifies the admin and returns 500 when digest creation fails', async () => {
+    vi.mocked(publishTodayAndPrepareTomorrow).mockRejectedValue(
+      new Error('No available parable found for quote quote-1'),
+    );
+
+    const res = await request(app)
+      .post('/api/admin/publish-and-prepare')
+      .set('x-publish-secret', 'test-publish-secret');
+
+    expect(res.status).toBe(500);
+    expect(notifyAdmin).toHaveBeenCalledWith(
+      expect.stringContaining('No available parable found for quote quote-1'),
+    );
   });
 });
 

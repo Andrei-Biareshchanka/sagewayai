@@ -21,16 +21,23 @@ function addDays(date: Date, days: number): Date {
   return new Date(date.getTime() + days * ONE_DAY_MS);
 }
 
-async function pickNextQuote(): Promise<Quote> {
-  const unusedQuotes = await prisma.quote.findMany({
-    where: { digests: { none: {} } },
+// Same descending-cooldown pattern as PARABLE_COOLDOWN_STEPS in services/digest.ts — tries
+// progressively shorter windows before falling back to strict least-recently-used, instead
+// of jumping straight from "cooldown" to "no cooldown". Fixed-length array, so the loop
+// below is bounded and can never run forever.
+const QUOTE_COOLDOWN_STEPS = [14, 10, 7, 3, 1] as const;
+
+async function getRecentlyUsedQuoteIds(cooldownDays: number): Promise<string[]> {
+  const cutoff = new Date();
+  cutoff.setDate(cutoff.getDate() - cooldownDays);
+  const rows = await prisma.dailyDigest.findMany({
+    where: { date: { gte: cutoff } },
+    select: { quoteId: true },
   });
+  return rows.map((r) => r.quoteId);
+}
 
-  if (unusedQuotes.length > 0) {
-    const randomIndex = Math.floor(Math.random() * unusedQuotes.length);
-    return unusedQuotes[randomIndex] as Quote;
-  }
-
+async function pickLeastRecentlyUsedQuote(): Promise<Quote> {
   const leastRecentDigest = await prisma.dailyDigest.findFirst({
     orderBy: { date: 'asc' },
     include: { quote: true },
@@ -41,6 +48,33 @@ async function pickNextQuote(): Promise<Quote> {
   }
 
   return leastRecentDigest.quote;
+}
+
+function pickRandom<T>(items: T[]): T {
+  return items[Math.floor(Math.random() * items.length)] as T;
+}
+
+async function pickQuoteWithinCooldown(): Promise<Quote | null> {
+  for (const cooldownDays of QUOTE_COOLDOWN_STEPS) {
+    const recentQuoteIds = await getRecentlyUsedQuoteIds(cooldownDays);
+    const eligible = await prisma.quote.findMany({
+      where: recentQuoteIds.length > 0 ? { id: { notIn: recentQuoteIds } } : undefined,
+    });
+    if (eligible.length > 0) return pickRandom(eligible);
+  }
+  return null;
+}
+
+async function pickNextQuote(): Promise<Quote> {
+  const unusedQuotes = await prisma.quote.findMany({
+    where: { digests: { none: {} } },
+  });
+  if (unusedQuotes.length > 0) return pickRandom(unusedQuotes);
+
+  // Reachable only when every quote has been used within the last day (tiny quote pool) —
+  // falls back to strict LRU, guaranteed to terminate: it either returns the oldest-used
+  // quote or throws if the Quote table itself is empty.
+  return (await pickQuoteWithinCooldown()) ?? (await pickLeastRecentlyUsedQuote());
 }
 
 function buildParableText(title: string, content: string, moral: string): string {
