@@ -50,31 +50,31 @@ async function pickLeastRecentlyUsedQuote(): Promise<Quote> {
   return leastRecentDigest.quote;
 }
 
-async function pickNextQuote(): Promise<Quote> {
-  const unusedQuotes = await prisma.quote.findMany({
-    where: { digests: { none: {} } },
-  });
+function pickRandom<T>(items: T[]): T {
+  return items[Math.floor(Math.random() * items.length)] as T;
+}
 
-  if (unusedQuotes.length > 0) {
-    const randomIndex = Math.floor(Math.random() * unusedQuotes.length);
-    return unusedQuotes[randomIndex] as Quote;
-  }
-
+async function pickQuoteWithinCooldown(): Promise<Quote | null> {
   for (const cooldownDays of QUOTE_COOLDOWN_STEPS) {
     const recentQuoteIds = await getRecentlyUsedQuoteIds(cooldownDays);
     const eligible = await prisma.quote.findMany({
       where: recentQuoteIds.length > 0 ? { id: { notIn: recentQuoteIds } } : undefined,
     });
-    if (eligible.length > 0) {
-      const randomIndex = Math.floor(Math.random() * eligible.length);
-      return eligible[randomIndex] as Quote;
-    }
+    if (eligible.length > 0) return pickRandom(eligible);
   }
+  return null;
+}
+
+async function pickNextQuote(): Promise<Quote> {
+  const unusedQuotes = await prisma.quote.findMany({
+    where: { digests: { none: {} } },
+  });
+  if (unusedQuotes.length > 0) return pickRandom(unusedQuotes);
 
   // Reachable only when every quote has been used within the last day (tiny quote pool) —
   // falls back to strict LRU, guaranteed to terminate: it either returns the oldest-used
   // quote or throws if the Quote table itself is empty.
-  return pickLeastRecentlyUsedQuote();
+  return (await pickQuoteWithinCooldown()) ?? (await pickLeastRecentlyUsedQuote());
 }
 
 function buildParableText(title: string, content: string, moral: string): string {
