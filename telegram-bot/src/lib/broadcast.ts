@@ -44,7 +44,7 @@ async function publishToChannel(bot: Bot, digestCache: Map<Language, Digest>): P
       return { status: 'skipped', reason: 'no_slug' };
     }
 
-    const siteUrl = `${CHANNEL_BASE_URL}/ru/d/${digest.slug}`;
+    const siteUrl = `${CHANNEL_BASE_URL}/ru/d/${digest.slug}?utm_source=telegram&utm_medium=social&utm_campaign=channel_post`;
 
     if (digest.imageUrl) {
       // Single message so the whole post — photo + text — forwards/shares as one unit.
