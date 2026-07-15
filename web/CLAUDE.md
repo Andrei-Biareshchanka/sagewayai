@@ -102,6 +102,7 @@ web/
 │   └── llms.txt                # AI-crawler discovery file (robots.txt analog for LLMs) — static, English
 ├── prisma.config.ts            # Prisma 7 config — no dotenv import (Next.js loads .env.local)
 ├── next.config.ts              # serverExternalPackages: ['@prisma/client', 'pg']; redirects() 308s old unprefixed URLs (/, /d/:slug, /digests) to /ru/...
+├── middleware.ts                # 308-redirects the sagewayai.vercel.app host (Vercel's production alias — served the same content as the canonical domain, indexed as a duplicate) to sagewayai.com, preserving path + query. Scoped to that exact host, not *.vercel.app broadly, so PR preview deployments stay directly viewable.
 ├── tailwind.config.ts          # extend: colors, fontFamily, borderRadius
 ├── postcss.config.mjs          # @tailwindcss/postcss plugin (Tailwind v4)
 ├── next-sitemap.config.js      # siteUrl: sagewayai.com, daily revalidation
@@ -333,6 +334,7 @@ Reader max-width: `680px`. Page max-width: `1200px`.
 ## Analytics & SEO
 
 - **Canonical domain** — `lib/config.ts` exports `SITE_URL` (from `NEXT_PUBLIC_SITE_URL`, default `https://sagewayai.com`). Used for `metadataBase`, all `alternates.canonical`, OG `url`, JSON-LD `publisher.url`, `sitemap.ts`, and `robots.ts` — never hardcode the domain elsewhere.
+- **`middleware.ts`** — 308-redirects `sagewayai.vercel.app` (Vercel's production alias) to `SITE_URL`, preserving path + query, since it was serving the same content and getting indexed as a duplicate. Doesn't touch PR preview deployment hosts.
 - **GA4** — `GoogleAnalytics` in `app/[locale]/layout.tsx`, only renders when `NEXT_PUBLIC_GA_ID` is set
 - **Vercel Analytics** — `Analytics` in `app/[locale]/layout.tsx`, always active on Vercel deployments
 - **Speed Insights** — `SpeedInsights` in `app/[locale]/layout.tsx`, always active on Vercel deployments
