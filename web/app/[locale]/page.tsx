@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma';
 import { SITE_URL } from '@/lib/config';
 import { HomeDailyDigest } from '@/components/HomeDailyDigest';
 import { CTABlock } from '@/components/CTABlock';
+import { SituationCTA } from '@/components/SituationCTA';
 import { TomorrowTeaser } from '@/components/TomorrowTeaser';
 import { isLocale, type Locale } from '@/lib/locales';
 
@@ -150,6 +151,10 @@ export default async function HomePage({ params }: PageProps) {
             />
           </div>
         )}
+
+        <div className="mb-12">
+          <SituationCTA />
+        </div>
 
         {tomorrow && (
           <div className="mb-6">

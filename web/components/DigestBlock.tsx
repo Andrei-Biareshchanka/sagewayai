@@ -12,8 +12,8 @@ import { ShareButton } from './ShareButton';
 export interface DigestData {
   quote: { text: string; author: string };
   parable: { title: string; content: string };
-  conclusion: string;
-  question: string;
+  conclusion: string | null;
+  question: string | null;
 }
 
 export interface DigestCategory {
@@ -31,9 +31,20 @@ interface DigestBlockProps {
   shareTitle?: string;
   imageUrl?: string;
   imageAlt?: string;
+  showDailyBadge?: boolean;
 }
 
-export function DigestBlock({ title, data, date, category, shareUrl, shareTitle, imageUrl, imageAlt }: DigestBlockProps) {
+export function DigestBlock({
+  title,
+  data,
+  date,
+  category,
+  shareUrl,
+  shareTitle,
+  imageUrl,
+  imageAlt,
+  showDailyBadge = true,
+}: DigestBlockProps) {
   const { lang } = useLanguage();
   const { quote, parable, conclusion, question } = data;
   const dateLocale = lang === 'ru' ? ru : enUS;
@@ -41,11 +52,13 @@ export function DigestBlock({ title, data, date, category, shareUrl, shareTitle,
 
   return (
     <div className="space-y-3">
-      <div className="flex justify-end">
-        <span className="text-xs font-medium text-sage bg-sage-pill px-3 py-1.5 rounded-full">
-          {t(lang, 'dailyWisdomBadge')}
-        </span>
-      </div>
+      {showDailyBadge && (
+        <div className="flex justify-end">
+          <span className="text-xs font-medium text-sage bg-sage-pill px-3 py-1.5 rounded-full">
+            {t(lang, 'dailyWisdomBadge')}
+          </span>
+        </div>
+      )}
 
       <div className="border border-sage-pill rounded-2xl p-6 md:p-8 space-y-6">
         {(date || category) && (
@@ -98,22 +111,26 @@ export function DigestBlock({ title, data, date, category, shareUrl, shareTitle,
 
         <p className="font-serif text-base leading-[1.8] text-ink">{parable.content}</p>
 
-        <div
-          className="bg-sage-light border-l-4 border-sage rounded-card p-4 space-y-1"
-          style={{ borderLeftColor: colors.sage }}
-        >
-          <p className="font-sans text-sm font-medium text-sage">
-            {t(lang, 'summaryLabel')}
-          </p>
-          <p className="font-serif text-base text-ink">{conclusion}</p>
-        </div>
+        {conclusion && (
+          <div
+            className="bg-sage-light border-l-4 border-sage rounded-card p-4 space-y-1"
+            style={{ borderLeftColor: colors.sage }}
+          >
+            <p className="font-sans text-sm font-medium text-sage">
+              {t(lang, 'summaryLabel')}
+            </p>
+            <p className="font-serif text-base text-ink">{conclusion}</p>
+          </div>
+        )}
 
-        <div className="bg-sage-pill rounded-card p-4 space-y-1">
-          <p className="font-sans text-sm font-medium text-sage-dark">
-            {t(lang, 'questionLabel')}
-          </p>
-          <p className="font-sans text-base text-ink">{question}</p>
-        </div>
+        {question && (
+          <div className="bg-sage-pill rounded-card p-4 space-y-1">
+            <p className="font-sans text-sm font-medium text-sage-dark">
+              {t(lang, 'questionLabel')}
+            </p>
+            <p className="font-sans text-base text-ink">{question}</p>
+          </div>
+        )}
 
         {shareUrl && (
           <div className="border-t border-sage-pill pt-4 mt-2 flex justify-end">

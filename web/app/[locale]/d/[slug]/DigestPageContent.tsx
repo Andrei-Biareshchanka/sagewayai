@@ -9,6 +9,7 @@ import { pickLocalized } from '@/lib/locale-content';
 import { t } from '@/lib/i18n';
 import { CTABlock } from '@/components/CTABlock';
 import { DigestBlock } from '@/components/DigestBlock';
+import { SituationCTA } from '@/components/SituationCTA';
 import { useLocalizedDigest, type BilingualDigestContent } from '@/hooks/useLocalizedDigest';
 
 interface BilingualDigest extends BilingualDigestContent {
@@ -54,6 +55,8 @@ export function DigestPageContent({ digest, related }: DigestPageContentProps) {
         shareUrl={`${SITE_URL}/${lang}/d/${digest.slug}?utm_source=share&utm_medium=social`}
         shareTitle={digestTitle}
       />
+
+      <SituationCTA />
 
       {related.length > 0 && (
         <section className="mt-12 space-y-4">
