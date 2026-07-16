@@ -10,12 +10,17 @@ import { pickLocalized, type Lang } from '../lib/locale-content';
 
 const digestRouter = Router();
 
+// Takes the LAST entry in X-Forwarded-For, not the first: Railway (the reverse proxy that
+// terminates the actual TCP connection in front of this app) always appends the IP of
+// whoever connected to it, so that entry can't be forged — a client can prepend arbitrary
+// fake addresses before it, but not control what Railway itself observes and appends.
+// Taking the first entry (the old behavior) trusted exactly the attacker-controlled part
+// of the header, which let the 20 req/min limiter below be bypassed by sending a different
+// fake IP on every request.
 function getClientIp(req: Request): string {
-  return (
-    (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() ??
-    req.socket.remoteAddress ??
-    'unknown'
-  );
+  const forwardedFor = req.headers['x-forwarded-for'] as string | undefined;
+  const entries = forwardedFor?.split(',').map((ip) => ip.trim()).filter(Boolean);
+  return entries?.at(-1) ?? req.socket.remoteAddress ?? 'unknown';
 }
 
 // Guards the includeReflection: false path (semantic search only, no Claude call) —
