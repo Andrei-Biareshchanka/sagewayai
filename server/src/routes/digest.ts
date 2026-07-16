@@ -1,5 +1,6 @@
-import { Router } from 'express';
+import { Router, Request } from 'express';
 import { z } from 'zod';
+import { rateLimit, ipKeyGenerator } from 'express-rate-limit';
 
 import { getDailyDigest, DigestWithRelations } from '../lib/dailyDigest';
 import { getEmbedding } from '../lib/voyage';
@@ -8,6 +9,29 @@ import { prisma } from '../lib/prisma';
 import { pickLocalized, type Lang } from '../lib/locale-content';
 
 const digestRouter = Router();
+
+function getClientIp(req: Request): string {
+  return (
+    (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() ??
+    req.socket.remoteAddress ??
+    'unknown'
+  );
+}
+
+// Guards the includeReflection: false path (semantic search only, no Claude call) —
+// that path isn't covered by the 24h SituationRequest limit below, so without this,
+// each request is an unmetered, unauthenticated Voyage AI embedding call.
+const searchOnlyLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  limit: 20,
+  standardHeaders: true,
+  legacyHeaders: false,
+  keyGenerator: (req) => ipKeyGenerator(getClientIp(req)),
+  skip: (req) => req.body?.includeReflection !== false,
+  handler: (_req, res) => {
+    res.status(429).json({ error: 'Too many requests, please try again in a minute' });
+  },
+});
 
 const langSchema = z.enum(['en', 'ru']).default('en');
 
@@ -56,43 +80,42 @@ const situationBodySchema = z.object({
   situation: z.string().min(10).max(1000),
   lang: z.enum(['en', 'ru']).default('en'),
   chatId: z.string().optional(),
+  includeReflection: z.boolean().default(true),
 });
 
 type ParableRow = { id: string; title: string; titleRu: string | null; content: string; contentRu: string | null };
 type QuoteRow   = { id: string; text: string; textRu: string | null; author: string; authorRu: string | null };
 
-digestRouter.post('/situation', async (req, res) => {
+digestRouter.post('/situation', searchOnlyLimiter, async (req, res) => {
   const bodyResult = situationBodySchema.safeParse(req.body);
   if (!bodyResult.success) {
     res.status(400).json({ error: bodyResult.error.issues[0]?.message });
     return;
   }
-  const { situation, lang, chatId } = bodyResult.data;
+  const { situation, lang, chatId, includeReflection } = bodyResult.data;
 
-  const ip =
-    (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() ??
-    req.socket.remoteAddress ??
-    'unknown';
+  if (includeReflection) {
+    const ip = getClientIp(req);
+    const since = new Date(Date.now() - 24 * 60 * 60 * 1000);
 
-  const since = new Date(Date.now() - 24 * 60 * 60 * 1000);
+    const last = chatId
+      ? await prisma.situationRequest.findFirst({ where: { chatId, usedAt: { gte: since } } })
+      : await prisma.situationRequest.findFirst({ where: { ip, usedAt: { gte: since } } });
 
-  const last = chatId
-    ? await prisma.situationRequest.findFirst({ where: { chatId, usedAt: { gte: since } } })
-    : await prisma.situationRequest.findFirst({ where: { ip, usedAt: { gte: since } } });
+    if (last) {
+      const msLeft = last.usedAt.getTime() + 86_400_000 - Date.now();
+      const hoursLeft = Math.floor(msLeft / 3_600_000);
+      const minutesLeft = Math.floor((msLeft % 3_600_000) / 60_000);
+      res.status(429).json({
+        error: 'rate_limited',
+        message: `Следующий запрос через ${hoursLeft}ч ${minutesLeft}м`,
+        retryAfter: msLeft,
+      });
+      return;
+    }
 
-  if (last) {
-    const msLeft = last.usedAt.getTime() + 86_400_000 - Date.now();
-    const hoursLeft = Math.floor(msLeft / 3_600_000);
-    const minutesLeft = Math.floor((msLeft % 3_600_000) / 60_000);
-    res.status(429).json({
-      error: 'rate_limited',
-      message: `Следующий запрос через ${hoursLeft}ч ${minutesLeft}м`,
-      retryAfter: msLeft,
-    });
-    return;
+    await prisma.situationRequest.create({ data: { ip, chatId } });
   }
-
-  await prisma.situationRequest.create({ data: { ip, chatId } });
 
   const embedding = await getEmbedding(situation, 'query');
   const vector = `[${embedding.join(',')}]`;
@@ -121,7 +144,9 @@ digestRouter.post('/situation', async (req, res) => {
   const parableText = pickLocalized(parableRow.contentRu, parableRow.content, lang);
   const quoteText   = pickLocalized(quoteRow.textRu, quoteRow.text, lang);
 
-  const reflection = await generateReflection(quoteText, parableText, lang);
+  const reflection = includeReflection
+    ? await generateReflection(quoteText, parableText, lang)
+    : null;
 
   res.json({
     quote: {
@@ -132,8 +157,8 @@ digestRouter.post('/situation', async (req, res) => {
       title:   pickLocalized(parableRow.titleRu, parableRow.title, lang),
       content: parableText,
     },
-    conclusion: reflection.conclusion,
-    question:   reflection.question,
+    conclusion: reflection?.conclusion ?? null,
+    question:   reflection?.question ?? null,
   });
 });
 

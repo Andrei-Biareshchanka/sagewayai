@@ -97,12 +97,21 @@ After schema change: `npx prisma migrate dev --name <name>` then `npx prisma gen
 | `Category` | `id`, `name`, `slug`, `color?`, `parablesCount` |
 | `DailyParable` | `id`, `parableId`, `date` (unique per day) |
 | `DailyDigest` | `id`, `date` (unique), `slug?` (unique), `titleEn?`, `titleRu?`, `quoteId`, `parableId`, `conclusionEn/Ru`, `questionEn/Ru`, `isPublished` (default `false`), `publishedAt?` |
-| `SituationRequest` | `id`, `ip`, `chatId?`, `usedAt` — rate limit table for `/api/digest/situation`. Web uses IP, Telegram bot passes `chatId` so each bot user has an independent 24h limit (all bot requests share one Railway IP). |
+| `SituationRequest` | `id`, `ip`, `chatId?`, `usedAt` — 24h rate limit table for `POST /api/digest/situation`, but only written to when the request has `includeReflection: true` (Telegram bot only — passes `chatId` so each bot user has an independent limit). Web always sends `includeReflection: false` and never touches this table; see "Situation search endpoint" below. |
 | `TelegramSubscriber` | `id`, `chatId` (unique), `username?`, `active`, `language`, `situationUsedAt?`, `referredBy?` — owned by `telegram-bot/`; `referredBy` stores the referring subscriber's `chatId` for the referral system. |
 
 Constraints: `DailyDigest` has `@@unique([parableId, quoteId])` — same parable+quote pair can only appear once ever.
 
 Seed categories: Wisdom, Motivation, Leadership, Journey, Loss, Risk, Trust, Meaning
+
+## Situation search endpoint (`src/routes/digest.ts`)
+
+**`POST /api/digest/situation`** — semantic search: embeds the free-text `situation` via Voyage AI, finds the nearest `Parable` and nearest `Quote` independently (two separate top-1 `<=>` queries, not a paired lookup), and optionally generates a Claude reflection on top. Body: `{ situation, lang, chatId?, includeReflection? }` (`includeReflection` defaults to `true`).
+
+- **`includeReflection: true`** (Telegram bot — always sends this explicitly) — full flow: 24h `SituationRequest` check/write (by `chatId`, falls back to IP), then `generateReflection()` (Claude) on top of the matched quote+parable. Returns `conclusion`/`question` as strings.
+- **`includeReflection: false`** (web `/[locale]/search` — always sends this) — skips the `SituationRequest` check/write entirely (no 24h limit on this path) and skips the Claude call. Returns `conclusion: null, question: null`. Instead, this path is guarded by a separate `express-rate-limit` middleware (`searchOnlyLimiter`, 20 req/min per IP, keyed via `ipKeyGenerator` on the same `x-forwarded-for`-derived IP used elsewhere in this file — `req.ip` isn't reliable here since `trust proxy` isn't set) — added because unlike the reflection path, this one has no other cost guard against repeated Voyage AI embedding calls. The limiter's `skip` option checks `req.body?.includeReflection`, so it's a no-op for the `true` path.
+
+Both paths share the same embedding + top-1 lookup logic — the flag only controls what happens *after* the match is found.
 
 ## Daily digest logic (`src/lib/dailyDigest.ts`)
 
