@@ -42,7 +42,7 @@ export async function fetchSituationDigest(situation: string, language: Language
   const response = await fetch(`${API_URL}/api/digest/situation`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ situation, lang: language, chatId: String(chatId) }),
+    body: JSON.stringify({ situation, lang: language, chatId: String(chatId), includeReflection: true }),
   });
   if (!response.ok) {
     throw new Error(`Situation API error ${response.status}`);

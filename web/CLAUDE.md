@@ -9,7 +9,7 @@ This file provides guidance to Claude Code when working with the **web** (Next.j
 
 Next.js App Router SEO site with three goals:
 1. Generate organic traffic through digest pages (`/d/[slug]`)
-2. Give visitors a situation-based wisdom search (without Telegram) — **scaffolded but not yet live**: `SituationSearch.tsx` and `/api/situation` exist in the codebase but are not rendered/reachable from any page (see "Orphaned code" note below)
+2. Give visitors a situation-based wisdom search (without Telegram) — **live** at `/[locale]/search`: `SituationSearch.tsx` posts to `/api/situation` (proxy to Express `/api/digest/situation`) with `includeReflection: false`, so the web flow returns only a matching quote + parable (no Claude-generated conclusion/question, keeping the endpoint cheap and unrate-limited — see "POST /api/situation" and "Rate limiting" below)
 3. Convert visitors into Telegram bot subscribers (@sagewayai_bot)
 
 ## Stack
@@ -52,13 +52,15 @@ web/
 │   │   │   └── [slug]/
 │   │   │       ├── page.tsx               # Digest page (SSG, revalidate 86400, generateStaticParams is locale×slug)
 │   │   │       └── DigestPageContent.tsx  # Client wrapper — bilingual content, reads from LanguageContext
-│   │   └── digests/
-│   │       ├── page.tsx                       # Archive: paginated list of all digests (revalidate 3600), optional ?category= filter
-│   │       ├── DigestsArchiveContent.tsx       # Client coordinator — breadcrumb + category filter + grid + pagination
-│   │       ├── DigestArchiveBreadcrumb.tsx     # Client — bilingual breadcrumb
-│   │       ├── DigestCategoryFilter.tsx        # Client — "All" + category pills, links to /{lang}/digests?category=slug
-│   │       ├── DigestCard.tsx                  # Client — single digest card (category badge + AI title + date + "Read" link)
-│   │       └── DigestPagination.tsx            # Client — prev/next page links, preserves ?category=
+│   │   ├── digests/
+│   │   │   ├── page.tsx                       # Archive: paginated list of all digests (revalidate 3600), optional ?category= filter
+│   │   │   ├── DigestsArchiveContent.tsx       # Client coordinator — breadcrumb + category filter + grid + pagination
+│   │   │   ├── DigestArchiveBreadcrumb.tsx     # Client — bilingual breadcrumb
+│   │   │   ├── DigestCategoryFilter.tsx        # Client — "All" + category pills, links to /{lang}/digests?category=slug
+│   │   │   ├── DigestCard.tsx                  # Client — single digest card (category badge + AI title + date + "Read" link)
+│   │   │   └── DigestPagination.tsx            # Client — prev/next page links, preserves ?category=
+│   │   └── search/
+│   │       └── page.tsx          # Situation search: hero image + h1 + SituationSearch, revalidate 3600
 │   ├── globals.css             # Tailwind v4 import + CSS color variables
 │   ├── generated/
 │   │   └── prisma/             # Generated Prisma Client (gitignored, rebuilt on predev)
@@ -68,7 +70,7 @@ web/
 │       ├── og/
 │       │   └── route.tsx       # Edge: OG image 1200x630 — NOTE: .tsx not .ts (JSX inside)
 │       └── situation/
-│           └── route.ts        # Proxy to Express /api/digest/situation (forwards real IP) — ORPHANED: only caller is the unrendered SituationSearch.tsx
+│           └── route.ts        # Proxy to Express /api/digest/situation (forwards real IP); caller SituationSearch.tsx always sends includeReflection: false
 ├── components/
 │   ├── Navbar.tsx              # 'use client' — logo + LanguageToggle (reads/sets LanguageContext), links prefixed with /{lang}
 │   ├── Footer.tsx              # 'use client' — © 2026 SagewayAI · slogan, switches RU/EN via LanguageContext
@@ -76,7 +78,8 @@ web/
 │   ├── CTABlock.tsx            # 'use client' — full CTA section: headline + 4 bullets + button
 │   ├── DigestBlock.tsx         # 'use client' — quote + parable + reflection + question; reads lang from context
 │   ├── HomeDailyDigest.tsx     # 'use client' — bilingual wrapper for homepage digest, reads lang from context
-│   ├── SituationSearch.tsx     # 'use client' — wisdom search form with cookie-based rate limit — ORPHANED: not imported/rendered by any page (no `/search` route exists yet); dead code as of 2026-07
+│   ├── SituationSearch.tsx     # 'use client' — wisdom search form, rendered on /[locale]/search. No client-side rate limit (backend has none for includeReflection: false requests, see "Rate limiting")
+│   ├── SituationCTA.tsx        # 'use client' — small button linking to /{lang}/search; rendered under DigestBlock on home + digest pages
 │   ├── TomorrowTeaser.tsx      # 'use client' — preview of tomorrow's not-yet-published digest title; renders null if no draft exists
 │   └── LanguageToggle.tsx      # 'use client' — custom RU/EN dropdown (presentational, controlled)
 ├── contexts/
@@ -88,7 +91,7 @@ web/
 │   ├── locales.ts              # LOCALES = ['ru', 'en'], Locale type, isLocale() guard — single source of truth for supported locales
 │   ├── locale-content.ts       # pickLocalized(ru, en, locale) — selects a bilingual DB field; used both server-side (metadata/OG) and client-side (via useLocalizedDigest and directly)
 │   ├── i18n.ts                 # t(lang, key) — static UI copy (labels, headings, errors), not DB content; TranslationKey = keyof typeof translations.ru enforces valid keys
-│   ├── formatTime.ts           # formatCountdown(ms) → "23h 45m"
+│   ├── formatTime.ts           # formatCountdown(ms) → "23h 45m" — unused since SituationSearch dropped its client-side cookie countdown (2026-07); candidate for removal
 │   ├── config.ts               # SITE_URL — canonical domain, used for metadataBase, canonical tags, sitemap, robots
 │   └── og-image.tsx            # buildOgImage() — used by app/api/og/route.tsx, see GET /api/og below; slogan text goes through i18n.ts too
 ├── hooks/
@@ -123,7 +126,7 @@ LanguageProvider (app/[locale]/layout.tsx body, lang comes from params.locale)
   └── HomeDailyDigest.tsx → reads { lang } → useLocalizedDigest(digest, lang) picks content fields, renders DigestBlock
   └── DigestPageContent.tsx → reads { lang } → useLocalizedDigest(digest, lang) picks content fields, renders DigestBlock
   └── CTABlock.tsx        → reads { lang } → bilingual headline, bullets, button text
-  └── SituationSearch.tsx → reads { lang } → bilingual UI + sends lang to API (ORPHANED — component exists but is never rendered, see "Key components" note)
+  └── SituationSearch.tsx → reads { lang } → bilingual UI, sends { situation, lang, includeReflection: false } to API
 ```
 
 **Rule:** never add a local `lang` state to a component — always use `useLanguage()` from context.
@@ -135,15 +138,18 @@ LanguageProvider (app/[locale]/layout.tsx body, lang comes from params.locale)
 ## Key components
 
 ### DigestBlock
-The single shared component rendering a digest's content — used by `HomeDailyDigest` (homepage) and `DigestPageContent` (`/d/[slug]`). Also referenced by `SituationSearch` (AI wisdom search result), but that caller is currently orphaned — not rendered on any live page — so in practice `DigestBlock` is only reached via the two live callers. Client component. Accepts single-language `DigestData`; reads `lang` from context for `i18n.ts` labels (Мудрость дня, Вопрос, Резюме — `t(lang, key)`, not inline ternaries) and for date formatting/category link prefixing (`pickLocalized`). Content itself stays in whatever language the caller passed — doesn't re-fetch on lang change. Shows the quote and full parable text unconditionally (no truncation, no link to `/d/[slug]` — removed to stop duplicating almost the entire digest page for a near-identical "read more" click). Question and Summary (`conclusion` field — an AI-generated takeaway, not the quoted author's own words, hence "Резюме"/"Summary" rather than "Размышление"/"Reflection") are both always visible, no collapse/toggle.
+The single shared component rendering a digest's content — used by `HomeDailyDigest` (homepage), `DigestPageContent` (`/d/[slug]`), and `SituationSearch` (live search result on `/[locale]/search`). Client component. Accepts `DigestData` with `conclusion`/`question` as `string | null` (`null` for situation-search results with `includeReflection: false` — those boxes just don't render, see below); reads `lang` from context for `i18n.ts` labels (Мудрость дня, Вопрос, Резюме — `t(lang, key)`, not inline ternaries) and for date formatting/category link prefixing (`pickLocalized`). Content itself stays in whatever language the caller passed — doesn't re-fetch on lang change. Shows the quote and full parable text unconditionally (no truncation, no link to `/d/[slug]` — removed to stop duplicating almost the entire digest page for a near-identical "read more" click).
 
 All props besides `data` are optional, since callers differ in what they have available:
-- `title` — rendered as the page `<h1>` inside the card; omitted by `SituationSearch` (a live search result has no separate digest title, only the parable's own title, already rendered as `<h2>`) — note `SituationSearch` is currently orphaned (see above)
+- `title` — rendered as the page `<h1>` inside the card; omitted by `SituationSearch` (a live search result has no separate digest title, only the parable's own title, already rendered as `<h2>`)
 - `date` / `category` — rendered as a row at the top of the card (date left, category pill right, linking to `/{lang}/digests?category=[slug]`); either can be omitted independently, the row itself is skipped if neither is present
 - `imageUrl` / `imageAlt` — when `imageUrl` is set, renders an `<img>` between the quote and the parable divider (`rounded-xl object-cover`, no fixed aspect ratio); renders nothing at all when unset, no layout shift or placeholder box. `alt` falls back to `title` then the parable title when `imageAlt` isn't set (older/un-annotated images) — see `.claude/docs/adr/0003-digest-images.md` for why `imageAlt` needed its own field pair (`imageAltRu`/`imageAltEn`) instead of reusing the digest title as alt text
 - `shareUrl` / `shareTitle` — when provided, renders `ShareButton` in a bordered-top row after the Summary/Question boxes
+- `showDailyBadge` — defaults to `true` (`HomeDailyDigest`/`DigestPageContent` don't pass it); `SituationSearch` explicitly passes `false` since a live search result isn't "today's wisdom" and showing that pill was misleading
 
-Layout: the "Мудрость дня"/"Daily wisdom" pill sits **above** the bordered card (not inside it) as a page-level eyebrow; the card itself (`border border-sage-pill rounded-2xl`) wraps everything from the date/category row through the ShareButton.
+Summary and Question boxes (`conclusion`/`question`) each render conditionally now — `null` (situation-search without reflection) simply omits that box rather than showing an empty one; when present, both are always visible, no collapse/toggle.
+
+Layout: the "Мудрость дня"/"Daily wisdom" pill (`showDailyBadge`) sits **above** the bordered card (not inside it) as a page-level eyebrow; the card itself (`border border-sage-pill rounded-2xl`) wraps everything from the date/category row through the ShareButton.
 
 ### ShareButton
 Client component (`components/ShareButton.tsx`). Props: `url`, `title`, `text` (kept short — quote + author, not the full parable, since the destination page's own OG image/description already carries the rich preview). On click, tries `navigator.share()` (native OS share sheet on supporting devices); if unsupported or the call resolves without the user completing a share, falls back to a small dropdown with Telegram (`t.me/share/url` — same scheme `telegram-bot/src/lib/keyboard.ts`'s `buildShareUrl` already uses), WhatsApp, X, and "copy link".
@@ -164,10 +170,10 @@ Requires a `source: string` prop — fired as `gtag('event', 'telegram_subscribe
 
 A second, RU-only button links to the Telegram **channel** (`@sagewayai`, `NEXT_PUBLIC_CHANNEL_URL` env var, fallback `https://telegram.me/sagewayai`) — only rendered when `lang === 'ru'`, since the channel currently posts Russian-only content (`CHANNEL_LANGUAGE = 'ru'` in `telegram-bot/src/lib/broadcast.ts`). Fires `gtag('event', 'telegram_channel_click', { source })` on click.
 
-Each button has a short caption below it clarifying what it actually is, since "bot" vs "channel" isn't self-explanatory to a first-time visitor: `subscribeButton`/`subscribeCaption` ("Подключиться к боту" / "Личный дайджест каждый день + поиск мудрости по твоей ситуации") vs `channelButton`/`channelCaption` ("Подключиться к каналу" / "Все дайджесты в открытой ленте") in `i18n.ts` — mirrors the actual product difference (bot = personal DM digest + `/settings` + the situation-search command `telegram-bot/src/commands/situation.ts`, channel = public feed, no personalization). Note this bot-side situation search is a separate, already-live feature from the orphaned web `SituationSearch.tsx`/`/api/situation` scaffolding described above.
+Each button has a short caption below it clarifying what it actually is, since "bot" vs "channel" isn't self-explanatory to a first-time visitor: `subscribeButton`/`subscribeCaption` ("Подключиться к боту" / "Личный дайджест каждый день + поиск мудрости по вашей ситуации") vs `channelButton`/`channelCaption` ("Подключиться к каналу" / "Все дайджесты в открытой ленте") in `i18n.ts` — mirrors the actual product difference (bot = personal DM digest + `/settings` + the situation-search command `telegram-bot/src/commands/situation.ts`, channel = public feed, no personalization). The bot's situation search always requests `includeReflection: true` (full Claude-generated conclusion/question, 24h rate limit) — the web version at `/[locale]/search` is the same underlying endpoint but with `includeReflection: false` (quote + parable only, no rate limit), see "POST /api/situation" and "Rate limiting" below.
 
 ### DigestPageContent
-Renders the full digest page. Reads `lang` from context, resolves content fields via `useLocalizedDigest()`, and renders `DigestBlock` (passing `title`, `date`, `category`, `imageUrl`/`imageAlt`, `shareUrl`/`shareTitle`) plus its own breadcrumb nav (labels via `i18n.ts`), related-digests grid, and `CTABlock` around it.
+Renders the full digest page. Reads `lang` from context, resolves content fields via `useLocalizedDigest()`, and renders `DigestBlock` (passing `title`, `date`, `category`, `imageUrl`/`imageAlt`, `shareUrl`/`shareTitle`) plus its own breadcrumb nav (labels via `i18n.ts`), a `SituationCTA` button, related-digests grid, and `CTABlock` around it.
 
 The digest title (`titleRu`/`titleEn`, resolved server-side with fallback to the parable title) is passed as `DigestBlock`'s `title` and rendered as the page's `<h1>` — matches `<title>`/OG so search snippets and the on-page heading agree. The parable's own title is rendered as `<h2>` right above the parable text (inside `DigestBlock`), so it stays visible without competing with the digest `<h1>`.
 
@@ -253,10 +259,11 @@ All page routes live under `app/[locale]/`, so every path below is actually `/ru
 **Publish gating:** `DailyDigest` rows can exist a day ahead of their publish date as unpublished drafts (see `server/CLAUDE.md`'s publish-and-prepare cron). Every query below that selects "the daily digest" or lists digests filters on `isPublished: true` — a draft must never be reachable by URL, listed in the archive, or included in the sitemap before its own day.
 
 ### GET /[locale]
-Server component. Fetches the latest **published** daily digest from DB (`findFirst({ where: { isPublished: true }, orderBy: { date: 'desc' }, include: { quote: true, parable: { include: { category: true } } } })`) and the one unpublished draft via `getTomorrowDigest()`. Includes `WebSite` JSON-LD (`buildWebsiteJsonLd()` in `page.tsx`) with a `SearchAction` pointing at `/search?q={search_term_string}` — that route doesn't exist yet, added ahead of time so Google can pick up the sitelinks searchbox once it ships. `generateMetadata` picks locale-specific title/description from a small `HOME_METADATA` record and builds `alternates.languages` pointing `ru`/`en` at each other's URL (not itself) plus `x-default` at `/ru`. Renders:
+Server component. Fetches the latest **published** daily digest from DB (`findFirst({ where: { isPublished: true }, orderBy: { date: 'desc' }, include: { quote: true, parable: { include: { category: true } } } })`) and the one unpublished draft via `getTomorrowDigest()`. Includes `WebSite` JSON-LD (`buildWebsiteJsonLd()` in `page.tsx`) with a `SearchAction` pointing at `/search?q={search_term_string}` — the route now exists (`GET /[locale]/search`, see below), but the `q` param itself isn't read yet (no prefill), so this is still ahead of full Google sitelinks searchbox support. `generateMetadata` picks locale-specific title/description from a small `HOME_METADATA` record and builds `alternates.languages` pointing `ru`/`en` at each other's URL (not itself) plus `x-default` at `/ru`. Renders:
 1. `HomeDailyDigest` — bilingual digest (switches language via context), includes `date`/`category`
-2. `TomorrowTeaser` — next-day preview, homepage-only (see "Key components" above)
-3. `CTABlock` — Telegram subscription CTA (at the bottom)
+2. `SituationCTA` — button linking to `/{lang}/search`
+3. `TomorrowTeaser` — next-day preview, homepage-only (see "Key components" above)
+4. `CTABlock` — Telegram subscription CTA (at the bottom)
 
 ### GET /[locale]/d/[slug]
 SSG digest page. `revalidate = 86400`. Slug is read directly from `DailyDigest.slug` in the DB — it is generated and stored by the server at digest creation time (format: `{parable-title}-{author}-{theme}`).
@@ -280,8 +287,11 @@ Card titles use `line-clamp-2 min-h-[3rem]` — `line-clamp` alone only caps hei
 
 Optional `?category=[slug]` filters to one `Category` (only categories with at least one published digest are listed, via `Category.parables.some.digests.some`). `generateMetadata` builds a per-category, per-locale title/canonical when the filter is active, with `alternates.languages` pointing at the sibling locale's `/digests` URL (same query string). `DigestCategoryFilter` renders an "All" pill plus one pill per category, all prefixed with `/{lang}`; `DigestPagination` preserves the `category` param across page links, also prefixed with `/{lang}`.
 
+### GET /[locale]/search
+Server component wrapper (`revalidate = 3600`) around `SituationSearch`. Renders a static hero illustration (`public/images/search-hero.png`, via `next/image`, bilingual `alt`) and a visible `<h1>` (locale-specific `heading` in a local `SEARCH_METADATA` record — deliberately separate from `i18n.ts` since it's page-specific SEO copy, not reusable UI chrome) above the form. `generateMetadata` builds `title`/`description`/canonical + `alternates.languages` the same way `/digests` does. The form's own on-page heading (`situationHeading`, an `<h2>` inside `SituationSearch`) is phrased as a direct question ("Что вас сейчас беспокоит?"/"What's troubling you right now?") rather than a statement — deliberately, to prompt a fuller situation description, which in turn gives the embedding more signal to match against.
+
 ### POST /api/situation
-**Currently orphaned** — this route exists and works, but its only caller is `SituationSearch.tsx`, which is not imported or rendered by any page (no `/search` route exists yet — the JSON-LD `SearchAction` on the homepage points at `/search?q={search_term_string}` as a placeholder for future Google sitelinks searchbox support, ahead of the route actually existing). Proxy to Express backend. Reads real user IP from `x-forwarded-for`, forwards it for IP-based rate limiting.
+Proxy to Express `/api/digest/situation`. Reads real user IP from `x-forwarded-for`, forwards it for IP-based rate limiting. `SituationSearch` always sends `includeReflection: false` — see "Rate limiting" below for what that does server-side. The Telegram bot calls the Express endpoint directly (not through this proxy) with `includeReflection: true`.
 
 ### GET /api/og
 Edge runtime. Returns 1200×630 OG image. Uses `colors` from `lib/brand.ts` (CSS variables don't work in ImageResponse inline styles).
@@ -296,11 +306,11 @@ Fonts (Inter 700/500/400-italic, Lora 400-italic) are fetched at request time fr
 
 ## Rate limiting
 
-> Applies to the `/api/situation` flow, which is currently orphaned (see "Key components" and "Routes" above) — documented here since the rate-limiting code itself is live and correct, just unreachable from the UI today.
+Applies to the `/api/situation` flow (`POST /api/situation` above). Two different limits depending on the `includeReflection` flag sent in the request body — see `server/CLAUDE.md` for the full server-side picture.
 
-**Client-side (cookie):** `SituationSearch` checks cookie `swai_situation_used_at` (24h cooldown).
+**`includeReflection: true`** (Telegram bot only — web never sends this): Express checks the `SituationRequest` table by `chatId` (24h cooldown), returns 429 with `retryAfter` ms. No client-side limit in `SituationSearch` for this path since the web UI never triggers it.
 
-**Server-side (IP + DB):** Express checks `SituationRequest` table by IP (or `chatId` for Telegram bot requests). Returns 429 with `retryAfter` ms.
+**`includeReflection: false`** (web — `SituationSearch` always sends this): no 24h DB-backed limit at all — deliberately unlimited on that axis, since there's no Claude call to protect against. Instead, a soft `express-rate-limit` cap (20 req/min per IP) guards the Voyage AI embedding call itself. `SituationSearch` has **no client-side rate limit** (the old cookie-based `swai_situation_used_at` 24h lock was removed 2026-07 — it existed because the endpoint used to always call Claude; once `includeReflection: false` stopped doing that, a client-side lock made no sense to keep). A 429 from the 20/min limiter is shown as a plain error message, same code path as any other request failure — no countdown UI.
 
 `web/prisma/schema.prisma` is a read-only copy of the shared schema — it also carries `TelegramSubscriber.referredBy` (referral tracking, owned by `telegram-bot/`) even though `web/` doesn't read it, to stay in sync with `server/` and `telegram-bot/` (see root `CLAUDE.md` → `schema-sync-check`).
 
