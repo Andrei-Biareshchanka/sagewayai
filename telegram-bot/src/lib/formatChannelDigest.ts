@@ -48,11 +48,12 @@ function buildFullBodyLines(digest: Digest): string[] {
 }
 
 // Used as a sendPhoto caption (see broadcast.ts) when the digest has an image, so the
-// whole post — photo + text — travels as a single forwardable/shareable message. Drops
-// the "Вывод" section (kept only in the full text-only format below) specifically to fit
-// under Telegram's much tighter caption limit; the reflection stays a reason to click
-// through to the site rather than duplicating it in the channel. The CTA line is itself
-// the link (no separate inline keyboard button — one click-through path, not two).
+// whole post — photo + text — travels as a single forwardable/shareable message. Fallback
+// shape when the full body (with "Вывод") doesn't fit under Telegram's much tighter caption
+// limit: drops "Вывод" and links to it on the site instead, so the parable itself never
+// gets truncated just to make room for the reflection — see formatChannelDigestCaption.
+// The CTA line is itself the link (no separate inline keyboard button — one click-through
+// path, not two).
 function buildCaptionBodyLines(digest: Digest, siteUrl: string): string[] {
   return [
     `💬 ${escapeMarkdown(digest.quote.text)}`,
@@ -117,7 +118,15 @@ export function formatChannelDigest(digest: Digest): string {
   return formatWithLimit(digest, TELEGRAM_MESSAGE_LIMIT, buildFullBodyLines);
 }
 
-// For sendPhoto's caption — shorter format (no "Вывод"), tighter limit (1024 vs 4096).
+// For sendPhoto's caption — tighter limit (1024 vs 4096). Three-tier fallback:
+// 1. Full body with "Вывод" included, parable untruncated — used whenever it fits.
+// 2. "Вывод" replaced by a link to the site, parable still untruncated.
+// 3. Same as (2), but the parable is truncated to fit (formatWithLimit's binary search).
+// The parable is never truncated just to make room for "Вывод" — dropping it for a link
+// is always preferred over cutting the parable short.
 export function formatChannelDigestCaption(digest: Digest, siteUrl: string): string {
+  const withConclusion = renderMessage(digest, buildFullBodyLines);
+  if (withConclusion.length <= TELEGRAM_CAPTION_LIMIT) return withConclusion;
+
   return formatWithLimit(digest, TELEGRAM_CAPTION_LIMIT, (d) => buildCaptionBodyLines(d, siteUrl));
 }
