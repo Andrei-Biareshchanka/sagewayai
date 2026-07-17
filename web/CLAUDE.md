@@ -21,7 +21,6 @@ Next.js App Router SEO site with three goals:
 - **Prisma 7.8.0** (`prisma-client` provider, read-only queries only)
 - **@prisma/adapter-pg** (required in Prisma 7 — `new PrismaClient()` without adapter is invalid)
 - **date-fns v4** for date formatting
-- **transliteration** for generating slugs from Russian titles
 - **zod** for query param validation (e.g. `app/api/og/route.tsx`)
 - **app/sitemap.ts** — built-in Next.js sitemap, queries DB via Prisma, revalidates every 24h
 - **app/robots.ts** — built-in Next.js robots.txt
@@ -74,7 +73,6 @@ web/
 ├── components/
 │   ├── Navbar.tsx              # 'use client' — logo + LanguageToggle (reads/sets LanguageContext), links prefixed with /{lang}
 │   ├── Footer.tsx              # 'use client' — © 2026 SagewayAI · slogan, switches RU/EN via LanguageContext
-│   ├── CTAButton.tsx           # Simple Telegram link button (legacy — prefer CTABlock)
 │   ├── CTABlock.tsx            # 'use client' — full CTA section: headline + 4 bullets + button
 │   ├── DigestBlock.tsx         # 'use client' — quote + parable + reflection + question; reads lang from context
 │   ├── HomeDailyDigest.tsx     # 'use client' — bilingual wrapper for homepage digest, reads lang from context
@@ -87,7 +85,6 @@ web/
 ├── lib/
 │   ├── prisma.ts               # Singleton PrismaClient with PrismaPg adapter
 │   ├── brand.ts                # Centralized color + font constants (use for ImageResponse inline styles)
-│   ├── slug.ts                 # generateSlug(title) via transliteration library
 │   ├── locales.ts              # LOCALES = ['ru', 'en'], Locale type, isLocale() guard — single source of truth for supported locales
 │   ├── locale-content.ts       # pickLocalized(ru, en, locale) — selects a bilingual DB field; used both server-side (metadata/OG) and client-side (via useLocalizedDigest and directly)
 │   ├── i18n.ts                 # t(lang, key) — static UI copy (labels, headings, errors), not DB content; TranslationKey = keyof typeof translations.ru enforces valid keys
@@ -165,7 +162,7 @@ Client wrapper used on the homepage. Receives bilingual data from the server com
 ### CTABlock
 Full conversion block: headline, 4 content bullets (цитата → притча → рефлексия → вопрос), centered Telegram button. Used at the bottom of `/` and `/d/[slug]`. Fully bilingual.
 
-Requires a `source: string` prop — fired as `gtag('event', 'telegram_subscribe_click', { source })` on button click (same `window.gtag` global declared in `ShareButton.tsx`), so GA4 can attribute subscribes by page. Callers: `homepage_cta` (`app/[locale]/page.tsx`), `digest_cta` (`DigestPageContent`). `CTAButton.tsx` (legacy, unused, different copy) is not instrumented.
+Requires a `source: string` prop — fired as `gtag('event', 'telegram_subscribe_click', { source })` on button click (same `window.gtag` global declared in `ShareButton.tsx`), so GA4 can attribute subscribes by page. Callers: `homepage_cta` (`app/[locale]/page.tsx`), `digest_cta` (`DigestPageContent`).
 
 A second, RU-only button links to the Telegram **channel** (`@sagewayai`, `NEXT_PUBLIC_CHANNEL_URL` env var, fallback `https://telegram.me/sagewayai`) — only rendered when `lang === 'ru'`, since the channel currently posts Russian-only content (`CHANNEL_LANGUAGE = 'ru'` in `telegram-bot/src/lib/broadcast.ts`). Fires `gtag('event', 'telegram_channel_click', { source })` on click.
 
