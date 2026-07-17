@@ -3,7 +3,6 @@ import { z } from 'zod';
 
 import { getDailyParable } from '../lib/daily';
 import { prisma } from '../lib/prisma';
-import { searchParablesBySemantic } from '../services/search';
 import { pickLocalized, type Lang } from '../lib/locale-content';
 
 const parablesRouter = Router();
@@ -43,25 +42,7 @@ function localizeParable(parable: RawParable, lang: Lang) {
   };
 }
 
-const searchBodySchema = z.object({
-  query: z.string().min(1).max(500),
-  k:     z.coerce.number().int().min(1).max(20).default(5),
-});
-
-// /search and /daily must be declared before /:id
-parablesRouter.post('/search', async (req, res) => {
-  const parsed = searchBodySchema.safeParse(req.body);
-  if (!parsed.success) {
-    throw Object.assign(
-      new Error(parsed.error.issues[0]?.message ?? 'Invalid request body'),
-      { status: 400 },
-    );
-  }
-  const { query, k } = parsed.data;
-  const results = await searchParablesBySemantic(query, k);
-  res.json({ data: results, query, k });
-});
-
+// /daily must be declared before /:id
 parablesRouter.get('/daily', async (req, res) => {
   const langResult = langSchema.safeParse(req.query.lang);
   const lang = langResult.success ? langResult.data : 'en';
