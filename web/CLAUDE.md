@@ -91,7 +91,6 @@ web/
 │   ├── locales.ts              # LOCALES = ['ru', 'en'], Locale type, isLocale() guard — single source of truth for supported locales
 │   ├── locale-content.ts       # pickLocalized(ru, en, locale) — selects a bilingual DB field; used both server-side (metadata/OG) and client-side (via useLocalizedDigest and directly)
 │   ├── i18n.ts                 # t(lang, key) — static UI copy (labels, headings, errors), not DB content; TranslationKey = keyof typeof translations.ru enforces valid keys
-│   ├── formatTime.ts           # formatCountdown(ms) → "23h 45m" — unused since SituationSearch dropped its client-side cookie countdown (2026-07); candidate for removal
 │   ├── config.ts               # SITE_URL — canonical domain, used for metadataBase, canonical tags, sitemap, robots
 │   └── og-image.tsx            # buildOgImage() — used by app/api/og/route.tsx, see GET /api/og below; slogan text goes through i18n.ts too
 ├── hooks/
