@@ -181,6 +181,13 @@ The channel post differs from the subscriber DM: no spoiler tag on the reflectio
 
 Telegram's Bot API has no way to set a custom text/blockquote color per message — formatting color always follows each viewer's own client theme, not something the sender can override. `formatChannelDigest()` doesn't attempt to fake this.
 
+**When `digest.imageUrl` is set**, `publishToChannel` (`broadcast.ts`) sends a single `sendPhoto` with the digest text as the caption (`formatChannelDigestCaption`) instead of the text-only `sendMessage` above — so photo + text forward/share as one unit. Captions are capped at 1024 chars (vs 4096 for a plain message), so `formatChannelDigestCaption` degrades in three tiers, always preferring to drop content that isn't the parable itself:
+1. Full body with `Вывод` included, parable untruncated — used whenever it fits (empirically: roughly half of real digests do, per character-count sampling in the DB).
+2. `Вывод` replaced by a `[💡 Вывод — на сайте](...)` link, parable still untruncated.
+3. Same as (2), but the parable is truncated (with `…`) via the same binary-search `formatWithLimit` truncation `formatChannelDigest()` uses for the 4096 limit.
+
+The parable is never truncated just to make room for `Вывод` — dropping it for a link is always preferred over cutting the parable short. No inline keyboard button in this case (unlike the no-image case's "Читать на сайте →" button) — the CTA is the in-caption link itself when tier 2/3 applies, one click-through path instead of two.
+
 ### Backfilling channel history
 
 `scripts/publish-history-to-channel.ts` — one-off, manual-only script to post already-published digests to the channel (e.g. to seed history right after enabling `TELEGRAM_CHANNEL_ID`). Takes the last N published `DailyDigest` records (oldest first), posts each via the same `formatChannelDigest`/`buildChannelKeyboard` as the daily broadcast, with a 2s delay between posts to stay under Telegram's rate limit. Skips records missing a `slug` instead of failing the run. Not wired into any cron.

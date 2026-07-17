@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { formatChannelDigest, formatChannelDigestCaption } from './formatChannelDigest';
 import { Digest } from './digestApi';
+import { escapeMarkdown } from './markdown';
 
 function buildDigest(overrides: Partial<Digest> = {}): Digest {
   return {
@@ -105,18 +106,35 @@ describe('formatChannelDigest', () => {
   });
 });
 
+function repeatToLength(text: string, targetLength: number): string {
+  const repeated = text.repeat(Math.ceil(targetLength / text.length));
+  return repeated.slice(0, targetLength);
+}
+
 describe('formatChannelDigestCaption', () => {
   const siteUrl = 'https://sagewayai.com/ru/d/the-captain-and-the-storm';
 
-  it('omits the "Вывод" section entirely', () => {
+  it('includes the "Вывод" section (not a link) when the full body fits under the caption limit', () => {
     const output = formatChannelDigestCaption(buildDigest(), siteUrl);
-    expect(output).not.toContain('Вывод\\*');
-    expect(output).not.toContain(buildDigest().conclusion);
+    expect(output).toContain('💡 *Вывод*');
+    expect(output).toContain(escapeMarkdown(buildDigest().conclusion));
+    expect(output).not.toContain(`[💡 Вывод — на сайте](${siteUrl})`);
   });
 
-  it('renders the CTA as a clickable link to the site, not a plain line', () => {
-    const output = formatChannelDigestCaption(buildDigest(), siteUrl);
+  it('drops "Вывод" for a site link when it alone pushes the body over the limit, without truncating the parable', () => {
+    const digest = buildDigest({
+      parable: {
+        title: 'Средняя притча',
+        content: repeatToLength('Слова притчи текут одно за другим спокойно и ровно ', 450),
+      },
+      conclusion: repeatToLength('Вывод растянут специально для теста граничного случая ', 350),
+    });
+    const output = formatChannelDigestCaption(digest, siteUrl);
+
+    expect(output.length).toBeLessThanOrEqual(1024);
+    expect(output).not.toContain('💡 *Вывод*');
     expect(output).toContain(`[💡 Вывод — на сайте](${siteUrl})`);
+    expect(output).not.toContain('…');
   });
 
   it('still includes the question', () => {
