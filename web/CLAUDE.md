@@ -21,7 +21,6 @@ Next.js App Router SEO site with three goals:
 - **Prisma 7.8.0** (`prisma-client` provider, read-only queries only)
 - **@prisma/adapter-pg** (required in Prisma 7 — `new PrismaClient()` without adapter is invalid)
 - **date-fns v4** for date formatting
-- **transliteration** for generating slugs from Russian titles
 - **zod** for query param validation (e.g. `app/api/og/route.tsx`)
 - **app/sitemap.ts** — built-in Next.js sitemap, queries DB via Prisma, revalidates every 24h
 - **app/robots.ts** — built-in Next.js robots.txt
