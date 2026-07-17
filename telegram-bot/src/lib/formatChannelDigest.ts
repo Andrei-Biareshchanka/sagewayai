@@ -50,11 +50,12 @@ function buildFullBodyLines(digest: Digest): string[] {
 // Used as a sendPhoto caption (see broadcast.ts) when the digest has an image, so the
 // whole post — photo + text — travels as a single forwardable/shareable message. Fallback
 // shape when the full body (with "Вывод") doesn't fit under Telegram's much tighter caption
-// limit: drops "Вывод" and links to it on the site instead, so the parable itself never
-// gets truncated just to make room for the reflection — see formatChannelDigestCaption.
+// limit: drops "Вывод" and links to it on the site instead — see formatChannelDigestCaption.
 // The CTA line is itself the link (no separate inline keyboard button — one click-through
-// path, not two).
-function buildCaptionBodyLines(digest: Digest, siteUrl: string): string[] {
+// path, not two). `linkLabel` differs by tier: "Вывод — на сайте" when only the conclusion
+// is missing (parable stays untruncated), vs "Читать полностью на сайте" once the parable
+// itself also had to be cut short — the link should promise what's actually missing.
+function buildCaptionBodyLines(digest: Digest, siteUrl: string, linkLabel: string): string[] {
   return [
     `💬 ${escapeMarkdown(digest.quote.text)}`,
     `— ${escapeMarkdown(digest.quote.author)}`,
@@ -64,11 +65,14 @@ function buildCaptionBodyLines(digest: Digest, siteUrl: string): string[] {
     '❓ *Вопрос дня*',
     escapeMarkdown(digest.question),
     '',
-    `[💡 Вывод — на сайте](${siteUrl})`,
+    `[${linkLabel}](${siteUrl})`,
     '',
     buildHashtagLine(digest),
   ];
 }
+
+const CONCLUSION_LINK_LABEL = '💡 Вывод — на сайте';
+const READ_FULL_LINK_LABEL = '📖 Читать полностью на сайте';
 
 // Telegram's sendMessage rejects text longer than this with 400 "message is too long".
 const TELEGRAM_MESSAGE_LIMIT = 4096;
@@ -118,15 +122,23 @@ export function formatChannelDigest(digest: Digest): string {
   return formatWithLimit(digest, TELEGRAM_MESSAGE_LIMIT, buildFullBodyLines);
 }
 
-// For sendPhoto's caption — tighter limit (1024 vs 4096). Three-tier fallback:
+// For sendPhoto's caption — tighter limit (1024 vs 4096). Three-tier fallback, each with
+// its own link label so the CTA always promises exactly what's missing:
 // 1. Full body with "Вывод" included, parable untruncated — used whenever it fits.
-// 2. "Вывод" replaced by a link to the site, parable still untruncated.
-// 3. Same as (2), but the parable is truncated to fit (formatWithLimit's binary search).
+// 2. "Вывод" replaced by a "Вывод — на сайте" link, parable still untruncated.
+// 3. Parable also truncated to fit — link becomes "Читать полностью на сайте" instead,
+//    since more than just the conclusion is now missing from the post.
 // The parable is never truncated just to make room for "Вывод" — dropping it for a link
 // is always preferred over cutting the parable short.
 export function formatChannelDigestCaption(digest: Digest, siteUrl: string): string {
   const withConclusion = renderMessage(digest, buildFullBodyLines);
   if (withConclusion.length <= TELEGRAM_CAPTION_LIMIT) return withConclusion;
 
-  return formatWithLimit(digest, TELEGRAM_CAPTION_LIMIT, (d) => buildCaptionBodyLines(d, siteUrl));
+  const buildNoConclusionBody: BodyBuilder = (d) => buildCaptionBodyLines(d, siteUrl, CONCLUSION_LINK_LABEL);
+  const noConclusion = renderMessage(digest, buildNoConclusionBody);
+  if (noConclusion.length <= TELEGRAM_CAPTION_LIMIT) return noConclusion;
+
+  const buildReadFullBody: BodyBuilder = (d) => buildCaptionBodyLines(d, siteUrl, READ_FULL_LINK_LABEL);
+  const content = truncateParableContentToFit(digest, TELEGRAM_CAPTION_LIMIT, buildReadFullBody);
+  return renderMessage({ ...digest, parable: { ...digest.parable, content } }, buildReadFullBody);
 }

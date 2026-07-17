@@ -184,7 +184,7 @@ Telegram's Bot API has no way to set a custom text/blockquote color per message 
 **When `digest.imageUrl` is set**, `publishToChannel` (`broadcast.ts`) sends a single `sendPhoto` with the digest text as the caption (`formatChannelDigestCaption`) instead of the text-only `sendMessage` above — so photo + text forward/share as one unit. Captions are capped at 1024 chars (vs 4096 for a plain message), so `formatChannelDigestCaption` degrades in three tiers, always preferring to drop content that isn't the parable itself:
 1. Full body with `Вывод` included, parable untruncated — used whenever it fits (empirically: roughly half of real digests do, per character-count sampling in the DB).
 2. `Вывод` replaced by a `[💡 Вывод — на сайте](...)` link, parable still untruncated.
-3. Same as (2), but the parable is truncated (with `…`) via the same binary-search `formatWithLimit` truncation `formatChannelDigest()` uses for the 4096 limit.
+3. Parable also truncated (with `…`, same binary-search truncation `formatChannelDigest()` uses for the 4096 limit) — link label switches to `[📖 Читать полностью на сайте](...)` instead of the tier-2 "Вывод" wording, since more than just the conclusion is missing from the post at this point.
 
 The parable is never truncated just to make room for `Вывод` — dropping it for a link is always preferred over cutting the parable short. No inline keyboard button in this case (unlike the no-image case's "Читать на сайте →" button) — the CTA is the in-caption link itself when tier 2/3 applies, one click-through path instead of two.
 

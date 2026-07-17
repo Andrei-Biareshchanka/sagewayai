@@ -142,13 +142,15 @@ describe('formatChannelDigestCaption', () => {
     expect(output).toContain('❓ *Вопрос дня*');
   });
 
-  it('stays under the Telegram 1024-character caption limit for a very long parable', () => {
+  it('truncates the parable and links to "read in full" (not "Вывод") when even the no-conclusion body is too long', () => {
     const longParagraph = 'Очень длинный абзац с текстом притчи, который повторяется много раз подряд. ';
     const content = Array.from({ length: 100 }, () => longParagraph.repeat(3)).join('\n\n');
     const output = formatChannelDigestCaption(buildDigest({ parable: { title: 'Длинная притча', content } }), siteUrl);
 
     expect(output.length).toBeLessThanOrEqual(1024);
     expect(output).toContain('…');
+    expect(output).toContain(`[📖 Читать полностью на сайте](${siteUrl})`);
+    expect(output).not.toContain(`[💡 Вывод — на сайте](${siteUrl})`);
   });
 
   it('leaves a normal-length digest well under the caption limit without truncation', () => {
