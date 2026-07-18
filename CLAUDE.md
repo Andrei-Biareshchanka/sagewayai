@@ -24,6 +24,9 @@ sagewayai/
 ├── web/             # Next.js frontend (Vercel)  →  see web/CLAUDE.md
 ├── server/          # Express + Prisma backend  →  see server/CLAUDE.md
 ├── telegram-bot/    # Telegram bot
+├── scripts/
+│   └── sync-prisma-schema.js  # Copies server/prisma/schema.prisma (canonical) into web/ and
+│                               # telegram-bot/ — see /schema-sync-check under "Custom slash commands"
 └── docker-compose.yml  # PostgreSQL 16 on :5432
 ```
 
@@ -100,7 +103,7 @@ See **[CONVENTIONS.md](./CONVENTIONS.md)** for the full coding style guide.
 | Command | Purpose |
 |---------|---------|
 | `/sagewayai-reviewer` | Architecture-aware code review — checks TypeScript, Zod, Prisma patterns, error handling |
-| `/schema-sync-check` | Checks `server/`, `web/`, `telegram-bot/` Prisma schemas for drift on shared models — these three point at one database, so a field added in one and missed in another can break or crash the others |
+| `/schema-sync-check` | Verifies `web/`/`telegram-bot/`'s generated Prisma schema copies are byte-identical to what `scripts/sync-prisma-schema.js` would produce from the canonical `server/prisma/schema.prisma` — these three point at one database, so a stale copy can break or crash a service |
 | `/parable-formatter` | Validate and format a new parable before adding to the database |
 | `/new-parable [category]` | Scaffold a new parable interactively, validates with parable-formatter, appends to seed.ts |
 | `/new-migration <name>` | Create a Prisma migration with confirmation and error guidance |
@@ -170,7 +173,11 @@ Configured in `.claude/settings.json` (committed):
 
 Both workflows retry a Railway cold start (wake-up loop against `/api/health`, then `/api/health/db`) before calling their respective admin endpoint, and are guarded by a secret header (`x-send-secret` / `x-publish-secret`) checked against a `GitHub Actions` repo secret — not JWT/session auth, since these run outside any user session.
 
-`schema-sync-check` exists because `server/`, `web/`, and `telegram-bot/` each keep their own `prisma/schema.prisma` pointing at the **same shared database**. telegram-bot runs `prisma db push` automatically on every deploy — if a shared model (e.g. `DailyDigest`) gains a field in one schema but not the others, the next push from the lagging package either drops that column or fails and takes the service down (this happened to the bot on 2026-06-30 when `slug`/`titleEn`/`titleRu` were added to `DailyDigest` in `server/` but not `telegram-bot/`). See `.claude/commands/schema-sync-check.md`.
+`schema-sync-check` exists because `server/`, `web/`, and `telegram-bot/` each deploy independently but point at the **same shared database**. `telegram-bot` runs `prisma db push` automatically on every deploy — if a shared model (e.g. `DailyDigest`) gains a field in one schema but not the others, the next push from the lagging package either drops that column or fails and takes the service down (this happened to the bot on 2026-06-30 when `slug`/`titleEn`/`titleRu` were added to `DailyDigest` in `server/` but not `telegram-bot/`).
+
+**`server/prisma/schema.prisma` is now the single canonical source of truth** — `web/prisma/schema.prisma` and `telegram-bot/prisma/schema.prisma` are generated copies produced by `node scripts/sync-prisma-schema.js` (run it after any edit to the canonical schema, then commit all three files together). `schema-sync-check` verifies the copies are still byte-identical to what the script would produce, rather than semantically diffing fields — mechanical, not by discipline. See `.claude/commands/schema-sync-check.md`.
+
+One documented exception: `telegram-bot`'s `BotEvent` model isn't in the canonical schema yet (it was created via `db push` directly, with no migration history in `server/`) — the sync script appends it to `telegram-bot`'s copy explicitly. Formally adopting it into `server/`'s canonical schema and migration history is a deliberate follow-up, not done automatically, since it requires reconciling `server/`'s migration-based workflow with a table that already exists in production.
 
 ## Current phase
 

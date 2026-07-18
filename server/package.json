@@ -13,7 +13,8 @@
     "generate:quotes": "ts-node --project tsconfig.json scripts/generate-quotes.ts",
     "seed:quotes": "ts-node --project tsconfig.json scripts/seed-quotes.ts",
     "seed:quote-embeddings": "ts-node --project tsconfig.json scripts/seed-quote-embeddings.ts",
-    "create-tomorrow-test": "ts-node --project tsconfig.json scripts/create-tomorrow-test.ts"
+    "create-tomorrow-test": "ts-node --project tsconfig.json scripts/create-tomorrow-test.ts",
+    "sync:prisma-schema": "node ../scripts/sync-prisma-schema.js"
   },
   "prisma": {
     "seed": "ts-node prisma/seed.ts"
