@@ -177,7 +177,7 @@ Both workflows retry a Railway cold start (wake-up loop against `/api/health`, t
 
 **`server/prisma/schema.prisma` is now the single canonical source of truth** — `web/prisma/schema.prisma` and `telegram-bot/prisma/schema.prisma` are generated copies produced by `node scripts/sync-prisma-schema.js` (run it after any edit to the canonical schema, then commit all three files together). `schema-sync-check` verifies the copies are still byte-identical to what the script would produce, rather than semantically diffing fields — mechanical, not by discipline. See `.claude/commands/schema-sync-check.md`.
 
-One documented exception: `telegram-bot`'s `BotEvent` model isn't in the canonical schema yet (it was created via `db push` directly, with no migration history in `server/`) — the sync script appends it to `telegram-bot`'s copy explicitly. Formally adopting it into `server/`'s canonical schema and migration history is a deliberate follow-up, not done automatically, since it requires reconciling `server/`'s migration-based workflow with a table that already exists in production.
+`telegram-bot`'s `BotEvent` model — originally created via `db push` directly, with no migration history in `server/` — was formally adopted into the canonical schema 2026-07-18 (migration `20260718000000_add_bot_event`, generated via `prisma migrate diff` against the live table shape and adopted with `prisma migrate resolve --applied` rather than actually run, since the table already existed in every environment). The sync script no longer needs a special case for it — it's just another model in the canonical schema now.
 
 ## Current phase
 

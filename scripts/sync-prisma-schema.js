@@ -33,36 +33,14 @@ const HEADER = [
   '',
 ].join('\n');
 
-// BotEvent is telegram-bot-only and not yet part of the canonical schema in
-// server/ — it was created via `prisma db push` from telegram-bot directly,
-// with no migration history in server/. Appended here as an explicit,
-// documented exception until it's formally adopted into server/'s migration
-// history (tracked separately — this is a deliberate, not accidental, gap).
-const BOT_EVENT_MODEL = [
-  '',
-  'model BotEvent {',
-  '  id        Int      @id @default(autoincrement())',
-  '  userId    BigInt',
-  '  event     String',
-  '  meta      Json?',
-  '  createdAt DateTime @default(now())',
-  '',
-  '  @@index([userId])',
-  '  @@index([event, createdAt])',
-  '}',
-  '',
-].join('\n');
-
 const TARGETS = {
   web: {
     path: path.join(ROOT, 'web/prisma/schema.prisma'),
     generatorBlock: 'generator client {\n  provider = "prisma-client"\n  output   = "../app/generated/prisma"\n}',
-    append: '',
   },
   'telegram-bot': {
     path: path.join(ROOT, 'telegram-bot/prisma/schema.prisma'),
     generatorBlock: 'generator client {\n  provider = "prisma-client-js"\n  output   = "../node_modules/.prisma/client"\n}',
-    append: BOT_EVENT_MODEL,
   },
 };
 
@@ -71,7 +49,7 @@ function buildOutput(canonical, target) {
     throw new Error(`Could not find "generator client { ... }" block in ${CANONICAL_PATH}`);
   }
   const body = canonical.replace(GENERATOR_BLOCK_RE, target.generatorBlock);
-  return HEADER + body + target.append;
+  return HEADER + body;
 }
 
 function main() {
