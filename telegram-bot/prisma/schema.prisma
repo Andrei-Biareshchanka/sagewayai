@@ -1,3 +1,7 @@
+// GENERATED FILE — do not edit directly.
+// Source of truth: server/prisma/schema.prisma
+// Regenerate with: node scripts/sync-prisma-schema.js
+
 generator client {
   provider = "prisma-client-js"
   output   = "../node_modules/.prisma/client"
