@@ -157,3 +157,14 @@ model SituationRequest {
   @@index([ip, usedAt])
   @@index([chatId, usedAt])
 }
+
+model BotEvent {
+  id        Int      @id @default(autoincrement())
+  userId    BigInt
+  event     String
+  meta      Json?
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([event, createdAt])
+}

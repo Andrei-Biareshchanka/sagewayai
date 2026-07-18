@@ -99,6 +99,7 @@ After schema change: `npx prisma migrate dev --name <name>` then `npx prisma gen
 | `DailyDigest` | `id`, `date` (unique), `slug?` (unique), `titleEn?`, `titleRu?`, `quoteId`, `parableId`, `conclusionEn/Ru`, `questionEn/Ru`, `isPublished` (default `false`), `publishedAt?` |
 | `SituationRequest` | `id`, `ip`, `chatId?`, `usedAt` — 24h rate limit table for `POST /api/digest/situation`, but only written to when the request has `includeReflection: true` (Telegram bot only — passes `chatId` so each bot user has an independent limit). Web always sends `includeReflection: false` and never touches this table; see "Situation search endpoint" below. |
 | `TelegramSubscriber` | `id`, `chatId` (unique), `username?`, `active`, `language`, `situationUsedAt?`, `referredBy?` — owned by `telegram-bot/`; `referredBy` stores the referring subscriber's `chatId` for the referral system. |
+| `BotEvent` | `id` (autoincrement), `userId`, `event`, `meta?` (JSON), `createdAt` — owned by `telegram-bot/` (analytics events, see `telegram-bot/src/lib/analytics.ts`); indexed on `userId` and `[event, createdAt]`. Adopted into `server/`'s canonical schema and migration history 2026-07-18 — the table itself predates this and was created via `telegram-bot/`'s `prisma db push`, so its migration (`20260718000000_add_bot_event`) was adopted via `prisma migrate resolve --applied` rather than actually run. |
 
 Constraints: `DailyDigest` has `@@unique([parableId, quoteId])` — same parable+quote pair can only appear once ever.
 
