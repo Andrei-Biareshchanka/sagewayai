@@ -41,6 +41,17 @@ function buildExcludeClause(parableIds: string[]): Prisma.Sql {
   return parableIds.length > 0 ? Prisma.sql`AND p.id NOT IN (${Prisma.join(parableIds)})` : Prisma.empty;
 }
 
+// Cosine distance between top candidates is often razor-thin in production (observed
+// as little as 0.0005 apart between #1 and #2 out of ~80 parables) — pure similarity
+// ordering lets a handful of "generalist" parables (broadly relevant to many themes,
+// e.g. "The Two Wolves", "The Empty Throne") win almost every pairing they're eligible
+// for, while most of the pool never gets picked at all (cooldown only blocks *recent*
+// repeats, not *frequent* ones over months). This adds a small penalty per historical
+// use so ties nudge toward less-used parables, without overriding a genuinely stronger
+// match: a parable used 2x more than a rival needs roughly a 0.03 similarity edge
+// (2 * PARABLE_USAGE_PENALTY) to still win.
+const PARABLE_USAGE_PENALTY = 0.015;
+
 async function queryBestMatch(quoteId: string, excludeClause: Prisma.Sql): Promise<ParableMatch | undefined> {
   const [match] = await prisma.$queryRaw<ParableMatch[]>`
     SELECT p.id, p.title, p.content, p.moral, p.source, p."readTime", p."categoryId",
@@ -50,7 +61,9 @@ async function queryBestMatch(quoteId: string, excludeClause: Prisma.Sql): Promi
       AND p.embedding IS NOT NULL
       AND q.embedding IS NOT NULL
       ${excludeClause}
-    ORDER BY p.embedding <=> q.embedding
+    ORDER BY (p.embedding <=> q.embedding) + (
+      (SELECT COUNT(*)::float8 FROM "DailyDigest" d WHERE d."parableId" = p.id) * ${PARABLE_USAGE_PENALTY}
+    )
     LIMIT 1
   `;
   return match;
