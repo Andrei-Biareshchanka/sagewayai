@@ -9,6 +9,7 @@ interface BilingualDailyData extends BilingualDigestContent {
   slug: string | null;
   date: Date;
   category: DigestCategory;
+  parableCanonicalSlug: string | null;
 }
 
 interface HomeDailyDigestProps {
@@ -29,6 +30,7 @@ export function HomeDailyDigest({ data }: HomeDailyDigestProps) {
       imageAlt={imageAlt}
       shareUrl={data.slug ? `${SITE_URL}/${lang}/d/${data.slug}?utm_source=share&utm_medium=social` : undefined}
       shareTitle={title}
+      parableCanonicalSlug={data.parableCanonicalSlug}
     />
   );
 }

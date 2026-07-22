@@ -42,6 +42,7 @@ const translations = {
     deepReflectionLabel: 'Глубокий вывод',
     questionsHeading: 'Вопросы для размышления',
     relatedParablesHeading: 'Похожие притчи',
+    readFullParable: 'Читать притчу полностью',
   },
   en: {
     dailyWisdomBadge: 'Daily wisdom',
@@ -83,6 +84,7 @@ const translations = {
     deepReflectionLabel: 'Deep reflection',
     questionsHeading: 'Questions to sit with',
     relatedParablesHeading: 'Related parables',
+    readFullParable: 'Read the full parable',
   },
 } as const;
 
