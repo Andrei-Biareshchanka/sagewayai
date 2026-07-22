@@ -58,7 +58,11 @@ scripts/
 ├── generate-quotes.ts
 ├── seed-quotes.ts
 ├── seed-embeddings.ts / seed-quote-embeddings.ts  # pgvector embedding backfills
-└── create-tomorrow-test.ts       # manual verification: creates one unpublished draft dated tomorrow (UTC), reusing createDigestForDate — for testing the publish-and-prepare flow without waiting for the cron
+├── create-tomorrow-test.ts       # manual verification: creates one unpublished draft dated tomorrow (UTC), reusing createDigestForDate — for testing the publish-and-prepare flow without waiting for the cron
+├── backfill-parable-slugs.ts     # one-time: idempotent RU→Latin transliteration + EN slugify for Parable.slugRu/slugEn, collision suffixes (-2, -3, ...)
+├── backfill-parable-quotes.ts    # one-time: assigns each parable exactly 3 ParableQuote rows (position 0-2, one isPrimary) via vector similarity
+├── backfill-parable-insights.ts  # batched runner: generateReviewedParableInsight + generateParableImageBrief across DRAFT parables, with a per-model cost report and reflectionStatus routing (REVIEWED/GENERATED/FAILED) — see "Canonical parable insight generation" below
+└── dry-run-parable-insight.ts    # manual verification: runs the insight pipeline for a single parable, prints full generated text for review before trusting the batch runner
 ```
 
 ## Prisma notes
@@ -153,6 +157,18 @@ It also sometimes ignores the Russian instruction and answers in English. `gener
 `generateUniqueTitle()` and its argument builder `buildTitleArgs()` are **exported** from `dailyDigest.ts` so any script that (re)generates titles reuses the same dedup guard instead of calling `generateDigestTitle()` directly (see `scripts/generate-digest-titles.ts`). `buildTitleArgs(quote, parable, language)` takes narrowed `Pick<Quote, 'text' | 'textRu' | 'author' | 'authorRu' | 'theme'>` / `Pick<Parable, 'title' | 'moral'>` types — it only reads those fields, so both the live `findParableForQuote()` match shape and a full Prisma `Parable`/`Quote` row (as used by backfill scripts) satisfy it.
 
 **Scripts that touch shared title/digest logic should import `prisma` from `src/lib/prisma`** (the app's singleton, which self-loads env vars via `import 'dotenv/config'`) rather than constructing their own `PrismaClient` — this guarantees they see the same DB state the dedup check relies on and avoids maintaining a second connection setup.
+
+### Canonical parable insight generation (`src/lib/anthropic.ts`)
+
+Powers the `/pritcha/[slug]` canonical parable page (`web/`) — separate from the daily digest's own short `generateReflection()`. Produces the deep `conclusion` + 3 graduated `questions` (RU+EN) and the illustration brief stored on `Parable`.
+
+- **`INSIGHT_LENSES`** — 7 fixed angles (`bodily`, `relational`, `threshold`, `paradox`, `retrospective`, `cost`, `witness`), each a specific instruction for where the essay's second/third level of insight anchors. `getInsightLens(parableIndexInDb)` picks `INSIGHT_LENSES[parableIndexInDb % 7]` — deterministic by the parable's position in `id ASC` order, not random, so the same parable always gets the same lens, including on a regeneration retry (a retry must fix the same essay, not roll a different one).
+- **`generateParableInsight(quote, parable, language, lens)`** — Opus 4.8 (`PARABLE_INSIGHT_MODEL`), up to `MAX_GENERATION_ATTEMPTS` (3) attempts. Each attempt is validated by `findValidationIssue()` before being accepted: zod shape, `containsToolCallArtifact()` (regex-catches leaked tool-call-syntax fragments like `<parameter>`), `detectMixedScript()` (catches a single word mixing Cyrillic and Latin letters — a real defect seen in dry-run testing, distinct from legitimate whole-word language mixing). Throws `ParableInsightGenerationError` (carries `attempts` + `lastRawResponse`) only after all attempts fail, so a caller can route that parable to `reflectionStatus = FAILED` instead of crashing the whole batch.
+- **`reviewDeepReflection(conclusion, questions, language)`** — Haiku-based review gate. Length bounds are deliberately wider than the generation prompt's own target (EN reject range 380-720 words vs. a 400-700 target; RU 330-620 vs. 350-600) — same "target vs. reject range" relationship as the generation length. Em-dash overuse is checked in code (`countEmDashes`, reject threshold `> 5`), not left to the LLM's judgment — an earlier version had the reviewer judge em-dash count directly and it rejected nearly an entire batch over normal prose density (Opus reliably produces ~3 per essay); the generation prompt still nudges toward ≤2 as a soft target, but only the code-level count can reject.
+- **`generateReviewedParableInsight()`** — orchestrates the two above, `MAX_REVIEW_CYCLES = 3` (generate → review → regenerate on fail, same lens every time). Returns `insightUsage`/`reviewUsage` as separate `TokenUsage` values, never blended — Opus and Haiku are priced differently, so a combined total would be meaningless for cost tracking.
+- **`generateParableImageBrief(parable)`** — Sonnet. The model only ever describes the scene (3-5 sentences) plus bilingual alt text; `imagePromptEn` is assembled by code (`${IMAGE_STYLE_PREFIX} ${scene} ${IMAGE_STYLE_PALETTE} ${IMAGE_STYLE_FORMAT}`) from fixed constants, so illustration style (flat children's-book look, fixed hex palette, 16:9 2048×1152) stays consistent across parables regardless of what the model generates for the scene itself.
+
+`scripts/backfill-parable-insights.ts` is the batch runner over `reflectionStatus = DRAFT` parables — see the scripts table above. A parable only becomes linkable at `/pritcha/[slug]` once `reflectionStatus` reaches `REVIEWED` (both languages passed the review gate) and both slugs are set; `GENERATED` means the text exists but failed review and needs manual attention, `FAILED` means generation itself never produced a valid response.
 
 ### Slug format (`src/lib/slug.ts`)
 
