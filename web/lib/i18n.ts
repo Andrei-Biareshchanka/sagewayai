@@ -39,6 +39,9 @@ const translations = {
     situationNextRequestIn: 'Следующий запрос через',
     situationNewSearch: 'Новый поиск',
     situationCtaButton: 'Найти мудрость под вашу ситуацию',
+    deepReflectionLabel: 'Глубокий вывод',
+    questionsHeading: 'Вопросы для размышления',
+    relatedParablesHeading: 'Похожие притчи',
   },
   en: {
     dailyWisdomBadge: 'Daily wisdom',
@@ -77,6 +80,9 @@ const translations = {
     situationNextRequestIn: 'Next request in',
     situationNewSearch: 'New search',
     situationCtaButton: 'Find wisdom for your situation',
+    deepReflectionLabel: 'Deep reflection',
+    questionsHeading: 'Questions to sit with',
+    relatedParablesHeading: 'Related parables',
   },
 } as const;
 
