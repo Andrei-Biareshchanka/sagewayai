@@ -1,9 +1,20 @@
 import { Category, DailyDigest, Parable, Prisma, Quote } from '@prisma/client';
 import { prisma } from './prisma';
 import { getTodayDate } from './daily';
-import { findParableForQuote } from '../services/digest';
+import {
+  selectDailyParable,
+  findQuoteForParable,
+  type DailyParableCandidate,
+} from '../services/dailyParableSelection';
 import { generateReflection, generateDigestTitle } from './anthropic';
 import { buildDigestSlug } from './slug';
+
+// The old quote-first pipeline (pickNextQuote() below, then vector-search a
+// matching parable) is replaced by the parable-first pipeline in
+// createDigestForDate — selectDailyParable() (LRU + 60-day cooldown) then
+// findQuoteForParable() (rotates through the parable's 3 pre-assigned
+// quotes). findParableForQuote (services/digest.ts) is intentionally left in
+// place, unimported here, as a rollback path — see that file if reverting.
 
 const UNIQUE_CONSTRAINT_ERROR = 'P2002';
 const ONE_DAY_MS = 24 * 60 * 60 * 1000;
@@ -65,6 +76,10 @@ async function pickQuoteWithinCooldown(): Promise<Quote | null> {
   return null;
 }
 
+// Quote-first counterpart to findParableForQuote (services/digest.ts) — no
+// longer called from createDigestForDate after the parable-first pipeline
+// replaced it, kept in place unexported as the other half of the same
+// rollback path (both would need to be wired back in together to revert).
 async function pickNextQuote(): Promise<Quote> {
   const unusedQuotes = await prisma.quote.findMany({
     where: { digests: { none: {} } },
@@ -123,7 +138,7 @@ export async function generateUniqueTitle(field: TitleField, args: TitleArgs): P
   return title;
 }
 
-async function buildReflections(quote: Quote, parable: Awaited<ReturnType<typeof findParableForQuote>>) {
+async function buildReflections(quote: Quote, parable: DailyParableCandidate) {
   const parableText = buildParableText(parable.title, parable.content, parable.moral);
   const [en, ru, titleEn, titleRu] = await Promise.all([
     generateReflection(quote.text, parableText, 'en'),
@@ -143,8 +158,13 @@ async function buildReflections(quote: Quote, parable: Awaited<ReturnType<typeof
 }
 
 export async function createDigestForDate(date: Date, isPublished: boolean): Promise<DigestWithRelations> {
-  const quote = await pickNextQuote();
-  const parable = await findParableForQuote(quote.id);
+  const parable = await selectDailyParable();
+  // Must run before prisma.dailyDigest.create() below, not after: this counts
+  // existing DailyDigest rows for `parable.id` to derive the rotation
+  // position (timesShown % 3). If today's row existed at count time, it would
+  // count itself and rotate the position by one — calling it here, before the
+  // row for `date` is created, keeps the count accurate.
+  const quote = await findQuoteForParable(parable);
   const reflections = await buildReflections(quote, parable);
   const slug = await buildDigestSlug(prisma, parable.title, quote.author, quote.theme ?? null);
 
