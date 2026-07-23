@@ -11,14 +11,19 @@ vi.mock('./prisma', () => ({
       update: vi.fn(),
       count: vi.fn(),
     },
-    quote: {
-      findMany: vi.fn(),
-    },
   },
 }));
 
-vi.mock('../services/digest', () => ({
-  findParableForQuote: vi.fn(),
+// Step 2e: createDigestForDate now goes through the parable-first pipeline
+// (selectDailyParable + findQuoteForParable, services/dailyParableSelection.ts)
+// instead of the old quote-first pickNextQuote + findParableForQuote. Mocking
+// the whole module — same pattern the old '../services/digest' mock used —
+// keeps these tests about dailyDigest.ts's own orchestration, not about
+// selectDailyParable's internal cooldown/LRU SQL (that belongs in a
+// dedicated dailyParableSelection.test.ts).
+vi.mock('../services/dailyParableSelection', () => ({
+  selectDailyParable: vi.fn(),
+  findQuoteForParable: vi.fn(),
 }));
 
 vi.mock('./anthropic', () => ({
@@ -28,7 +33,7 @@ vi.mock('./anthropic', () => ({
 
 import { getDailyDigest, publishTodayAndPrepareTomorrow } from './dailyDigest';
 import { prisma } from './prisma';
-import { findParableForQuote } from '../services/digest';
+import { selectDailyParable, findQuoteForParable } from '../services/dailyParableSelection';
 import { generateReflection, generateDigestTitle } from './anthropic';
 
 const mockPrisma = prisma as unknown as {
@@ -40,12 +45,10 @@ const mockPrisma = prisma as unknown as {
     update: ReturnType<typeof vi.fn>;
     count: ReturnType<typeof vi.fn>;
   };
-  quote: {
-    findMany: ReturnType<typeof vi.fn>;
-  };
 };
 
-const mockFindParableForQuote = findParableForQuote as ReturnType<typeof vi.fn>;
+const mockSelectDailyParable = selectDailyParable as ReturnType<typeof vi.fn>;
+const mockFindQuoteForParable = findQuoteForParable as ReturnType<typeof vi.fn>;
 const mockGenerateReflection = generateReflection as ReturnType<typeof vi.fn>;
 const mockGenerateDigestTitle = generateDigestTitle as ReturnType<typeof vi.fn>;
 
@@ -68,7 +71,6 @@ const MOCK_PARABLE_MATCH = {
   source: null,
   readTime: 2,
   categoryId: 'category-1',
-  similarity: 0.64,
 };
 
 const MOCK_DIGEST_ROW = {
@@ -98,15 +100,15 @@ describe('getDailyDigest', () => {
     const result = await getDailyDigest();
 
     expect(result).toEqual(MOCK_DIGEST_ROW);
-    expect(mockPrisma.quote.findMany).not.toHaveBeenCalled();
+    expect(mockSelectDailyParable).not.toHaveBeenCalled();
     expect(mockPrisma.dailyDigest.create).not.toHaveBeenCalled();
   });
 
   it('builds a new digest when none exists for today', async () => {
     mockPrisma.dailyDigest.findUnique.mockResolvedValue(null);
     mockPrisma.dailyDigest.findFirst.mockResolvedValue(null);
-    mockPrisma.quote.findMany.mockResolvedValue([MOCK_QUOTE]);
-    mockFindParableForQuote.mockResolvedValue(MOCK_PARABLE_MATCH);
+    mockSelectDailyParable.mockResolvedValue(MOCK_PARABLE_MATCH);
+    mockFindQuoteForParable.mockResolvedValue(MOCK_QUOTE);
     mockGenerateReflection
       .mockResolvedValueOnce({ conclusion: 'EN conclusion', question: 'EN question?' })
       .mockResolvedValueOnce({ conclusion: 'RU conclusion', question: 'RU question?' });
@@ -116,34 +118,11 @@ describe('getDailyDigest', () => {
     const result = await getDailyDigest();
 
     expect(result).toEqual(MOCK_DIGEST_ROW);
-    expect(mockFindParableForQuote).toHaveBeenCalledWith(MOCK_QUOTE.id);
+    expect(mockSelectDailyParable).toHaveBeenCalled();
+    expect(mockFindQuoteForParable).toHaveBeenCalledWith(MOCK_PARABLE_MATCH);
     expect(mockGenerateReflection).toHaveBeenCalledTimes(2);
     expect(mockGenerateDigestTitle).toHaveBeenCalledTimes(2);
     expect(mockPrisma.dailyDigest.create).toHaveBeenCalledOnce();
-  });
-
-  it('degrades through the quote cooldown steps to strict LRU when every quote is recently used', async () => {
-    mockPrisma.dailyDigest.findUnique.mockResolvedValue(null);
-    mockPrisma.quote.findMany
-      .mockResolvedValueOnce([]) // no fully-unused quotes
-      .mockResolvedValue([]); // every cooldown step (14,10,7,3,1) still finds zero eligible quotes
-    mockPrisma.dailyDigest.findMany.mockResolvedValue([{ quoteId: 'quote-1' }]); // recently used ids
-    mockPrisma.dailyDigest.findFirst
-      .mockResolvedValueOnce(MOCK_DIGEST_ROW) // pickLeastRecentlyUsedQuote's oldest-digest lookup
-      .mockResolvedValue(null); // isTitleTaken checks: not taken
-    mockFindParableForQuote.mockResolvedValue(MOCK_PARABLE_MATCH);
-    mockGenerateReflection
-      .mockResolvedValueOnce({ conclusion: 'EN conclusion', question: 'EN question?' })
-      .mockResolvedValueOnce({ conclusion: 'RU conclusion', question: 'RU question?' });
-    mockGenerateDigestTitle.mockResolvedValue('Тестовый заголовок');
-    mockPrisma.dailyDigest.create.mockResolvedValue(MOCK_DIGEST_ROW);
-
-    const result = await getDailyDigest();
-
-    expect(result).toEqual(MOCK_DIGEST_ROW);
-    expect(mockFindParableForQuote).toHaveBeenCalledWith(MOCK_QUOTE.id);
-    // 1 "unused quotes" check + 5 cooldown-step eligibility checks (14,10,7,3,1 days)
-    expect(mockPrisma.quote.findMany).toHaveBeenCalledTimes(6);
   });
 
   it('regenerates a title that already exists on another digest', async () => {
@@ -151,8 +130,8 @@ describe('getDailyDigest', () => {
     // by the actual arguments each call receives rather than call order, which would be
     // nondeterministic across the two concurrent retry loops.
     mockPrisma.dailyDigest.findUnique.mockResolvedValue(null);
-    mockPrisma.quote.findMany.mockResolvedValue([MOCK_QUOTE]);
-    mockFindParableForQuote.mockResolvedValue(MOCK_PARABLE_MATCH);
+    mockSelectDailyParable.mockResolvedValue(MOCK_PARABLE_MATCH);
+    mockFindQuoteForParable.mockResolvedValue(MOCK_QUOTE);
     mockGenerateReflection.mockResolvedValue({ conclusion: 'c', question: 'q?' });
     mockPrisma.dailyDigest.create.mockResolvedValue(MOCK_DIGEST_ROW);
 
@@ -179,8 +158,8 @@ describe('getDailyDigest', () => {
   it('regenerates a titleRu that came back in English instead of Russian', async () => {
     mockPrisma.dailyDigest.findUnique.mockResolvedValue(null);
     mockPrisma.dailyDigest.findFirst.mockResolvedValue(null); // nothing is a duplicate
-    mockPrisma.quote.findMany.mockResolvedValue([MOCK_QUOTE]);
-    mockFindParableForQuote.mockResolvedValue(MOCK_PARABLE_MATCH);
+    mockSelectDailyParable.mockResolvedValue(MOCK_PARABLE_MATCH);
+    mockFindQuoteForParable.mockResolvedValue(MOCK_QUOTE);
     mockGenerateReflection.mockResolvedValue({ conclusion: 'c', question: 'q?' });
     mockPrisma.dailyDigest.create.mockResolvedValue(MOCK_DIGEST_ROW);
 
@@ -203,8 +182,8 @@ describe('getDailyDigest', () => {
   it('gives up after max attempts and keeps the last generated title', async () => {
     mockPrisma.dailyDigest.findUnique.mockResolvedValue(null);
     mockPrisma.dailyDigest.findFirst.mockResolvedValue(MOCK_DIGEST_ROW); // always "taken"
-    mockPrisma.quote.findMany.mockResolvedValue([MOCK_QUOTE]);
-    mockFindParableForQuote.mockResolvedValue(MOCK_PARABLE_MATCH);
+    mockSelectDailyParable.mockResolvedValue(MOCK_PARABLE_MATCH);
+    mockFindQuoteForParable.mockResolvedValue(MOCK_QUOTE);
     mockGenerateReflection.mockResolvedValue({ conclusion: 'c', question: 'q?' });
     mockGenerateDigestTitle.mockResolvedValue('Всегда занято');
     mockPrisma.dailyDigest.create.mockResolvedValue(MOCK_DIGEST_ROW);
@@ -225,8 +204,8 @@ describe('getDailyDigest', () => {
       .mockResolvedValueOnce(MOCK_DIGEST_ROW); // findDigestForDate retry after P2002
 
     mockPrisma.dailyDigest.findFirst.mockResolvedValue(null);
-    mockPrisma.quote.findMany.mockResolvedValue([MOCK_QUOTE]);
-    mockFindParableForQuote.mockResolvedValue(MOCK_PARABLE_MATCH);
+    mockSelectDailyParable.mockResolvedValue(MOCK_PARABLE_MATCH);
+    mockFindQuoteForParable.mockResolvedValue(MOCK_QUOTE);
     mockGenerateReflection.mockResolvedValue({ conclusion: 'c', question: 'q?' });
     mockGenerateDigestTitle.mockResolvedValue('Тестовый заголовок');
 
@@ -245,8 +224,8 @@ describe('getDailyDigest', () => {
   it('rethrows non-P2002 errors', async () => {
     mockPrisma.dailyDigest.findUnique.mockResolvedValue(null);
     mockPrisma.dailyDigest.findFirst.mockResolvedValue(null);
-    mockPrisma.quote.findMany.mockResolvedValue([MOCK_QUOTE]);
-    mockFindParableForQuote.mockResolvedValue(MOCK_PARABLE_MATCH);
+    mockSelectDailyParable.mockResolvedValue(MOCK_PARABLE_MATCH);
+    mockFindQuoteForParable.mockResolvedValue(MOCK_QUOTE);
     mockGenerateReflection.mockResolvedValue({ conclusion: 'c', question: 'q?' });
     mockGenerateDigestTitle.mockResolvedValue('Тестовый заголовок');
 
@@ -297,8 +276,8 @@ describe('publishTodayAndPrepareTomorrow', () => {
       .mockResolvedValueOnce(null);            // buildDigestSlug: base slug not taken
     mockPrisma.dailyDigest.update.mockResolvedValue(published);
     mockPrisma.dailyDigest.findFirst.mockResolvedValue(null);
-    mockPrisma.quote.findMany.mockResolvedValue([MOCK_QUOTE]);
-    mockFindParableForQuote.mockResolvedValue(MOCK_PARABLE_MATCH);
+    mockSelectDailyParable.mockResolvedValue(MOCK_PARABLE_MATCH);
+    mockFindQuoteForParable.mockResolvedValue(MOCK_QUOTE);
     mockGenerateReflection.mockResolvedValue({ conclusion: 'c', question: 'q?' });
     mockGenerateDigestTitle.mockResolvedValue('Тестовый заголовок');
     mockPrisma.dailyDigest.create.mockResolvedValue(prepared);
@@ -335,8 +314,8 @@ describe('publishTodayAndPrepareTomorrow', () => {
       .mockResolvedValueOnce(null) // findDigestForDate(digestDateToPrepare)
       .mockResolvedValueOnce(null); // buildDigestSlug: base slug not taken (for the prepare-step create)
     mockPrisma.dailyDigest.findFirst.mockResolvedValue(null);
-    mockPrisma.quote.findMany.mockResolvedValue([MOCK_QUOTE]);
-    mockFindParableForQuote.mockResolvedValue(MOCK_PARABLE_MATCH);
+    mockSelectDailyParable.mockResolvedValue(MOCK_PARABLE_MATCH);
+    mockFindQuoteForParable.mockResolvedValue(MOCK_QUOTE);
     mockGenerateReflection.mockResolvedValue({ conclusion: 'c', question: 'q?' });
     mockGenerateDigestTitle.mockResolvedValue('Тестовый заголовок');
     mockPrisma.dailyDigest.create
@@ -376,8 +355,8 @@ describe('publishTodayAndPrepareTomorrow', () => {
     // furthest-date lookup for ensureDraftBuffer also goes through findFirst — same mock
     // used for slug-uniqueness checks, so just resolve every findFirst call to null/no-match.
     mockPrisma.dailyDigest.findFirst.mockResolvedValue(null);
-    mockPrisma.quote.findMany.mockResolvedValue([MOCK_QUOTE]);
-    mockFindParableForQuote.mockResolvedValue(MOCK_PARABLE_MATCH);
+    mockSelectDailyParable.mockResolvedValue(MOCK_PARABLE_MATCH);
+    mockFindQuoteForParable.mockResolvedValue(MOCK_QUOTE);
     mockGenerateReflection.mockResolvedValue({ conclusion: 'c', question: 'q?' });
     mockGenerateDigestTitle.mockResolvedValue('Тестовый заголовок');
     mockPrisma.dailyDigest.create.mockResolvedValue(prepared);

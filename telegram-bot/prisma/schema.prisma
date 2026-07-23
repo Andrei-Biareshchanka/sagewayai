@@ -12,26 +12,47 @@ datasource db {
 }
 
 model Parable {
-  id         String                       @id @default(cuid())
-  title      String
-  content    String                       @db.Text
-  moral      String
-  titleRu    String?
-  contentRu  String?                      @db.Text
-  moralRu    String?
-  source     String?
-  readTime   Int
-  createdAt  DateTime                     @default(now())
-  updatedAt  DateTime                     @updatedAt
-  category   Category                     @relation(fields: [categoryId], references: [id])
-  categoryId String
-  dailies    DailyParable[]
-  digests    DailyDigest[]
-  favorites  Favorite[]
-  embedding  Unsupported("vector(1024)")?
+  id                  String                       @id @default(cuid())
+  title               String
+  content             String                       @db.Text
+  moral               String
+  titleRu             String?
+  contentRu           String?                      @db.Text
+  moralRu             String?
+  source              String?
+  readTime            Int
+  slugRu              String?                      @unique
+  slugEn              String?                      @unique
+  imageUrl            String?
+  imageAltRu          String?
+  imageAltEn          String?
+  imagePromptEn       String?                      @db.Text
+  conclusionRu        String?                      @db.Text
+  conclusionEn        String?                      @db.Text
+  questionsRu         Json?
+  questionsEn         Json?
+  reflectionStatus    ReflectionStatus             @default(DRAFT)
+  reflectionUpdatedAt DateTime?
+  createdAt           DateTime                     @default(now())
+  updatedAt           DateTime                     @updatedAt
+  category            Category                     @relation(fields: [categoryId], references: [id])
+  categoryId          String
+  dailies             DailyParable[]
+  digests             DailyDigest[]
+  favorites           Favorite[]
+  quotes              ParableQuote[]
+  embedding           Unsupported("vector(1024)")?
 
   @@unique([title, categoryId])
   @@index([categoryId])
+}
+
+enum ReflectionStatus {
+  DRAFT
+  GENERATED
+  REVIEWED
+  PUBLISHED
+  FAILED
 }
 
 model Quote {
@@ -45,8 +66,22 @@ model Quote {
   updatedAt DateTime                     @updatedAt
   embedding Unsupported("vector(1024)")?
   digests   DailyDigest[]
+  parables  ParableQuote[]
 
   @@unique([text, author])
+}
+
+model ParableQuote {
+  id        String   @id @default(cuid())
+  parableId String
+  quoteId   String
+  position  Int
+  isPrimary Boolean  @default(false)
+  parable   Parable  @relation(fields: [parableId], references: [id], onDelete: Cascade)
+  quote     Quote    @relation(fields: [quoteId], references: [id], onDelete: Cascade)
+
+  @@unique([parableId, position])
+  @@index([quoteId])
 }
 
 model DailyDigest {
@@ -69,8 +104,6 @@ model DailyDigest {
   isPublished  Boolean   @default(false)
   publishedAt  DateTime?
   createdAt    DateTime  @default(now())
-
-  @@unique([parableId, quoteId])
 }
 
 model Category {

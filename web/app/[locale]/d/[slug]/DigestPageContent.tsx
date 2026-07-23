@@ -16,6 +16,7 @@ interface BilingualDigest extends BilingualDigestContent {
   slug: string;
   date: Date;
   category: { name: string; nameRu: string | null; slug: string };
+  parableCanonicalSlug: string | null;
 }
 
 interface RelatedDigest {
@@ -54,6 +55,7 @@ export function DigestPageContent({ digest, related }: DigestPageContentProps) {
         imageAlt={imageAlt}
         shareUrl={`${SITE_URL}/${lang}/d/${digest.slug}?utm_source=share&utm_medium=social`}
         shareTitle={digestTitle}
+        parableCanonicalSlug={digest.parableCanonicalSlug}
       />
 
       <SituationCTA />

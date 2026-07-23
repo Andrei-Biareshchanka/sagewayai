@@ -58,6 +58,10 @@ web/
 │   │   │   ├── DigestCategoryFilter.tsx        # Client — "All" + category pills, links to /{lang}/digests?category=slug
 │   │   │   ├── DigestCard.tsx                  # Client — single digest card (category badge + AI title + date + "Read" link)
 │   │   │   └── DigestPagination.tsx            # Client — prev/next page links, preserves ?category=
+│   │   ├── pritcha/
+│   │   │   └── [slug]/
+│   │   │       ├── page.tsx               # Canonical parable page (SSG, revalidate 86400) — gated on reflectionStatus=REVIEWED, 404 otherwise
+│   │   │       └── ParablePageContent.tsx # Client wrapper — title/image/content card, all 3 quotes, deep reflection, questions, related parables
 │   │   └── search/
 │   │       └── page.tsx          # Situation search: hero image + h1 + SituationSearch, revalidate 3600
 │   ├── globals.css             # Tailwind v4 import + CSS color variables
@@ -91,10 +95,12 @@ web/
 │   ├── config.ts               # SITE_URL — canonical domain, used for metadataBase, canonical tags, sitemap, robots
 │   └── og-image.tsx            # buildOgImage() — used by app/api/og/route.tsx, see GET /api/og below; slogan text goes through i18n.ts too
 ├── hooks/
-│   └── useLocalizedDigest.ts   # useLocalizedDigest(digest: BilingualDigestContent, lang) → { title, imageAlt, data: DigestData } — shared by HomeDailyDigest and DigestPageContent
+│   ├── useLocalizedDigest.ts   # useLocalizedDigest(digest: BilingualDigestContent, lang) → { title, imageAlt, data: DigestData } — shared by HomeDailyDigest and DigestPageContent
+│   └── useLocalizedParable.ts  # useLocalizedParable(parable: BilingualParableContent, lang) → { title, content, imageAlt, conclusion, questions, quotes } — used by ParablePageContent
 ├── scripts/
 │   ├── list-upcoming-digests.ts  # npm run digests:upcoming — lists unpublished drafts + image status
-│   └── set-digest-image.ts       # npm run digests:set-image -- <slug> <path> <altRu> <altEn> — uploads to Vercel Blob, writes imageUrl/imageAltRu/imageAltEn
+│   ├── set-digest-image.ts       # npm run digests:set-image -- <slug> <path> <altRu> <altEn> — uploads to Vercel Blob, writes imageUrl/imageAltRu/imageAltEn on DailyDigest
+│   └── set-parable-image.ts      # npx tsx scripts/set-parable-image.ts <slugRu> <path> <altRu> <altEn> — same upload, but writes imageUrl/imageAltRu/imageAltEn on Parable (canonical page images, keyed by slugRu not a digest slug)
 ├── prisma/
 │   └── schema.prisma           # Copy of server/prisma/schema.prisma (read access only)
 ├── public/
@@ -134,7 +140,9 @@ LanguageProvider (app/[locale]/layout.tsx body, lang comes from params.locale)
 ## Key components
 
 ### DigestBlock
-The single shared component rendering a digest's content — used by `HomeDailyDigest` (homepage), `DigestPageContent` (`/d/[slug]`), and `SituationSearch` (live search result on `/[locale]/search`). Client component. Accepts `DigestData` with `conclusion`/`question` as `string | null` (`null` for situation-search results with `includeReflection: false` — those boxes just don't render, see below); reads `lang` from context for `i18n.ts` labels (Мудрость дня, Вопрос, Резюме — `t(lang, key)`, not inline ternaries) and for date formatting/category link prefixing (`pickLocalized`). Content itself stays in whatever language the caller passed — doesn't re-fetch on lang change. Shows the quote and full parable text unconditionally (no truncation, no link to `/d/[slug]` — removed to stop duplicating almost the entire digest page for a near-identical "read more" click).
+The single shared component rendering a digest's content — used by `HomeDailyDigest` (homepage), `DigestPageContent` (`/d/[slug]`), and `SituationSearch` (live search result on `/[locale]/search`). Client component. Accepts `DigestData` with `conclusion`/`question` as `string | null` (`null` for situation-search results with `includeReflection: false` — those boxes just don't render, see below); reads `lang` from context for `i18n.ts` labels (Мудрость дня, Вопрос, Резюме — `t(lang, key)`, not inline ternaries) and for date formatting/category link prefixing (`pickLocalized`).
+
+Parable text truncation is conditional on `parableCanonicalSlug` (see below) — when absent, shows the full parable text exactly as before (still the case for `SituationSearch`, which never passes it, and for any digest whose parable isn't `REVIEWED` yet).
 
 All props besides `data` are optional, since callers differ in what they have available:
 - `title` — rendered as the page `<h1>` inside the card; omitted by `SituationSearch` (a live search result has no separate digest title, only the parable's own title, already rendered as `<h2>`)
@@ -142,6 +150,7 @@ All props besides `data` are optional, since callers differ in what they have av
 - `imageUrl` / `imageAlt` — when `imageUrl` is set, renders an `<img>` between the quote and the parable divider (`rounded-xl object-cover`, no fixed aspect ratio); renders nothing at all when unset, no layout shift or placeholder box. `alt` falls back to `title` then the parable title when `imageAlt` isn't set (older/un-annotated images) — see `.claude/docs/adr/0003-digest-images.md` for why `imageAlt` needed its own field pair (`imageAltRu`/`imageAltEn`) instead of reusing the digest title as alt text
 - `shareUrl` / `shareTitle` — when provided, renders `ShareButton` in a bordered-top row after the Summary/Question boxes
 - `showDailyBadge` — defaults to `true` (`HomeDailyDigest`/`DigestPageContent` don't pass it); `SituationSearch` explicitly passes `false` since a live search result isn't "today's wisdom" and showing that pill was misleading
+- `parableCanonicalSlug` — the parable's own `/pritcha/[slug]` slug for the current locale, passed only when `Parable.reflectionStatus === 'REVIEWED'` (computed server-side in each caller's `page.tsx`, since only the server component knows the route locale ahead of the client `lang` context). When present, the parable text is truncated to its first paragraph (`truncateParable()`, word-boundary cut at 220 chars) followed by a "Читать притчу полностью" link to the canonical page — that page has genuinely richer content (all 3 quotes, deep reflection, 3 questions), unlike the old removed `/d/[slug]` "read more" link this replaces, which pointed at an almost-identical duplicate. `SituationSearch` never passes this prop (situation-search results have no server-side locale context to resolve it from, and the API response it consumes wasn't changed for this), so it always shows full parable text.
 
 Summary and Question boxes (`conclusion`/`question`) each render conditionally now — `null` (situation-search without reflection) simply omits that box rather than showing an empty one; when present, both are always visible, no collapse/toggle.
 
@@ -275,6 +284,19 @@ Server passes **both RU and EN** fields to `DigestPageContent` for all content, 
 Includes JSON-LD `Article` schema and full OpenGraph metadata. `jsonLd` includes `author`/`publisher` (both `Organization`, publisher has a `logo` pointing at `/favicon.svg`), `image` (the digest's OG image URL), `inLanguage: locale`, and `isPartOf` (`WebSite`). `dateModified` uses `digest.createdAt` — `DailyDigest` has no `updatedAt` field in the schema, so `createdAt` is the closest available proxy.
 
 `generateMetadata` resolves the page `<title>` via `resolveDigestTitle(digest, locale)`, which uses `lib/locale-content.ts`'s `pickLocalized()` against `digest.titleRu`/`titleEn` (AI-generated, stored in DB), falling back to the parable title. Description is built from the locale-picked quote snippet + parable moral for unique, content-rich SEO snippets per page. `buildOgImageUrl()` (local helper) builds the `/api/og` URL with `title`, `quote` (truncated to 200 chars), `author`, and `lang=${locale}` — used for both `openGraph.images` and `twitter.images`, and reused for the JSON-LD `image` field. `alternates.languages` points the current locale at itself and the other locale at its own `/d/[slug]` URL — never both at the same URL.
+
+### GET /[locale]/pritcha/[slug]
+SSG canonical parable page. `revalidate = 86400`. Unlike `/d/[slug]`, `Parable.slugRu`/`slugEn` are **per-locale, not shared** — the RU and EN pages for the same parable have different slugs, so `getParableBySlug(locale, slug)` filters on `slugRu` or `slugEn` depending on the route locale, and `generateStaticParams` returns explicit `{ locale, slug }` pairs (`slugRu` for `'ru'`, `slugEn` for `'en'`) rather than a flat `LOCALES × slugs` cross-join like `/d/[slug]` uses — the two slugs aren't interchangeable per locale.
+
+Gated on `reflectionStatus: 'REVIEWED'` (both `getParableBySlug` and `generateStaticParams` filter on it, plus both slug fields non-null) — a parable only gets a canonical URL once its deep reflection has passed the review gate (see `server/CLAUDE.md`'s "Canonical parable insight generation"). A `DRAFT`/`GENERATED`/`FAILED` parable 404s via `notFound()`, not a noindex stub — same reasoning as `/d/[slug]`'s `isPublished` gate.
+
+`app/sitemap.ts` mirrors this: queries `Parable` with the same `REVIEWED` + both-slugs-non-null filter, and emits one entry per `(parable, locale)` pair using `parableSlugForLocale()` (a local helper) rather than the shared `localeAlternates()` pattern used for digests — again because the two slugs differ.
+
+Content, in order: title → image (`Parable.imageUrl`, section omitted entirely when `null` — no placeholder) → all 3 assigned quotes (`ParableQuote` via `position ASC`), rendered identically regardless of `isPrimary` (no visual distinction between primary/secondary — deliberately simplified from an earlier draft) → deep `conclusion` (`bg-sage-light` box) → 3 `questions` (`bg-amber-light` pills, numbered) → "related parables" (up to 5, same `categoryId`, also `REVIEWED`, flat-taxonomy only — no Situation-based matching yet). The title/image/text block itself sits in a `bg-amber-light` card (`border-sage-pill rounded-2xl`) to visually group it, distinct from the plain `sage-light`/`amber-light` boxes below it.
+
+JSON-LD is `CreativeWork` (not `Article` — a parable has no meaningful `datePublished`), with a `citation` array of `Quotation` objects (one per assigned quote, `text` + `creator.name`) — the only place on the site quotes get their own structured-data type rather than being folded into the parent entity's description. `dateCreated`/`dateModified` come from `Parable.createdAt`/`updatedAt` directly (unlike `/d/[slug]`, which has to proxy `dateModified` off `createdAt` since `DailyDigest` has no `updatedAt`).
+
+`alternates.languages` and canonical follow the same reciprocal pattern as `/d/[slug]` but resolve each locale's URL through its own slug field (`siblingSlug()` local helper) instead of reusing one shared slug; `x-default` always points at the `slugRu` URL.
 
 ### GET /[locale]/digests
 Paginated archive of all **published** daily digests (`?page=N`, 12 per page, `revalidate = 3600`, `isPublished: true` on both the digest list query and the category-counter query). Lists `titleRu`/`titleEn` (AI-generated, fallback to parable title) + date + category badge + a "Читать"/"Read" link, linking to `/{lang}/d/[slug]`. Linked from `Navbar` ("Архив" / "Archive") and included in `app/sitemap.ts`. Pages beyond 1 are `noindex` to avoid duplicate-content SEO issues.

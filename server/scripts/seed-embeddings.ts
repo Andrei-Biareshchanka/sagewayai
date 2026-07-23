@@ -10,6 +10,8 @@ const prisma = new PrismaClient({ adapter });
 
 const BATCH_SIZE = 10;
 const BATCH_DELAY_MS = 21_000;
+const MAX_RETRIES = 5;
+const RETRY_BASE_DELAY_MS = 30_000;
 
 if (!process.env.VOYAGE_API_KEY) {
   process.stderr.write("VOYAGE_API_KEY is not set in .env\n");
@@ -46,6 +48,29 @@ function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+function isRateLimitError(error: unknown): boolean {
+  return error instanceof Error && error.message.includes('Voyage AI error 429');
+}
+
+// Voyage accounts without a payment method on file are capped at 3 RPM — the
+// 21s inter-batch delay above assumes a clear rate-limit window, but a burst
+// right before this script runs (e.g. seed-quote-embeddings.ts) can still
+// leave the account rate-limited on the very first request. Retries with
+// growing backoff (30s, 60s, 90s, ...) rather than failing the whole run.
+async function embedBatchWithRetry(parables: Parable[], index: number, total: number): Promise<void> {
+  for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+    try {
+      await embedBatch(parables, index, total);
+      return;
+    } catch (error) {
+      if (!isRateLimitError(error) || attempt === MAX_RETRIES) throw error;
+      const delay = RETRY_BASE_DELAY_MS * attempt;
+      process.stdout.write(`Rate limited on batch ${index} (attempt ${attempt}/${MAX_RETRIES}) — retrying in ${delay / 1000}s...\n`);
+      await sleep(delay);
+    }
+  }
+}
+
 async function main() {
   const parables = await prisma.parable.findMany({
     select: { id: true, title: true, content: true, moral: true },
@@ -55,7 +80,7 @@ async function main() {
 
   for (let i = 0; i < parables.length; i += BATCH_SIZE) {
     if (i > 0) await sleep(BATCH_DELAY_MS);
-    await embedBatch(parables.slice(i, i + BATCH_SIZE), Math.floor(i / BATCH_SIZE) + 1, parables.length);
+    await embedBatchWithRetry(parables.slice(i, i + BATCH_SIZE), Math.floor(i / BATCH_SIZE) + 1, parables.length);
   }
 
   const result = await prisma.$queryRaw<{ count: bigint }[]>`

@@ -58,7 +58,11 @@ scripts/
 ├── generate-quotes.ts
 ├── seed-quotes.ts
 ├── seed-embeddings.ts / seed-quote-embeddings.ts  # pgvector embedding backfills
-└── create-tomorrow-test.ts       # manual verification: creates one unpublished draft dated tomorrow (UTC), reusing createDigestForDate — for testing the publish-and-prepare flow without waiting for the cron
+├── create-tomorrow-test.ts       # manual verification: creates one unpublished draft dated tomorrow (UTC), reusing createDigestForDate — for testing the publish-and-prepare flow without waiting for the cron
+├── backfill-parable-slugs.ts     # one-time: idempotent RU→Latin transliteration + EN slugify for Parable.slugRu/slugEn, collision suffixes (-2, -3, ...)
+├── backfill-parable-quotes.ts    # one-time: assigns each parable exactly 3 ParableQuote rows (position 0-2, one isPrimary) via vector similarity
+├── backfill-parable-insights.ts  # batched runner: generateReviewedParableInsight + generateParableImageBrief across DRAFT parables, with a per-model cost report and reflectionStatus routing (REVIEWED/GENERATED/FAILED) — see "Canonical parable insight generation" below
+└── dry-run-parable-insight.ts    # manual verification: runs the insight pipeline for a single parable, prints full generated text for review before trusting the batch runner
 ```
 
 ## Prisma notes
@@ -93,7 +97,8 @@ After schema change: `npx prisma migrate dev --name <name>` then `npx prisma gen
 
 | Model | Key fields |
 |---|---|
-| `Parable` | `id`, `title`, `content`, `moral`, `source?`, `readTime`, `categoryId` |
+| `Parable` | `id`, `title`, `content`, `moral`, `source?`, `readTime`, `categoryId` — plus the canonical-parable fields added for the `/pritcha/[slug]` page: `slugRu?`/`slugEn?` (unique), `imageUrl?`, `imageAltRu/En?`, `imagePromptEn?`, `conclusionRu/En?` (deep reflection), `questionsRu/En?` (JSON array), `reflectionStatus` (`ReflectionStatus`, default `DRAFT`), `reflectionUpdatedAt?`. A parable is only linkable at `/pritcha/[slug]` once `reflectionStatus` reaches `REVIEWED` and both slugs are set. |
+| `ParableQuote` | `id`, `parableId`, `quoteId`, `position` (0/1/2, `@@unique([parableId, position])`), `isPrimary` — join table assigning each parable exactly 3 quotes for the parable-first daily-digest pipeline (`selectDailyParable` + `findQuoteForParable`, see "Daily digest logic" below). |
 | `Category` | `id`, `name`, `slug`, `color?`, `parablesCount` |
 | `DailyParable` | `id`, `parableId`, `date` (unique per day) |
 | `DailyDigest` | `id`, `date` (unique), `slug?` (unique), `titleEn?`, `titleRu?`, `quoteId`, `parableId`, `conclusionEn/Ru`, `questionEn/Ru`, `isPublished` (default `false`), `publishedAt?` |
@@ -101,7 +106,7 @@ After schema change: `npx prisma migrate dev --name <name>` then `npx prisma gen
 | `TelegramSubscriber` | `id`, `chatId` (unique), `username?`, `active`, `language`, `situationUsedAt?`, `referredBy?` — owned by `telegram-bot/`; `referredBy` stores the referring subscriber's `chatId` for the referral system. |
 | `BotEvent` | `id` (autoincrement), `userId`, `event`, `meta?` (JSON), `createdAt` — owned by `telegram-bot/` (analytics events, see `telegram-bot/src/lib/analytics.ts`); indexed on `userId` and `[event, createdAt]`. Adopted into `server/`'s canonical schema and migration history 2026-07-18 — the table itself predates this and was created via `telegram-bot/`'s `prisma db push`, so its migration (`20260718000000_add_bot_event`) was adopted via `prisma migrate resolve --applied` rather than actually run. |
 
-Constraints: `DailyDigest` has `@@unique([parableId, quoteId])` — same parable+quote pair can only appear once ever.
+`DailyDigest`'s old `@@unique([parableId, quoteId])` constraint was dropped — the parable-first pipeline deliberately rotates a parable back through the same 3 pre-assigned quotes (via `ParableQuote`) every 3rd time it's shown, which the old "each pair only once ever" constraint would have blocked.
 
 Seed categories: Wisdom, Motivation, Leadership, Journey, Loss, Risk, Trust, Meaning
 
@@ -123,7 +128,7 @@ Digests are created a day ahead of publication ("tomorrow's teaser") and only ma
 **`GET /api/digest/daily` → `getDailyDigest()`** — used by the Telegram bot (`web/` reads `DailyDigest` directly via its own Prisma client, not this endpoint). Response includes `slug` and a localized `title` (`titleRu`/`titleEn` with fallback to the other language if one is missing) alongside `quote`/`parable`/`conclusion`/`question` — the bot uses `slug` to link back to `/{locale}/d/{slug}` when publishing to the `@sagewayai` channel (see `telegram-bot/CLAUDE.md`):
 1. Check if today's date has a record in `DailyDigest`.
 2. If yes — auto-publish it if it isn't already (`publishDigest()`, idempotent no-op if already published). This is a safety net for when the publish-and-prepare cron missed its run: the bot shouldn't stay stuck just because the cron didn't fire.
-3. If no — pick next quote (unused first, then cooldown-aware selection degrading to strict LRU — see below), find best matching parable via vector similarity with the same degrading-cooldown pattern (see below), generate EN+RU reflections **and AI titles** via Claude in parallel, generate slug, create record with `isPublished: true` (this is an on-demand creation for *today*, not a draft).
+3. If no — `createDigestForDate()` picks the parable and quote (parable-first pipeline — see "Daily digest parable/quote selection" below), generate EN+RU reflections **and AI titles** via Claude in parallel, generate slug, create record with `isPublished: true` (this is an on-demand creation for *today*, not a draft).
 
 **`POST /api/admin/publish-and-prepare`** (`src/routes/admin.ts`) — called by `.github/workflows/publish-digest.yml`, scheduled `0 22 * * *` UTC (01:00 Moscow time, UTC+3 no DST — deliberately anchored to the primary RU/BY audience's clock, not UTC midnight). Guarded by `x-publish-secret` header matched against `ADMIN_PUBLISH_SECRET` env var (same unauthenticated-but-secret-gated pattern as `/send-daily`).
 
@@ -135,7 +140,7 @@ Digests are created a day ahead of publication ("tomorrow's teaser") and only ma
 
 Returns `{ published: slug | null, prepared: slug | null }`, logged by the workflow.
 
-If `publishTodayAndPrepareTomorrow()` throws (e.g. `findParableForQuote`/`pickNextQuote` exhausting every cooldown step — see "Parable exclusion & cooldown" and "Quote selection & cooldown" below), the route (`src/routes/admin.ts`) catches it, calls `notifyAdmin()` (`src/lib/adminAlert.ts`) with the error message, then rethrows — Express 5 forwards the rethrown rejection to `errorHandler`, so the HTTP response is still a 500 (the workflow's `curl -f` still fails the Actions job) but an admin also gets a heads-up instead of the failure going unnoticed until someone checks Actions manually.
+If `publishTodayAndPrepareTomorrow()` throws (e.g. `selectDailyParable` exhausting every cooldown step, or `findQuoteForParable` hitting a missing `ParableQuote` row — see "Daily digest parable/quote selection" below), the route (`src/routes/admin.ts`) catches it, calls `notifyAdmin()` (`src/lib/adminAlert.ts`) with the error message, then rethrows — Express 5 forwards the rethrown rejection to `errorHandler`, so the HTTP response is still a 500 (the workflow's `curl -f` still fails the Actions job) but an admin also gets a heads-up instead of the failure going unnoticed until someone checks Actions manually.
 
 `notifyAdmin()` calls the Telegram Bot API directly (`fetch` to `api.telegram.org`, not the `telegram-bot` process — they're separate deployments) using `TELEGRAM_BOT_TOKEN`/`ADMIN_CHAT_ID` env vars, the same values already configured for `telegram-bot`'s own admin notifications (see `telegram-bot/CLAUDE.md`) — not a second bot. No-ops silently if either var is unset (e.g. local dev), same guard pattern as `email.ts`'s `RESEND_API_KEY` check.
 
@@ -153,23 +158,30 @@ It also sometimes ignores the Russian instruction and answers in English. `gener
 
 **Scripts that touch shared title/digest logic should import `prisma` from `src/lib/prisma`** (the app's singleton, which self-loads env vars via `import 'dotenv/config'`) rather than constructing their own `PrismaClient` — this guarantees they see the same DB state the dedup check relies on and avoids maintaining a second connection setup.
 
+### Canonical parable insight generation (`src/lib/anthropic.ts`)
+
+Powers the `/pritcha/[slug]` canonical parable page (`web/`) — separate from the daily digest's own short `generateReflection()`. Produces the deep `conclusion` + 3 graduated `questions` (RU+EN) and the illustration brief stored on `Parable`.
+
+- **`INSIGHT_LENSES`** — 7 fixed angles (`bodily`, `relational`, `threshold`, `paradox`, `retrospective`, `cost`, `witness`), each a specific instruction for where the essay's second/third level of insight anchors. `getInsightLens(parableIndexInDb)` picks `INSIGHT_LENSES[parableIndexInDb % 7]` — deterministic by the parable's position in `id ASC` order, not random, so the same parable always gets the same lens, including on a regeneration retry (a retry must fix the same essay, not roll a different one).
+- **`generateParableInsight(quote, parable, language, lens)`** — Opus 4.8 (`PARABLE_INSIGHT_MODEL`), up to `MAX_GENERATION_ATTEMPTS` (3) attempts. Each attempt is validated by `findValidationIssue()` before being accepted: zod shape, `containsToolCallArtifact()` (regex-catches leaked tool-call-syntax fragments like `<parameter>`), `detectMixedScript()` (catches a single word mixing Cyrillic and Latin letters — a real defect seen in dry-run testing, distinct from legitimate whole-word language mixing). Throws `ParableInsightGenerationError` (carries `attempts` + `lastRawResponse`) only after all attempts fail, so a caller can route that parable to `reflectionStatus = FAILED` instead of crashing the whole batch.
+- **`reviewDeepReflection(conclusion, questions, language)`** — Haiku-based review gate. Length bounds are deliberately wider than the generation prompt's own target (EN reject range 380-720 words vs. a 400-700 target; RU 330-620 vs. 350-600) — same "target vs. reject range" relationship as the generation length. Em-dash overuse is checked in code (`countEmDashes`, reject threshold `> 5`), not left to the LLM's judgment — an earlier version had the reviewer judge em-dash count directly and it rejected nearly an entire batch over normal prose density (Opus reliably produces ~3 per essay); the generation prompt still nudges toward ≤2 as a soft target, but only the code-level count can reject.
+- **`generateReviewedParableInsight()`** — orchestrates the two above, `MAX_REVIEW_CYCLES = 3` (generate → review → regenerate on fail, same lens every time). Returns `insightUsage`/`reviewUsage` as separate `TokenUsage` values, never blended — Opus and Haiku are priced differently, so a combined total would be meaningless for cost tracking.
+- **`generateParableImageBrief(parable)`** — Sonnet. The model only ever describes the scene (3-5 sentences) plus bilingual alt text; `imagePromptEn` is assembled by code (`${IMAGE_STYLE_PREFIX} ${scene} ${IMAGE_STYLE_PALETTE} ${IMAGE_STYLE_FORMAT}`) from fixed constants, so illustration style (flat children's-book look, fixed hex palette, 16:9 2048×1152) stays consistent across parables regardless of what the model generates for the scene itself.
+
+`scripts/backfill-parable-insights.ts` is the batch runner over `reflectionStatus = DRAFT` parables — see the scripts table above. A parable only becomes linkable at `/pritcha/[slug]` once `reflectionStatus` reaches `REVIEWED` (both languages passed the review gate) and both slugs are set; `GENERATED` means the text exists but failed review and needs manual attention, `FAILED` means generation itself never produced a valid response.
+
 ### Slug format (`src/lib/slug.ts`)
 
 `buildDigestSlug(prisma, parableTitle, author, theme)` — generates `{parable-title}-{author}-{theme}` (all lowercased, special chars stripped). If the base slug is taken, appends `-2`, `-3`, etc. until unique. Theme is always included when present on the quote.
 
-### Parable exclusion & cooldown (`src/services/digest.ts`)
+### Daily digest parable/quote selection (`src/services/dailyParableSelection.ts`)
 
-`findParableForQuote(quoteId)` finds the best vector-similarity match (`<=>`) via a safe `Prisma.sql` + `Prisma.join` parameterized query, excluding two sets of parables:
-1. **Permanent**: parables already paired with *this specific quote* (any digest, ever) — prevents the same pair from repeating.
-2. **Cooldown**: parables used in *any* digest within the last N days.
+**Live pipeline, parable-first** — `createDigestForDate()` calls `selectDailyParable()` then `findQuoteForParable(parable)`, in that order:
 
-`PARABLE_COOLDOWN_STEPS = [14, 10, 7, 3, 1, 0]` — tries each window in descending order, only relaxing to a shorter one when the stricter window has zero vector-similarity candidates. This replaced a previous single-step fallback (14 days → no cooldown at all) that could silently let a parable resurface after just a few days whenever the 14-day pool happened to be exhausted for a given quote (observed in production: "Пустой трон" repeated after only 4 days). The fixed-length steps array bounds the loop to at most 6 attempts — it cannot run forever. `0` still enforces the permanent pairing exclusion, so the loop's last resort is "any parable not already paired with this quote," never "any parable at all." Throws `No available parable found` only if even that fails (every parable is already permanently paired with this exact quote — a real data problem, not a transient squeeze).
+- `selectDailyParable()`: LRU by last-shown date (`MAX(DailyDigest.date)` per parable, `NULLS FIRST` so a never-shown parable always wins over any shown one), under a cooldown exclusion. `COOLDOWN_STEPS = [60, 45, 30, 21, 14, 7, 0]` — tries each window in descending order, only relaxing to a shorter one when the stricter window has zero candidates (same defensive-relaxation pattern as the old quote steps below). `0` disables the cooldown entirely, so the loop is guaranteed to terminate with a result as long as `Parable` is non-empty; throws only if the table itself is empty.
+- `findQuoteForParable(parable)`: rotates each parable through its 3 pre-assigned `ParableQuote` rows (backfilled once, positions 0/1/2, one `isPrimary`) instead of re-running a vector search on every digest. `position = timesShown % 3`, where `timesShown` counts every `DailyDigest` row ever created for that parable (drafts included). Must be called *before* today's `DailyDigest` row is created — counting it would shift the rotation by one. Throws if a parable is missing a `ParableQuote` at the expected position (a real data problem, not a soft-fallback case).
 
-**Usage-frequency diversity penalty** (`queryBestMatch`, same file): cooldown alone only blocks *recent* repeats, not *frequent* ones over months — with only 80 parables and cosine-distance gaps between top candidates often under 0.01, a handful of "generalist" parables (broadly relevant to many themes — "The Two Wolves", "The Empty Throne") kept winning the vector-similarity ranking almost every time they were eligible, while most of the pool never got picked at all (confirmed against production 2026-07-27: 65% of parables — 52 of 80 — had zero uses across 34 digests, while the top parable had already repeated 3x). `PARABLE_USAGE_PENALTY = 0.015` is added to the ORDER BY per historical use of each candidate (`SELECT COUNT(*) FROM "DailyDigest" WHERE "parableId" = ...`), so a parable used 2x more than a rival needs roughly a 0.03 similarity edge to still win — soft-prefers less-used parables on close ties without overriding a genuinely stronger semantic match.
-
-### Quote selection & cooldown (`src/lib/dailyDigest.ts`)
-
-`pickNextQuote()` mirrors the parable pattern: unused quotes first (random pick), then `QUOTE_COOLDOWN_STEPS = [14, 10, 7, 3, 1]` tried in descending order (quotes used in any digest within that window are excluded), and if every step still finds zero eligible quotes, falls back to `pickLeastRecentlyUsedQuote()` — the quote from the single oldest digest (strict LRU, guaranteed to terminate: it either returns a quote or throws if the `Quote` table itself is empty). Same fixed-length-array bound as the parable steps — this can never loop indefinitely.
+**Legacy quote-first pipeline (kept, unused)** — `findParableForQuote` (`src/services/digest.ts`) and `pickNextQuote` (`src/lib/dailyDigest.ts`, unexported) implemented the original flow: pick a quote first, then vector-search the best-matching parable (`PARABLE_COOLDOWN_STEPS = [14, 10, 7, 3, 1, 0]`, plus a usage-frequency diversity penalty in `queryBestMatch` to stop a handful of "generalist" parables like "The Two Wolves" from dominating close vector-similarity ties). Neither is called from `createDigestForDate` anymore, but both are left in place intentionally as a rollback path — reverting requires wiring both back in together, not just one.
 
 ## Request validation
 

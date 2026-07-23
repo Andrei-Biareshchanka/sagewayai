@@ -173,6 +173,10 @@ export default async function DigestPage({ params }: PageProps) {
               nameRu: digest.parable.category.nameRu,
               slug: digest.parable.category.slug,
             },
+            parableCanonicalSlug:
+              digest.parable.reflectionStatus === 'REVIEWED'
+                ? (locale === 'ru' ? digest.parable.slugRu : digest.parable.slugEn)
+                : null,
           }}
           related={related.map((d) => ({
             date: d.date,

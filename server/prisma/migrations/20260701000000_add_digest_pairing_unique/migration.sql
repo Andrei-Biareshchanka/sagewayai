@@ -1,2 +1,9 @@
--- Prevent duplicate parable+quote pairings in DailyDigest
-CREATE UNIQUE INDEX "DailyDigest_parableId_quoteId_key" ON "DailyDigest"("parableId", "quoteId");
+-- No-op: the unique index this migration originally created
+-- ("DailyDigest_parableId_quoteId_key" on DailyDigest(parableId, quoteId))
+-- was already created by 20260629000000_add_digest_slug_unique, making the
+-- CREATE UNIQUE INDEX here a duplicate that fails whenever migration history
+-- is replayed from scratch (shadow database, fresh environment, CI, disaster
+-- recovery) with "relation already exists". Already-migrated databases have
+-- this migration recorded as applied and already have the index from
+-- 20260629000000, so emptying this file is safe there. Left as a comment-only
+-- file (not deleted) to preserve migration history and file naming.

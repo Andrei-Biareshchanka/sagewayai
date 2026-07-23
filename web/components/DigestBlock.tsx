@@ -22,6 +22,21 @@ export interface DigestCategory {
   slug: string;
 }
 
+// A REVIEWED parable has a much richer canonical page (all 3 quotes, deep
+// reflection, 3 questions) — once one exists, showing the full parable text
+// again here would just duplicate it. Truncate to the first paragraph
+// instead and link out, same "teaser, not duplicate" reasoning as
+// DigestBlock's own quote-preview pattern elsewhere on the site.
+const PARABLE_TEASER_MAX_CHARS = 220;
+
+function truncateParable(content: string): string {
+  const firstParagraph = content.split('\n\n')[0] ?? content;
+  if (firstParagraph.length <= PARABLE_TEASER_MAX_CHARS) return firstParagraph;
+  const truncated = firstParagraph.slice(0, PARABLE_TEASER_MAX_CHARS);
+  const lastSpace = truncated.lastIndexOf(' ');
+  return `${truncated.slice(0, lastSpace > 0 ? lastSpace : PARABLE_TEASER_MAX_CHARS)}…`;
+}
+
 interface DigestBlockProps {
   title?: string;
   data: DigestData;
@@ -32,6 +47,10 @@ interface DigestBlockProps {
   imageUrl?: string;
   imageAlt?: string;
   showDailyBadge?: boolean;
+  // Locale-resolved slug of the parable's own canonical page — only passed
+  // when Parable.reflectionStatus is REVIEWED for that locale. null/undefined
+  // means no canonical page exists yet, so the full parable text is shown.
+  parableCanonicalSlug?: string | null;
 }
 
 export function DigestBlock({
@@ -44,6 +63,7 @@ export function DigestBlock({
   imageUrl,
   imageAlt,
   showDailyBadge = true,
+  parableCanonicalSlug,
 }: DigestBlockProps) {
   const { lang } = useLanguage();
   const { quote, parable, conclusion, question } = data;
@@ -109,7 +129,19 @@ export function DigestBlock({
 
         <h2 className="font-serif text-lg font-semibold text-ink">{parable.title}</h2>
 
-        <p className="font-serif text-base leading-[1.8] text-ink">{parable.content}</p>
+        {parableCanonicalSlug ? (
+          <div className="space-y-2">
+            <p className="font-serif text-base leading-[1.8] text-ink">{truncateParable(parable.content)}</p>
+            <Link
+              href={`/${lang}/pritcha/${parableCanonicalSlug}`}
+              className="font-sans text-sm font-medium text-sage hover:text-sage-dark transition-colors"
+            >
+              {t(lang, 'readFullParable')} →
+            </Link>
+          </div>
+        ) : (
+          <p className="font-serif text-base leading-[1.8] text-ink">{parable.content}</p>
+        )}
 
         {conclusion && (
           <div

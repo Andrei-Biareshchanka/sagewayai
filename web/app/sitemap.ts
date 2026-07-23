@@ -18,6 +18,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     orderBy: { date: 'desc' },
   });
 
+  const parables = await prisma.parable.findMany({
+    select: { updatedAt: true, slugRu: true, slugEn: true },
+    where: { reflectionStatus: 'REVIEWED', slugRu: { not: null }, slugEn: { not: null } },
+    orderBy: { updatedAt: 'desc' },
+  });
+
   const homeEntries = LOCALES.map((locale) => ({
     url: `${SITE_URL}/${locale}`,
     lastModified: new Date(),
@@ -44,5 +50,25 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     })),
   );
 
-  return [...homeEntries, ...digestsArchiveEntries, ...digestEntries];
+  // slugRu and slugEn differ per parable (unlike DailyDigest's single shared
+  // slug), so each locale's URL and its alternates need their own per-locale
+  // slug lookup rather than the flat localeAlternates helper.
+  const parableSlugForLocale = (p: (typeof parables)[number], locale: Locale) =>
+    locale === 'ru' ? (p.slugRu as string) : (p.slugEn as string);
+
+  const parableEntries = parables.flatMap((p) =>
+    LOCALES.map((locale) => ({
+      url: `${SITE_URL}/${locale}/pritcha/${parableSlugForLocale(p, locale)}`,
+      lastModified: p.updatedAt,
+      changeFrequency: 'monthly' as const,
+      priority: 0.8,
+      alternates: {
+        languages: Object.fromEntries(
+          LOCALES.map((l) => [l, `${SITE_URL}/${l}/pritcha/${parableSlugForLocale(p, l)}`]),
+        ),
+      },
+    })),
+  );
+
+  return [...homeEntries, ...digestsArchiveEntries, ...digestEntries, ...parableEntries];
 }

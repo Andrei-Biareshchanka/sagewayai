@@ -147,6 +147,10 @@ export default async function HomePage({ params }: PageProps) {
                   nameRu: digest.parable.category.nameRu,
                   slug: digest.parable.category.slug,
                 },
+                parableCanonicalSlug:
+                  digest.parable.reflectionStatus === 'REVIEWED'
+                    ? (locale === 'ru' ? digest.parable.slugRu : digest.parable.slugEn)
+                    : null,
               }}
             />
           </div>

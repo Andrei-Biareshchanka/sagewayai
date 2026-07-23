@@ -27,7 +27,7 @@
         "./*"
       ],
       "@prisma/generated-client": [
-        "./prisma-types/index"
+        "./app/generated/prisma/client"
       ]
     }
   },
