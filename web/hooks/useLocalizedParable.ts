@@ -11,6 +11,8 @@ export interface BilingualParableQuote {
 }
 
 export interface BilingualParableContent {
+  slugRu: string;
+  slugEn: string;
   titleRu: string;
   titleEn: string;
   contentRu: string;

@@ -175,6 +175,8 @@ export default async function ParablePage({ params }: PageProps) {
       <main className="flex-1 w-full max-w-[680px] mx-auto px-4 sm:px-6 py-12">
         <ParablePageContent
           parable={{
+            slugRu: parable.slugRu as string,
+            slugEn: parable.slugEn as string,
             titleRu: parable.titleRu ?? parable.title,
             titleEn: parable.title,
             contentRu: parable.contentRu ?? parable.content,
