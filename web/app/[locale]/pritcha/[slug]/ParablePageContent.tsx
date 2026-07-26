@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect } from 'react';
 import Link from 'next/link';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { pickLocalized } from '@/lib/locale-content';
@@ -19,8 +20,16 @@ interface ParablePageContentProps {
 }
 
 export function ParablePageContent({ parable, related }: ParablePageContentProps) {
-  const { lang } = useLanguage();
+  const { lang, setAlternateSlugs } = useLanguage();
   const { title, content, imageAlt, conclusion, questions, quotes } = useLocalizedParable(parable, lang);
+
+  // RU and EN slugs differ per parable, so the header's language toggle needs
+  // this page's sibling slug to jump to the correct URL instead of naively
+  // swapping only the locale segment (which would 404 or land on a mismatch).
+  useEffect(() => {
+    setAlternateSlugs({ ru: parable.slugRu, en: parable.slugEn });
+    return () => setAlternateSlugs(null);
+  }, [parable.slugRu, parable.slugEn, setAlternateSlugs]);
 
   return (
     <div className="space-y-8">
