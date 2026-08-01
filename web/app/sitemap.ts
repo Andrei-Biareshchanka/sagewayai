@@ -24,6 +24,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     orderBy: { updatedAt: 'desc' },
   });
 
+  const situations = await prisma.situation.findMany({
+    select: { updatedAt: true, slugRu: true, slugEn: true },
+    where: { isPublished: true },
+    orderBy: { updatedAt: 'desc' },
+  });
+
   const homeEntries = LOCALES.map((locale) => ({
     url: `${SITE_URL}/${locale}`,
     lastModified: new Date(),
@@ -70,5 +76,40 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     })),
   );
 
-  return [...homeEntries, ...digestsArchiveEntries, ...digestEntries, ...parableEntries];
+  // Situation slugs are also per-locale (the slug is the keyword being
+  // targeted, same reasoning as parables), so this mirrors parableEntries
+  // rather than the flat localeAlternates helper.
+  const situationSlugForLocale = (s: (typeof situations)[number], locale: Locale) =>
+    locale === 'ru' ? s.slugRu : s.slugEn;
+
+  const situaciiIndexEntries = LOCALES.map((locale) => ({
+    url: `${SITE_URL}/${locale}/situacii`,
+    lastModified: new Date(),
+    changeFrequency: 'monthly' as const,
+    priority: 0.6,
+    alternates: localeAlternates((l) => `/${l}/situacii`),
+  }));
+
+  const situationEntries = situations.flatMap((s) =>
+    LOCALES.map((locale) => ({
+      url: `${SITE_URL}/${locale}/situacii/${situationSlugForLocale(s, locale)}`,
+      lastModified: s.updatedAt,
+      changeFrequency: 'monthly' as const,
+      priority: 0.7,
+      alternates: {
+        languages: Object.fromEntries(
+          LOCALES.map((l) => [l, `${SITE_URL}/${l}/situacii/${situationSlugForLocale(s, l)}`]),
+        ),
+      },
+    })),
+  );
+
+  return [
+    ...homeEntries,
+    ...digestsArchiveEntries,
+    ...digestEntries,
+    ...parableEntries,
+    ...situaciiIndexEntries,
+    ...situationEntries,
+  ];
 }
