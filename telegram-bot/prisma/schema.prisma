@@ -41,6 +41,7 @@ model Parable {
   digests             DailyDigest[]
   favorites           Favorite[]
   quotes              ParableQuote[]
+  situations          SituationParable[]
   embedding           Unsupported("vector(1024)")?
 
   @@unique([title, categoryId])
@@ -82,6 +83,41 @@ model ParableQuote {
 
   @@unique([parableId, position])
   @@index([quoteId])
+}
+
+// SEO situation-hub pages (/situacii/:slug) — curated, not AI-clustered, per
+// docs/audit-content-model.md §5(c): Quote.theme is too coarse (6 values) and
+// parable embeddings cluster by imagery (candles, rivers) rather than by
+// reader situation, so this is hand-authored the same way the 80 parable
+// insights were (docs/manual-backfill-process.md), not generated.
+model Situation {
+  id                  String              @id @default(cuid())
+  slugRu              String              @unique
+  slugEn              String              @unique
+  h1Ru                String
+  h1En                String
+  introRu             String              @db.Text
+  introEn             String              @db.Text
+  metaDescriptionRu   String
+  metaDescriptionEn   String
+  isPublished         Boolean             @default(false)
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+  parables            SituationParable[]
+}
+
+model SituationParable {
+  id          String    @id @default(cuid())
+  situationId String
+  parableId   String
+  position    Int
+  noteRu      String?   @db.Text
+  noteEn      String?   @db.Text
+  situation   Situation @relation(fields: [situationId], references: [id], onDelete: Cascade)
+  parable     Parable   @relation(fields: [parableId], references: [id], onDelete: Cascade)
+
+  @@unique([situationId, position])
+  @@index([parableId])
 }
 
 model DailyDigest {

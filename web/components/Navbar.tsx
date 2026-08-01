@@ -29,6 +29,12 @@ export function Navbar() {
         </Link>
         <div className="flex items-center gap-4">
           <Link
+            href={`/${lang}/situacii`}
+            className="font-sans text-sm text-muted hover:text-ink transition-colors"
+          >
+            {t(lang, 'situaciiNavLink')}
+          </Link>
+          <Link
             href={`/${lang}/digests`}
             className="font-sans text-sm text-muted hover:text-ink transition-colors"
           >

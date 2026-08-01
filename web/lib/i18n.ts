@@ -18,6 +18,7 @@ const translations = {
     nextPage: 'Вперёд →',
     pageOfTotal: 'Страница {page} из {total}',
     archiveLink: 'Архив',
+    situaciiNavLink: 'Ситуации',
     ctaHeading: 'Получайте мудрость каждое утро',
     telegramBotLabel: 'Telegram-бот',
     subscribeButton: 'Подключиться',
@@ -43,6 +44,10 @@ const translations = {
     questionsHeading: 'Вопросы для размышления',
     relatedParablesHeading: 'Похожие притчи',
     readFullParable: 'Читать притчу полностью',
+    situaciiIndexHeading: 'Притчи по ситуациям',
+    situaciiIndexIntro: 'Иногда легче начать не с категории, а с того, что происходит прямо сейчас.',
+    situaciiParablesHeading: 'Притчи для этой ситуации',
+    situaciiOtherHeading: 'Другие ситуации',
   },
   en: {
     dailyWisdomBadge: 'Daily wisdom',
@@ -61,6 +66,7 @@ const translations = {
     nextPage: 'Next →',
     pageOfTotal: 'Page {page} of {total}',
     archiveLink: 'Archive',
+    situaciiNavLink: 'Situations',
     ctaHeading: 'Receive wisdom every morning',
     telegramBotLabel: 'Telegram bot',
     subscribeButton: 'Connect',
@@ -85,6 +91,10 @@ const translations = {
     questionsHeading: 'Questions to sit with',
     relatedParablesHeading: 'Related parables',
     readFullParable: 'Read the full parable',
+    situaciiIndexHeading: 'Parables for your situation',
+    situaciiIndexIntro: "Sometimes it's easier to start not from a category, but from what's happening right now.",
+    situaciiParablesHeading: 'Parables for this situation',
+    situaciiOtherHeading: 'Other situations',
   },
 } as const;
 

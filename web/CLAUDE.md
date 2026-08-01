@@ -62,6 +62,11 @@ web/
 │   │   │   └── [slug]/
 │   │   │       ├── page.tsx               # Canonical parable page (SSG, revalidate 86400) — gated on reflectionStatus=REVIEWED, 404 otherwise
 │   │   │       └── ParablePageContent.tsx # Client wrapper — title/image/content card, all 3 quotes, deep reflection, questions, related parables
+│   │   ├── situacii/
+│   │   │   ├── page.tsx                   # Index of all isPublished Situation hubs (revalidate 3600)
+│   │   │   └── [slug]/
+│   │   │       ├── page.tsx                 # Hub page (SSG, revalidate 86400) — per-locale slugs, gated on isPublished + member parables REVIEWED
+│   │   │       └── SituationPageContent.tsx # Client wrapper — h1/intro card + parable cards with per-pair curator notes
 │   │   └── search/
 │   │       └── page.tsx          # Situation search: hero image + h1 + SituationSearch, revalidate 3600
 │   ├── globals.css             # Tailwind v4 import + CSS color variables
@@ -96,7 +101,8 @@ web/
 │   └── og-image.tsx            # buildOgImage() — used by app/api/og/route.tsx, see GET /api/og below; slogan text goes through i18n.ts too
 ├── hooks/
 │   ├── useLocalizedDigest.ts   # useLocalizedDigest(digest: BilingualDigestContent, lang) → { title, imageAlt, data: DigestData } — shared by HomeDailyDigest and DigestPageContent
-│   └── useLocalizedParable.ts  # useLocalizedParable(parable: BilingualParableContent, lang) → { title, content, imageAlt, conclusion, questions, quotes } — used by ParablePageContent
+│   ├── useLocalizedParable.ts  # useLocalizedParable(parable: BilingualParableContent, lang) → { title, content, imageAlt, conclusion, questions, quotes } — used by ParablePageContent
+│   └── useLocalizedSituation.ts # useLocalizedSituation(situation: BilingualSituationContent, lang) → { h1, intro, parables } — used by SituationPageContent
 ├── scripts/
 │   ├── list-upcoming-digests.ts  # npm run digests:upcoming — lists unpublished drafts + image status
 │   ├── set-digest-image.ts       # npm run digests:set-image -- <slug> <path> <altRu> <altEn> — uploads to Vercel Blob, writes imageUrl/imageAltRu/imageAltEn on DailyDigest
@@ -292,11 +298,20 @@ Gated on `reflectionStatus: 'REVIEWED'` (both `getParableBySlug` and `generateSt
 
 `app/sitemap.ts` mirrors this: queries `Parable` with the same `REVIEWED` + both-slugs-non-null filter, and emits one entry per `(parable, locale)` pair using `parableSlugForLocale()` (a local helper) rather than the shared `localeAlternates()` pattern used for digests — again because the two slugs differ.
 
-Content, in order: title → image (`Parable.imageUrl`, section omitted entirely when `null` — no placeholder) → all 3 assigned quotes (`ParableQuote` via `position ASC`), rendered identically regardless of `isPrimary` (no visual distinction between primary/secondary — deliberately simplified from an earlier draft) → deep `conclusion` (`bg-sage-light` box) → 3 `questions` (`bg-amber-light` pills, numbered) → "related parables" (up to 5, same `categoryId`, also `REVIEWED`, flat-taxonomy only — no Situation-based matching yet). The title/image/text block itself sits in a `bg-amber-light` card (`border-sage-pill rounded-2xl`) to visually group it, distinct from the plain `sage-light`/`amber-light` boxes below it.
+Content, in order: title → image (`Parable.imageUrl`, section omitted entirely when `null` — no placeholder) → all 3 assigned quotes (`ParableQuote` via `position ASC`), rendered identically regardless of `isPrimary` (no visual distinction between primary/secondary — deliberately simplified from an earlier draft) → deep `conclusion` (`bg-sage-light` box) → 3 `questions` (`bg-amber-light` pills, numbered) → "related parables" (up to 5, same `categoryId`, also `REVIEWED`, flat-taxonomy only — `Situation`-based cross-category linking exists now on the parable's own `/situacii/[slug]` hubs, not folded into this related-parables block). The title/image/text block itself sits in a `bg-amber-light` card (`border-sage-pill rounded-2xl`) to visually group it, distinct from the plain `sage-light`/`amber-light` boxes below it.
 
 JSON-LD is `CreativeWork` (not `Article` — a parable has no meaningful `datePublished`), with a `citation` array of `Quotation` objects (one per assigned quote, `text` + `creator.name`) — the only place on the site quotes get their own structured-data type rather than being folded into the parent entity's description. `dateCreated`/`dateModified` come from `Parable.createdAt`/`updatedAt` directly (unlike `/d/[slug]`, which has to proxy `dateModified` off `createdAt` since `DailyDigest` has no `updatedAt`).
 
 `alternates.languages` and canonical follow the same reciprocal pattern as `/d/[slug]` but resolve each locale's URL through its own slug field (`siblingSlug()` local helper) instead of reusing one shared slug; `x-default` always points at the `slugRu` URL.
+
+### GET /[locale]/situacii and /[locale]/situacii/[slug]
+SEO "situation hub" pages — each groups a handful of `Parable`s (via the `SituationParable` join table) under one real search query (e.g. "how do I know if I made the right decision"), cutting across `Category` so a hub isn't just a duplicate of `/digests?category=`. Design rationale, the rejected alternatives (AI-clustering by `Quote.theme`/embeddings), and the curation process are in `docs/audit-content-model.md` §5(c) and `docs/manual-backfill-process.md`.
+
+`/situacii` is a plain index (`revalidate = 3600`) listing all `isPublished: true` situations with their `h1`/`metaDescription`. `/situacii/[slug]` (`revalidate = 86400`) follows the exact `/pritcha/[slug]` pattern: `Situation.slugRu`/`slugEn` are per-locale (the slug **is** the SEO keyword, so it must be phrased in the page's own language — same reasoning as `Parable.slugRu/slugEn`, unlike `DailyDigest`'s single shared slug), `generateStaticParams` returns explicit `{ locale, slug }` pairs, and `SituationPageContent.tsx` registers `AlternateSlugs` in `LanguageContext` on mount exactly like `ParablePageContent.tsx` does, so the header's language toggle jumps to the correct sibling URL instead of 404ing.
+
+The hub page queries `SituationParable` ordered by `position` (editorial — strongest parable first, not alphabetical or by similarity), filtered to `parable.reflectionStatus: 'REVIEWED'` so an unreviewed parable never appears in a hub (mirrors `/pritcha/[slug]`'s own `getRelatedParables` gate). Each parable renders as a card with its own image/title plus the per-pair `noteRu`/`noteEn` from `SituationParable` — that curator note (why *this* parable answers *this* situation, not a restatement of the parable's own moral) is what keeps the hub from reading as a plain link list to search engines.
+
+`app/sitemap.ts` adds both a `/[locale]/situacii` index entry per locale and one entry per `(situation, locale)` pair via a `situationSlugForLocale()` helper, mirroring `parableSlugForLocale()`. `Navbar.tsx` links to the index (`situaciiNavLink` in `lib/i18n.ts`).
 
 ### GET /[locale]/digests
 Paginated archive of all **published** daily digests (`?page=N`, 12 per page, `revalidate = 3600`, `isPublished: true` on both the digest list query and the category-counter query). Lists `titleRu`/`titleEn` (AI-generated, fallback to parable title) + date + category badge + a "Читать"/"Read" link, linking to `/{lang}/d/[slug]`. Linked from `Navbar` ("Архив" / "Archive") and included in `app/sitemap.ts`. Pages beyond 1 are `noindex` to avoid duplicate-content SEO issues.
