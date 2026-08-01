@@ -30,7 +30,9 @@ async function getSituationBySlug(locale: Locale, slug: string) {
     },
     include: {
       parables: {
-        where: { parable: { reflectionStatus: 'REVIEWED' } },
+        where: {
+          parable: { reflectionStatus: 'REVIEWED', slugRu: { not: null }, slugEn: { not: null } },
+        },
         include: { parable: true },
         orderBy: { position: 'asc' },
       },
