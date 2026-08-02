@@ -46,6 +46,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     alternates: localeAlternates((l) => `/${l}/digests`),
   }));
 
+  const pritchaIndexEntries = LOCALES.map((locale) => ({
+    url: `${SITE_URL}/${locale}/pritcha`,
+    lastModified: new Date(),
+    changeFrequency: 'weekly' as const,
+    priority: 0.7,
+    alternates: localeAlternates((l) => `/${l}/pritcha`),
+  }));
+
   const digestEntries = digests.flatMap((d) =>
     LOCALES.map((locale) => ({
       url: `${SITE_URL}/${locale}/d/${d.slug}`,
@@ -107,6 +115,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   return [
     ...homeEntries,
     ...digestsArchiveEntries,
+    ...pritchaIndexEntries,
     ...digestEntries,
     ...parableEntries,
     ...situaciiIndexEntries,

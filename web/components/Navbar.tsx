@@ -29,6 +29,12 @@ export function Navbar() {
         </Link>
         <div className="flex items-center gap-4">
           <Link
+            href={`/${lang}/pritcha`}
+            className="font-sans text-sm text-muted hover:text-ink transition-colors"
+          >
+            {t(lang, 'pritchaNavLink')}
+          </Link>
+          <Link
             href={`/${lang}/situacii`}
             className="font-sans text-sm text-muted hover:text-ink transition-colors"
           >

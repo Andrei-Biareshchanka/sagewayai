@@ -59,6 +59,10 @@ web/
 │   │   │   ├── DigestCard.tsx                  # Client — single digest card (category badge + AI title + date + "Read" link)
 │   │   │   └── DigestPagination.tsx            # Client — prev/next page links, preserves ?category=
 │   │   ├── pritcha/
+│   │   │   ├── page.tsx                     # All-parables catalog (revalidate 3600) — image+title cards, ?category= filter, no pagination
+│   │   │   ├── ParableCatalogContent.tsx    # Client wrapper — heading + category filter + card grid
+│   │   │   ├── ParableCatalogCard.tsx       # Client — single card (image, title, links to /pritcha/[slug])
+│   │   │   ├── ParableCategoryFilter.tsx    # Client — "All" + category pills, mirrors DigestCategoryFilter
 │   │   │   └── [slug]/
 │   │   │       ├── page.tsx               # Canonical parable page (SSG, revalidate 86400) — gated on reflectionStatus=REVIEWED, 404 otherwise
 │   │   │       └── ParablePageContent.tsx # Client wrapper — title/image/content card, all 3 quotes, deep reflection, questions, related parables
@@ -290,6 +294,9 @@ Server passes **both RU and EN** fields to `DigestPageContent` for all content, 
 Includes JSON-LD `Article` schema and full OpenGraph metadata. `jsonLd` includes `author`/`publisher` (both `Organization`, publisher has a `logo` pointing at `/favicon.svg`), `image` (the digest's OG image URL), `inLanguage: locale`, and `isPartOf` (`WebSite`). `dateModified` uses `digest.createdAt` — `DailyDigest` has no `updatedAt` field in the schema, so `createdAt` is the closest available proxy.
 
 `generateMetadata` resolves the page `<title>` via `resolveDigestTitle(digest, locale)`, which uses `lib/locale-content.ts`'s `pickLocalized()` against `digest.titleRu`/`titleEn` (AI-generated, stored in DB), falling back to the parable title. Description is built from the locale-picked quote snippet + parable moral for unique, content-rich SEO snippets per page. `buildOgImageUrl()` (local helper) builds the `/api/og` URL with `title`, `quote` (truncated to 200 chars), `author`, and `lang=${locale}` — used for both `openGraph.images` and `twitter.images`, and reused for the JSON-LD `image` field. `alternates.languages` points the current locale at itself and the other locale at its own `/d/[slug]` URL — never both at the same URL.
+
+### GET /[locale]/pritcha
+Single-page catalog of all `reflectionStatus: 'REVIEWED'` parables with both slugs non-null (`revalidate = 3600`), rendered as image + title cards linking to `/pritcha/[slug]`. Filterable by `?category=` (mirrors `/digests`'s `DigestCategoryFilter` pattern via `ParableCategoryFilter.tsx`) — deliberately **no pagination**, since the full 80-parable library is meant to be browsable in one page rather than paged like the (potentially unbounded) digest archive. `Navbar.tsx` links to it (`pritchaNavLink` in `lib/i18n.ts`); `app/sitemap.ts` adds one entry per locale (`pritchaIndexEntries`), separate from the per-parable `parableEntries` already there.
 
 ### GET /[locale]/pritcha/[slug]
 SSG canonical parable page. `revalidate = 86400`. Unlike `/d/[slug]`, `Parable.slugRu`/`slugEn` are **per-locale, not shared** — the RU and EN pages for the same parable have different slugs, so `getParableBySlug(locale, slug)` filters on `slugRu` or `slugEn` depending on the route locale, and `generateStaticParams` returns explicit `{ locale, slug }` pairs (`slugRu` for `'ru'`, `slugEn` for `'en'`) rather than a flat `LOCALES × slugs` cross-join like `/d/[slug]` uses — the two slugs aren't interchangeable per locale.
