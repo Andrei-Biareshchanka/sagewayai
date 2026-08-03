@@ -4,9 +4,10 @@ import { getTodayDate } from './daily';
 import {
   selectDailyParable,
   findQuoteForParable,
+  getTimesShown,
   type DailyParableCandidate,
 } from '../services/dailyParableSelection';
-import { generateReflection, generateDigestTitle } from './anthropic';
+import { generateDigestTitle } from './anthropic';
 import { buildDigestSlug } from './slug';
 
 // The old quote-first pipeline (pickNextQuote() below, then vector-search a
@@ -92,10 +93,6 @@ async function pickNextQuote(): Promise<Quote> {
   return (await pickQuoteWithinCooldown()) ?? (await pickLeastRecentlyUsedQuote());
 }
 
-function buildParableText(title: string, content: string, moral: string): string {
-  return `${title}. ${content} Moral: ${moral}`;
-}
-
 export type TitleField = 'titleEn' | 'titleRu';
 export type TitleArgs = Parameters<typeof generateDigestTitle>;
 type TitleQuote = Pick<Quote, 'text' | 'textRu' | 'author' | 'authorRu' | 'theme'>;
@@ -138,34 +135,47 @@ export async function generateUniqueTitle(field: TitleField, args: TitleArgs): P
   return title;
 }
 
-async function buildReflections(quote: Quote, parable: DailyParableCandidate) {
-  const parableText = buildParableText(parable.title, parable.content, parable.moral);
-  const [en, ru, titleEn, titleRu] = await Promise.all([
-    generateReflection(quote.text, parableText, 'en'),
-    generateReflection(quote.textRu ?? quote.text, parableText, 'ru'),
-    generateUniqueTitle('titleEn', buildTitleArgs(quote, parable, 'en')),
-    generateUniqueTitle('titleRu', buildTitleArgs(quote, parable, 'ru')),
-  ]);
+// One of the parable's 3 pre-written P0 questions, rotated by the same `timesShown % 3`
+// index as the quote (findQuoteForParable) — free variety on repeat showings, no new state.
+function pickQuestion(questions: Prisma.JsonValue, timesShown: number, parableId: string, field: string): string {
+  const list = Array.isArray(questions) ? questions.filter((q): q is string => typeof q === 'string') : [];
+  if (list.length === 0) {
+    throw new Error(`pickQuestion: parable ${parableId} has no usable strings in ${field}`);
+  }
+  return list[timesShown % list.length] as string;
+}
+
+// No Claude calls: the digest now reuses each parable's own already-generated deep
+// conclusion + graduated questions (the P0 canonical-parable insight, see
+// "Canonical parable insight generation" in server/CLAUDE.md) instead of generating a
+// fresh short reflection + title per quote pairing. selectDailyParable() only returns
+// REVIEWED parables, so conclusionEn/Ru are guaranteed non-null here — the checks below
+// exist to fail loudly (not silently) if that invariant is ever violated.
+function buildReflections(parable: DailyParableCandidate, timesShown: number) {
+  if (!parable.conclusionEn || !parable.conclusionRu) {
+    throw new Error(`buildReflections: REVIEWED parable ${parable.id} is missing conclusionEn/Ru`);
+  }
 
   return {
-    conclusionEn: en.conclusion,
-    questionEn: en.question,
-    conclusionRu: ru.conclusion,
-    questionRu: ru.question,
-    titleEn,
-    titleRu,
+    conclusionEn: parable.conclusionEn,
+    questionEn: pickQuestion(parable.questionsEn, timesShown, parable.id, 'questionsEn'),
+    conclusionRu: parable.conclusionRu,
+    questionRu: pickQuestion(parable.questionsRu, timesShown, parable.id, 'questionsRu'),
+    titleEn: parable.title,
+    titleRu: parable.titleRu ?? parable.title,
   };
 }
 
 export async function createDigestForDate(date: Date, isPublished: boolean): Promise<DigestWithRelations> {
   const parable = await selectDailyParable();
-  // Must run before prisma.dailyDigest.create() below, not after: this counts
-  // existing DailyDigest rows for `parable.id` to derive the rotation
-  // position (timesShown % 3). If today's row existed at count time, it would
-  // count itself and rotate the position by one — calling it here, before the
-  // row for `date` is created, keeps the count accurate.
-  const quote = await findQuoteForParable(parable);
-  const reflections = await buildReflections(quote, parable);
+  // Must run before prisma.dailyDigest.create() below, not after: this counts existing
+  // DailyDigest rows for `parable.id` to derive both the quote rotation position and the
+  // question rotation position (timesShown % N). If today's row existed at count time, it
+  // would count itself and shift both rotations by one — calling it here, before the row
+  // for `date` is created, keeps the count accurate.
+  const timesShown = await getTimesShown(parable.id);
+  const quote = await findQuoteForParable(parable, timesShown);
+  const reflections = buildReflections(parable, timesShown);
   const slug = await buildDigestSlug(prisma, parable.title, quote.author, quote.theme ?? null);
 
   return prisma.dailyDigest.create({
