@@ -25,16 +25,24 @@ export interface DigestCategory {
 // A REVIEWED parable has a much richer canonical page (all 3 quotes, deep
 // reflection, 3 questions) — once one exists, showing the full parable text
 // again here would just duplicate it. Truncate to the first paragraph
-// instead and link out, same "teaser, not duplicate" reasoning as
-// DigestBlock's own quote-preview pattern elsewhere on the site.
+// instead and link out, same "teaser, not duplicate" reasoning applied below
+// to the conclusion block.
 const PARABLE_TEASER_MAX_CHARS = 220;
 
-function truncateParable(content: string): string {
+// Since the digest's conclusion is now read verbatim off the parable's own
+// canonical conclusionEn/Ru (see server/CLAUDE.md's "Reflections and titles"
+// section) rather than freshly generated per digest, showing it in full here
+// would duplicate the exact same essay that lives on /pritcha/:slug — the
+// same "one body of text, one URL" problem P0 already solved for the parable
+// body. Truncated the same way, with its own link out.
+const CONCLUSION_TEASER_MAX_CHARS = 220;
+
+function truncateToTeaser(content: string, maxChars: number): string {
   const firstParagraph = content.split('\n\n')[0] ?? content;
-  if (firstParagraph.length <= PARABLE_TEASER_MAX_CHARS) return firstParagraph;
-  const truncated = firstParagraph.slice(0, PARABLE_TEASER_MAX_CHARS);
+  if (firstParagraph.length <= maxChars) return firstParagraph;
+  const truncated = firstParagraph.slice(0, maxChars);
   const lastSpace = truncated.lastIndexOf(' ');
-  return `${truncated.slice(0, lastSpace > 0 ? lastSpace : PARABLE_TEASER_MAX_CHARS)}…`;
+  return `${truncated.slice(0, lastSpace > 0 ? lastSpace : maxChars)}…`;
 }
 
 interface DigestBlockProps {
@@ -131,7 +139,9 @@ export function DigestBlock({
 
         {parableCanonicalSlug ? (
           <div className="space-y-2">
-            <p className="font-serif text-base leading-[1.8] text-ink">{truncateParable(parable.content)}</p>
+            <p className="font-serif text-base leading-[1.8] text-ink">
+              {truncateToTeaser(parable.content, PARABLE_TEASER_MAX_CHARS)}
+            </p>
             <Link
               href={`/${lang}/pritcha/${parableCanonicalSlug}`}
               className="font-sans text-sm font-medium text-sage hover:text-sage-dark transition-colors"
@@ -151,7 +161,21 @@ export function DigestBlock({
             <p className="font-sans text-sm font-medium text-sage">
               {t(lang, 'summaryLabel')}
             </p>
-            <p className="font-serif text-base text-ink">{conclusion}</p>
+            {parableCanonicalSlug ? (
+              <div className="space-y-2">
+                <p className="font-serif text-base text-ink">
+                  {truncateToTeaser(conclusion, CONCLUSION_TEASER_MAX_CHARS)}
+                </p>
+                <Link
+                  href={`/${lang}/pritcha/${parableCanonicalSlug}`}
+                  className="font-sans text-sm font-medium text-sage hover:text-sage-dark transition-colors"
+                >
+                  {t(lang, 'readFullReflection')} →
+                </Link>
+              </div>
+            ) : (
+              <p className="font-serif text-base text-ink">{conclusion}</p>
+            )}
           </div>
         )}
 

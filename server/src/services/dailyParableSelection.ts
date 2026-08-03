@@ -27,11 +27,16 @@ const COOLDOWN_STEPS = [COOLDOWN_DAYS, 45, 30, 21, 14, 7, 0] as const;
 export type DailyParableCandidate = {
   id: string;
   title: string;
+  titleRu: string | null;
   content: string;
   moral: string;
   source: string | null;
   readTime: number;
   categoryId: string;
+  conclusionEn: string | null;
+  conclusionRu: string | null;
+  questionsEn: Prisma.JsonValue;
+  questionsRu: Prisma.JsonValue;
 };
 
 function buildExcludeClause(parableIds: string[]): Prisma.Sql {
@@ -52,16 +57,21 @@ async function getRecentlyShownParableIds(cooldownDays: number): Promise<string[
 // LRU among whatever survives the cooldown exclusion: the parable with the
 // oldest last-shown date wins; a parable that has never been shown
 // (lastShown IS NULL) outranks every parable that has, via NULLS FIRST.
+// Restricted to REVIEWED parables: the digest now reads its conclusion/questions straight
+// off the Parable row (see buildReflections in lib/dailyDigest.ts) instead of generating
+// them fresh, so a DRAFT/GENERATED parable — which may have null conclusionEn/Ru or
+// questionsEn/Ru — must never be selectable here.
 async function queryLeastRecentlyShown(excludeClause: Prisma.Sql): Promise<DailyParableCandidate | undefined> {
   const [candidate] = await prisma.$queryRaw<DailyParableCandidate[]>`
-    SELECT p.id, p.title, p.content, p.moral, p.source, p."readTime", p."categoryId"
+    SELECT p.id, p.title, p."titleRu", p.content, p.moral, p.source, p."readTime", p."categoryId",
+      p."conclusionEn", p."conclusionRu", p."questionsEn", p."questionsRu"
     FROM "Parable" p
     LEFT JOIN (
       SELECT "parableId", MAX(date) AS "lastShown"
       FROM "DailyDigest"
       GROUP BY "parableId"
     ) d ON d."parableId" = p.id
-    WHERE TRUE
+    WHERE p."reflectionStatus" = 'REVIEWED'
       ${excludeClause}
     ORDER BY d."lastShown" ASC NULLS FIRST
     LIMIT 1
@@ -89,16 +99,20 @@ export async function selectDailyParable(): Promise<DailyParableCandidate> {
   throw new Error('selectDailyParable: no parable available even with cooldown fully relaxed');
 }
 
+// Counts every DailyDigest row ever created for this parable (drafts included) — the single
+// source of truth for both the quote rotation (findQuoteForParable) and the question
+// rotation (pickQuestion in lib/dailyDigest.ts). Must be read before today's DailyDigest row
+// is created, or it would count itself and shift both rotations by one.
+export async function getTimesShown(parableId: string): Promise<number> {
+  return prisma.dailyDigest.count({ where: { parableId } });
+}
+
 // Rotates through a parable's 3 pre-assigned quotes (backfilled earlier —
 // every parable has exactly ParableQuote positions 0/1/2, one of them
 // isPrimary) instead of re-running the vector search each time. First-ever
 // show of a parable (timesShown=0) lands on position 0 (primary); each
-// subsequent show advances 1 → 2 → 0 → 1 → ... — timesShown counts every
-// DailyDigest row for this parable ever created (drafts included, same
-// convention as the cooldown counting above), so the rotation position is
-// determined purely by history, no state to track separately.
-export async function findQuoteForParable(parable: { id: string }): Promise<Quote> {
-  const timesShown = await prisma.dailyDigest.count({ where: { parableId: parable.id } });
+// subsequent show advances 1 → 2 → 0 → 1 → ...
+export async function findQuoteForParable(parable: { id: string }, timesShown: number): Promise<Quote> {
   const position = timesShown % QUOTES_PER_PARABLE;
 
   const parableQuote = await prisma.parableQuote.findUnique({
