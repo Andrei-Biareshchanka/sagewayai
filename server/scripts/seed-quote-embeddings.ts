@@ -9,6 +9,17 @@ const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
 const prisma = new PrismaClient({ adapter });
 
 const BATCH_SIZE = 50;
+const BATCH_DELAY_MS = 21_000;
+const MAX_RETRIES = 5;
+const RETRY_BASE_DELAY_MS = 30_000;
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function isRateLimitError(error: unknown): boolean {
+  return error instanceof Error && error.message.includes("Voyage AI error 429");
+}
 
 if (!process.env.VOYAGE_API_KEY) {
   process.stderr.write("VOYAGE_API_KEY is not set in .env\n");
@@ -41,6 +52,20 @@ async function embedBatch(quotes: Quote[], index: number, total: number): Promis
   process.stdout.write(`Progress: ${index * BATCH_SIZE}/${total}\n`);
 }
 
+async function embedBatchWithRetry(quotes: Quote[], index: number, total: number): Promise<void> {
+  for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+    try {
+      await embedBatch(quotes, index, total);
+      return;
+    } catch (error) {
+      if (!isRateLimitError(error) || attempt === MAX_RETRIES) throw error;
+      const delay = RETRY_BASE_DELAY_MS * attempt;
+      process.stdout.write(`Rate limited on batch ${index} (attempt ${attempt}/${MAX_RETRIES}) — retrying in ${delay / 1000}s...\n`);
+      await sleep(delay);
+    }
+  }
+}
+
 async function main() {
   const quotes = await prisma.quote.findMany({
     select: { id: true, text: true, author: true },
@@ -49,7 +74,8 @@ async function main() {
   process.stdout.write(`Found ${quotes.length} quotes\n`);
 
   for (let i = 0; i < quotes.length; i += BATCH_SIZE) {
-    await embedBatch(quotes.slice(i, i + BATCH_SIZE), Math.floor(i / BATCH_SIZE) + 1, quotes.length);
+    if (i > 0) await sleep(BATCH_DELAY_MS);
+    await embedBatchWithRetry(quotes.slice(i, i + BATCH_SIZE), Math.floor(i / BATCH_SIZE) + 1, quotes.length);
   }
 
   const result = await prisma.$queryRaw<{ count: bigint }[]>`

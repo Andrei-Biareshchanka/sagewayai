@@ -69,7 +69,7 @@ async function loadUsedSlugs(field: 'slugRu' | 'slugEn'): Promise<Set<string>> {
     where: { [field]: { not: null } },
     select: { [field]: true },
   });
-  return new Set(rows.map((r) => (r as Record<string, string>)[field]));
+  return new Set(rows.map((r) => (r as unknown as Record<string, string>)[field]));
 }
 
 async function main() {

@@ -60,10 +60,17 @@ scripts/
 ├── seed-embeddings.ts / seed-quote-embeddings.ts  # pgvector embedding backfills
 ├── create-tomorrow-test.ts       # manual verification: creates one unpublished draft dated tomorrow (UTC), reusing createDigestForDate — for testing the publish-and-prepare flow without waiting for the cron
 ├── backfill-parable-slugs.ts     # one-time: idempotent RU→Latin transliteration + EN slugify for Parable.slugRu/slugEn, collision suffixes (-2, -3, ...)
-├── backfill-parable-quotes.ts    # one-time: assigns each parable exactly 3 ParableQuote rows (position 0-2, one isPrimary) via vector similarity
+├── backfill-parable-quotes.ts    # one-time: assigns each parable exactly 3 ParableQuote rows (position 0-2, one isPrimary) via vector similarity — only fills MISSING positions, does not re-evaluate existing assignments
+├── recompute-parable-quotes.ts   # forces a full re-match: deletes and reassigns all 3 ParableQuote rows per parable against the CURRENT full Quote pool — run after expanding the quote pool, since backfill-parable-quotes.ts alone won't attach new quotes to parables that already have all 3 positions filled
+├── check-new-parable-similarity.ts  # dedup check for a batch of candidate parables before seeding: exact title match + pgvector cosine similarity vs the DB and within the batch (flags ≥0.85)
+├── check-new-quote-similarity.ts    # same dedup check, for a batch of candidate quotes (flags ≥0.9, plus an exact-text check)
 ├── backfill-parable-insights.ts  # batched runner: generateReviewedParableInsight + generateParableImageBrief across DRAFT parables, with a per-model cost report and reflectionStatus routing (REVIEWED/GENERATED/FAILED) — see "Canonical parable insight generation" below
 └── dry-run-parable-insight.ts    # manual verification: runs the insight pipeline for a single parable, prints full generated text for review before trusting the batch runner
 ```
+
+**Parable and quote pool size (as of 2026-08-08):** 150 parables across 8 categories (wisdom 18, motivation 20, leadership 19, journey 19, loss 18, risk 20, trust 18, meaning 18) and 200 quotes across 11 themes. Grown from an original 80 parables / 114 quotes — see `docs/parable-expansion-70-plan.md` for the batch-by-batch process (real-tradition sourcing, embedding-similarity dedup) and its current status. New parables land with `reflectionStatus: DRAFT` — the deep-insight/image-brief generation pass (`docs/manual-backfill-process.md`) is a separate, later phase.
+
+**`seed-embeddings.ts` and `seed-quote-embeddings.ts` both retry on Voyage's 429 rate limit** (`BATCH_DELAY_MS` between batches + backoff retries) — an account without a payment method on file is capped at 3 RPM, and a burst from a preceding script can leave the very next run rate-limited on its first request.
 
 ## Prisma notes
 

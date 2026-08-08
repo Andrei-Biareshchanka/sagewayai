@@ -248,6 +248,122 @@ The samurai was quiet.
 «Когда ты овладеешь этим», — сказал монах, — «тебе не понадобится меч».`,
       moralRu: 'Самый острый инструмент — это ум, способный разрубить собственные иллюзии.',
     },
+    {
+      title: 'The Tea Master and the Ronin',
+      content: `A tea master serving a feudal lord was mocked by a proud samurai for having no skill with a sword, only with tea. Provoked into a duel he could not refuse, the tea master sought advice from a swordsman friend the night before.
+
+Rather than teaching him to fight, the swordsman said, "Serve tea to your opponent as if it were the last cup you will ever prepare. Nothing else."
+
+The next morning, the tea master approached the duel with such complete, unafraid presence that when he raised his sword overhead — exactly as he would raise a ladle to pour water — the ronin, unnerved by an opponent who showed neither fear nor aggression, dropped his own sword and begged forgiveness.`,
+      moral: 'Complete presence in the smallest act can carry more power than any display of force.',
+      readTime: 1,
+      titleRu: 'Мастер чая и ронин',
+      contentRu: `Мастер чая, служивший при дворе феодала, был осмеян гордым самураем за то, что не владел мечом — только чайной церемонией. Втянутый в поединок, которого не мог избежать, мастер чая накануне вечером обратился за советом к другу-фехтовальщику.
+
+Тот не стал учить его драться, а сказал: «Подавай чай своему противнику так, будто это последняя чашка, которую ты когда-либо приготовишь. Больше ничего не делай».
+
+На следующее утро мастер чая вышел на поединок с таким полным, бесстрашным присутствием, что, подняв меч над головой — точно так же, как поднимал бы ковш, чтобы налить воды, — ронин, обескураженный противником без страха и без агрессии, бросил свой меч и попросил прощения.`,
+      moralRu: 'Полное присутствие в самом малом действии может нести больше силы, чем любая демонстрация мощи.',
+    },
+    {
+      title: 'The Useless Tree',
+      content: `A carpenter passed an enormous old tree, its trunk gnarled, its branches twisted beyond any use for lumber. His apprentice asked why no one had ever cut it down.
+
+"Because it is useless wood," the carpenter said. "It would ruin any tool that tried to shape it."
+
+That night, the tree appeared to the carpenter in a dream. "You call me useless," it said, "but that very uselessness is why I was never cut down for beams, never split for planks. I have lived three hundred years exactly because I fit no purpose you could name."`,
+      moral: 'What refuses to be useful to others is sometimes what survives to become itself.',
+      readTime: 1,
+      titleRu: 'Бесполезное дерево',
+      contentRu: `Плотник проходил мимо огромного старого дерева с узловатым стволом и ветвями, слишком кривыми для какого-либо применения в столярном деле. Его ученик спросил, почему это дерево никогда не срубали.
+
+— Потому что это бесполезная древесина, — ответил плотник. — Она испортит любой инструмент, который попытается её обработать.
+
+Той же ночью дерево явилось плотнику во сне. — Ты называешь меня бесполезным, — сказало оно, — но именно эта бесполезность спасла меня от того, чтобы стать балкой или доской. Я прожило триста лет именно потому, что не годилось ни для одной цели, которую ты мог бы назвать.`,
+      moralRu: 'То, что отказывается быть полезным для других, порой именно поэтому и выживает, чтобы остаться собой.',
+    },
+    {
+      title: 'The Triple Filter',
+      content: `A man ran up to Socrates, eager to share gossip about a mutual friend. "Wait," Socrates said. "Before you tell me, let's run it through three filters. First: are you certain it's true?"
+
+The man admitted he'd only heard it. "Second: is it something good about our friend?" No, it wasn't.
+
+"Third, then: is it useful to me in any way?" The man shrugged — probably not. "So," Socrates said, "you want to tell me something that may not be true, isn't good, and isn't useful. Why tell me at all?"`,
+      moral: 'Most of what people are desperate to tell you fails all three tests, yet gets said anyway.',
+      readTime: 1,
+      titleRu: 'Тройной фильтр',
+      contentRu: `Человек подбежал к Сократу, спеша поделиться слухом об их общем друге. — Постой, — сказал Сократ. — Прежде чем рассказать, давай пропустим это через три фильтра. Первый: ты уверен, что это правда?
+
+Человек признался, что просто где-то это услышал. — Второй: это что-то хорошее о нашем друге? Нет, не хорошее.
+
+— Тогда третий: это мне чем-то полезно? — Мужчина пожал плечами — пожалуй, нет. — Значит, — сказал Сократ, — ты хочешь рассказать мне то, что, возможно, неправда, что нехорошо и бесполезно. Зачем вообще это говорить?`,
+      moralRu: 'Большая часть того, что людям не терпится тебе рассказать, не проходит ни один из трёх фильтров — и всё равно произносится.',
+    },
+    {
+      title: 'The Salt Doll and the Ocean',
+      content: `A doll made entirely of salt set out one day to learn how deep the ocean was, since it looked vast and unknowable from the shore. It waded in and kept walking forward, deeper and deeper, dissolving a little more of itself into the water with every step.
+
+It never turned back. By the time it reached the depth where the answer would finally have been complete, there was no longer any doll left separate from the ocean to carry that knowledge home.`,
+      moral: 'To fully know some things, you may have to stop existing as something separate from them.',
+      readTime: 1,
+      titleRu: 'Соляная кукла и океан',
+      contentRu: `Кукла, целиком сделанная из соли, однажды отправилась узнать, насколько глубок океан, — с берега он казался безбрежным и непостижимым. Она вошла в воду и продолжала идти вперёд, всё глубже и глубже, растворяя себя в воде с каждым шагом.
+
+Она ни разу не повернула назад. К тому моменту, когда она достигла глубины, на которой ответ наконец стал бы полным, от куклы уже не осталось ничего отдельного от океана, что могло бы принести это знание обратно на берег.`,
+      moralRu: 'Чтобы по-настоящему что-то познать, порой нужно перестать существовать как нечто отдельное от этого.',
+    },
+    {
+      title: 'The Elephant and the Rope',
+      content: `A visitor at a circus noticed that the enormous elephants were held in place by nothing more than a thin rope tied to one front leg and a small wooden stake. He asked the trainer why such powerful animals, easily capable of snapping the rope or uprooting the stake, never even tried to escape.
+
+The trainer explained that when the elephants were very young and much weaker, the very same size of rope and stake had been enough to hold them, and after repeatedly failing to break free as calves, they had simply stopped trying. Now, fully grown and strong enough to walk away at any moment, they still believed the rope could hold them.`,
+      moral: 'Many limits we live inside of were only ever true when we were smaller than we are now.',
+      readTime: 1,
+      titleRu: 'Слон и верёвка',
+      contentRu: `Посетитель цирка заметил, что огромных слонов удерживает на месте лишь тонкая верёвка, привязанная к одной передней ноге, и небольшой деревянный колышек. Он спросил дрессировщика, почему такие мощные животные, способные легко порвать верёвку или выдернуть колышек, даже не пытаются сбежать.
+
+Дрессировщик объяснил, что когда слоны были совсем маленькими и намного слабее, такой же верёвки и колышка было достаточно, чтобы их удержать, и после многократных неудачных попыток вырваться в детстве они просто перестали пытаться. Теперь, выросшие и достаточно сильные, чтобы уйти в любой момент, они всё ещё верят, что верёвка способна их удержать.`,
+      moralRu: 'Многие границы, внутри которых мы живём, были правдой лишь тогда, когда мы были меньше, чем сейчас.',
+    },
+    {
+      title: 'The Fox Without a Tail',
+      content: `A fox caught its tail in a trap and, to escape with his life, chewed it off and ran free. Ashamed to be seen without it, but needing cover for his shame, he called a meeting of all the other foxes and argued passionately that tails were nothing but useless dead weight — heavy, easily grabbed by hunting dogs, and good for nothing but decoration.
+
+He urged every fox present to cut off their own tail immediately for their own safety and convenience. One old fox in the back listened to the whole speech, then said dryly, "You would not be so quick to condemn tails, friend, if you still had one of your own to lose."`,
+      moral: 'Be suspicious of advice to give up something valuable from someone who has already lost it themselves.',
+      readTime: 1,
+      titleRu: 'Лис без хвоста',
+      contentRu: `Лис попал хвостом в капкан и, чтобы спастись, отгрыз его и убежал на свободу. Стыдясь показываться без хвоста, но нуждаясь в оправдании своего стыда, он созвал сход всех лисиц и с жаром убеждал, что хвост — не более чем бесполезный груз: тяжёлый, за него легко хватают охотничьи псы, и годится он лишь для украшения.
+
+Он призывал каждую присутствующую лисицу немедленно отрубить себе хвост ради собственной безопасности и удобства. Один старый лис в глубине толпы выслушал всю речь, а затем сухо заметил: — Ты бы не спешил так осуждать хвосты, приятель, будь у тебя самого ещё хоть один, который можно потерять.`,
+      moralRu: 'Стоит насторожиться, если совет отказаться от чего-то ценного даёт тот, кто уже сам это потерял.',
+    },
+    {
+      title: 'The Wounded Healer of the Talmud',
+      content: `A rabbi met the prophet Elijah near a cave and asked him to point out the Messiah among the beggars gathered at the city gate. Elijah pointed to a leper sitting among the poor, patiently unwrapping and rewrapping his bandages one wound at a time, never all at once.
+
+The rabbi approached him and asked when he would come to redeem the world. "Today," the man answered. The rabbi waited the whole day, and when the man never came, he returned to Elijah, feeling deceived. Elijah explained: the man had meant that he stays ready to answer the call at any single moment, tending one wound at a time so that he is never too encumbered to rise the instant he is needed.`,
+      moral: 'Being ready for a single, urgent moment sometimes matters more than trying to have everything already resolved.',
+      readTime: 1,
+      titleRu: 'Раненый целитель из Талмуда',
+      contentRu: `Раввин встретил пророка Илию у пещеры и попросил его указать на Мессию среди нищих, собравшихся у городских ворот. Илия указал на прокажённого, сидевшего среди бедняков и терпеливо разматывавшего и заново перевязывавшего свои раны — по одной за раз, никогда все сразу.
+
+Раввин подошёл к нему и спросил, когда тот придёт, чтобы искупить мир. — Сегодня, — ответил тот. Раввин прождал весь день, и когда человек так и не пришёл, вернулся к Илии, чувствуя себя обманутым. Илия объяснил: человек имел в виду, что он держит себя готовым откликнуться на зов в любой единственный миг, обрабатывая раны по одной, чтобы никогда не оказаться слишком обременённым и суметь подняться в тот самый момент, когда понадобится.`,
+      moralRu: 'Готовность к одному-единственному срочному мгновению порой значит больше, чем попытка заранее уладить всё сразу.',
+    },
+    {
+      title: 'The Physician Who Treated the Cause',
+      content: `A famous physician was once asked which of the three brothers in his family — all doctors — was truly the best. He answered that his eldest brother was the greatest, because he could see illness in a person's spirit before any symptom appeared at all, and cured it before it ever became visible, so that only his own family knew how skilled he really was.
+
+His second brother was very good, he said, because he could catch a disease at its earliest hint and cure it quickly, so that neighbors merely thought he was decent at treating minor ailments. As for himself, he said, patients only ever saw him inserting needles into their veins and prescribing bitter medicines for illnesses that had already become severe — which was why, of the three, he was the one everyone assumed was the most skilled.`,
+      moral: 'The most valuable prevention is often invisible, while the most visible effort is often just cleanup after the real failure already happened.',
+      readTime: 1,
+      titleRu: 'Лекарь, который лечил причину',
+      contentRu: `Знаменитого лекаря однажды спросили, кто из трёх братьев в его семье — все врачи — самый искусный. Он ответил, что старший брат — величайший из них, потому что видит болезнь духа человека прежде, чем появится хоть один симптом, и излечивает её ещё до того, как она станет заметна, так что о его мастерстве знает только собственная семья.
+
+Средний брат тоже очень хорош, сказал он, потому что улавливает болезнь на самой ранней стадии и быстро её излечивает, так что соседи считают его лишь неплохим лекарем от лёгких недугов. Что до него самого, сказал лекарь, пациенты видят лишь, как он вводит иглы в их вены и прописывает горькие снадобья от болезней, уже ставших тяжёлыми, — именно поэтому из троих братьев все считают самым искусным именно его.`,
+      moralRu: 'Самая ценная профилактика обычно незаметна, тогда как самое заметное усилие часто оказывается лишь уборкой после уже случившегося провала.',
+    },
   ],
 
   motivation: [
@@ -477,6 +593,148 @@ He went back. He won on the seventh.`,
 Он вернулся. И победил на седьмой раз.`,
       moralRu: 'Единственное различие между поражением и последней попыткой — останавливаешься ли ты.',
     },
+    {
+      title: 'The Calf and the Bull',
+      content: `In ancient Greece, a boy named Milo decided to become the strongest man alive. He began by lifting a newborn calf onto his shoulders every morning and carrying it across the yard. Neighbors laughed — a boy hauling a calf changed nothing.
+
+But he returned the next day, and the next. The calf grew heavier week by week, and so, without noticing it, did Milo's strength.
+
+Years later, the calf was a full-grown bull, and Milo carried it across the stadium at Olympia before an astonished crowd. He hadn't grown strong all at once. He had simply never stopped lifting.`,
+      moral: "Strength you can't yet see is being built by the weight you keep choosing to carry.",
+      readTime: 1,
+      titleRu: 'Телёнок и бык',
+      contentRu: `В древней Греции мальчик по имени Милон решил стать самым сильным человеком на свете. Каждое утро он поднимал на плечи новорождённого телёнка и проносил его через двор. Соседи смеялись — что изменится от того, что мальчик таскает телёнка?
+
+Но он возвращался на следующий день, и ещё через день. Телёнок с каждой неделей становился тяжелее, а вместе с ним, незаметно для самого Милона, росла и его сила.
+
+Годы спустя телёнок превратился во взрослого быка, и Милон пронёс его через весь стадион в Олимпии на глазах у изумлённой толпы. Он не стал сильным в одночасье. Он просто никогда не переставал поднимать.`,
+      moralRu: 'Сила, которую пока не видно, куётся тем весом, что ты продолжаешь нести.',
+    },
+    {
+      title: "The Stutterer's Pebbles",
+      content: `As a boy, Demosthenes stammered so badly that crowds laughed him off the speaker's platform before he finished a sentence. Rather than give up his dream of becoming a great orator, he began walking to the seashore each morning, placed smooth pebbles under his tongue, and practiced speaking over the roar of the waves.
+
+For months, his words came out garbled and slow. He kept returning to the shore anyway.
+
+Years later, he stood before the assemblies of Athens as the most celebrated speaker in the city, his stammer gone, his voice able to carry over any noise a crowd could make.`,
+      moral: 'The obstacle you practice against in private is what your voice is built from in public.',
+      readTime: 1,
+      titleRu: 'Камешки заики',
+      contentRu: `В детстве Демосфен заикался настолько сильно, что толпа освистывала его с трибуны прежде, чем он успевал закончить фразу. Но вместо того чтобы отказаться от мечты стать великим оратором, он начал каждое утро ходить на морской берег, класть под язык гладкие камешки и учиться говорить, перекрывая голосом шум волн.
+
+Месяцами его слова звучали невнятно и медленно. Он всё равно возвращался на берег снова.
+
+Годы спустя он стоял перед народным собранием Афин как самый прославленный оратор города — без единого заикания, с голосом, способным перекрыть любой шум толпы.`,
+      moralRu: 'Препятствие, с которым ты тренируешься наедине, и есть то, из чего строится твой голос на публике.',
+    },
+    {
+      title: "Ten Thousand Ways That Don't Work",
+      content: `A young assistant, watching Thomas Edison fail experiment after experiment while trying to perfect a working light bulb, finally asked him how he could bear such repeated failure. Edison looked genuinely puzzled by the question.
+
+"I haven't failed," he said. "I've successfully found ten thousand ways that won't work. Each one gets me closer to the one that will."
+
+He kept testing filaments for years afterward, and eventually found one that lasted.`,
+      moral: "Calling something 'failure' or 'data' is a choice, and the choice decides whether you keep going.",
+      readTime: 1,
+      titleRu: 'Десять тысяч неудачных способов',
+      contentRu: `Молодой помощник, наблюдая, как Томас Эдисон терпит неудачу за неудачей, пытаясь довести до ума работающую лампу накаливания, наконец спросил его, как он выносит такое количество провалов. Эдисон явно удивился вопросу.
+
+— Я не потерпел неудачу, — сказал он. — Я успешно нашёл десять тысяч способов, которые не работают. Каждый из них приближает меня к тому, который сработает.
+
+Он продолжал испытывать нити накаливания ещё годы после этого и в конце концов нашёл ту, что продержалась.`,
+      moralRu: 'Назвать что-то «провалом» или «данными» — это выбор, и именно этот выбор решает, продолжишь ли ты идти дальше.',
+    },
+    {
+      title: 'The Four-Minute Mile',
+      content: `For decades, doctors and coaches agreed that running a mile in under four minutes was a physical impossibility — the human body, they said, simply wasn't built for it. Roger Bannister trained anyway, believing the barrier was in people's minds more than in their legs.
+
+In 1954, he broke it, finishing in 3 minutes 59.4 seconds. Within just forty-six days, another runner broke his new record. Within a few years, dozens of runners had done what an entire century had called impossible, once one man had shown them the wall wasn't actually made of stone.`,
+      moral: 'Most limits are only proven real by everyone agreeing not to test them.',
+      readTime: 1,
+      titleRu: 'Миля за четыре минуты',
+      contentRu: `Десятилетиями врачи и тренеры сходились во мнении, что пробежать милю быстрее чем за четыре минуты физически невозможно — человеческое тело, говорили они, просто для этого не приспособлено. Роджер Баннистер всё равно тренировался, веря, что этот барьер существует скорее в головах людей, чем в их ногах.
+
+В 1954 году он преодолел его, показав результат 3 минуты 59,4 секунды. Всего через сорок шесть дней другой бегун побил его новый рекорд. Через несколько лет десятки бегунов сделали то, что целое столетие называло невозможным, — стоило одному человеку показать, что стена на самом деле не каменная.`,
+      moralRu: 'Большинство пределов доказывают свою реальность лишь тем, что все молчаливо соглашаются их не проверять.',
+    },
+    {
+      title: "The Carpenter's Last House",
+      content: `An aging carpenter told his employer he wished to retire and spend his remaining years with his family. The employer, reluctant to lose his best worker, asked him to build one final house as a personal favor. The carpenter agreed, but his heart wasn't in the work anymore — he rushed the framing, used lesser wood, cut corners he would never have cut before.
+
+When the house was finished, the employer handed him the front door key. "This house is my gift to you," he said, "for your years of service." The carpenter stood in shock, realizing he would now spend the rest of his life living inside the very carelessness he had built.`,
+      moral: "The last thing you do out of obligation instead of care is the thing you're most likely to have to live inside of.",
+      readTime: 1,
+      titleRu: 'Последний дом плотника',
+      contentRu: `Стареющий плотник сказал хозяину, что хочет уйти на покой и провести остаток лет с семьёй. Хозяин, не желая терять лучшего работника, попросил его построить в качестве личного одолжения ещё один, последний дом. Плотник согласился, но сердце его уже не лежало к работе — он спешил с каркасом, брал дерево похуже, срезал углы, которых прежде никогда бы не срезал.
+
+Когда дом был готов, хозяин вручил ему ключ от входной двери. — Этот дом — мой подарок тебе, — сказал он, — за годы твоей службы. Плотник застыл в шоке, осознав, что теперь ему предстоит провести остаток жизни внутри той самой небрежности, которую он сам и построил.`,
+      moralRu: 'Последнее, что ты делаешь по обязанности, а не по заботе, — это как раз то, внутри чего тебе, скорее всего, придётся жить.',
+    },
+    {
+      title: 'The Sculptor Who Only Removed',
+      content: `A visitor watched Michelangelo working for hours on a massive, unremarkable block of marble, chipping away small pieces with no visible plan. "How do you know what to carve?" the visitor finally asked.
+
+Michelangelo didn't look up. "The angel is already in the marble," he said. "I just remove everything that isn't him." Years of quiet, unglamorous chipping later, the finished statue stood revealing a figure so lifelike that people said it looked ready to step down and walk away.`,
+      moral: "Sometimes the work isn't building something new — it's patiently removing everything that was never actually you.",
+      readTime: 1,
+      titleRu: 'Скульптор, который только убирал лишнее',
+      contentRu: `Посетитель часами наблюдал, как Микеланджело работает над огромной, ничем не примечательной глыбой мрамора, откалывая небольшие куски без видимого плана. — Как ты узнаёшь, что вырезать? — наконец спросил он.
+
+Микеланджело не поднял глаз. — Ангел уже находится внутри мрамора, — сказал он. — Я лишь убираю всё, что им не является. Спустя годы тихой, неприметной работы завершённая статуя предстала фигурой настолько живой, что люди говорили: кажется, она вот-вот сойдёт с постамента и уйдёт.`,
+      moralRu: 'Иногда работа заключается не в том, чтобы создать что-то новое, а в том, чтобы терпеливо убрать всё, чем ты на самом деле никогда не был.',
+    },
+    {
+      title: 'The Two Frogs in the Cream',
+      content: `Two frogs fell into a deep churn of cream and found the sides too slippery and steep to climb out. One frog quickly decided the situation was hopeless, stopped struggling, and drowned.
+
+The other frog, unwilling to simply give up even without any clear plan, kept kicking and paddling out of sheer stubbornness, hour after hour, long after it seemed pointless. Eventually his relentless kicking churned the cream into a solid lump of butter firm enough to stand on, and he hopped out to safety.`,
+      moral: 'Sometimes persistence works not because you had a plan, but because refusing to stop can eventually change the substance of the problem itself.',
+      readTime: 1,
+      titleRu: 'Две лягушки в сливках',
+      contentRu: `Две лягушки упали в глубокую маслобойку со сливками и обнаружили, что стенки слишком скользкие и крутые, чтобы выбраться. Одна лягушка быстро решила, что положение безнадёжно, перестала бороться и утонула.
+
+Другая, не желая просто сдаваться, даже не имея никакого чёткого плана, продолжала грести и барахтаться из чистого упрямства, час за часом, задолго после того, как это стало казаться бессмысленным. В конце концов её неутомимая работа лапками сбила сливки в твёрдый комок масла, достаточно прочный, чтобы на него встать, и она выпрыгнула наружу, в безопасность.`,
+      moralRu: 'Иногда упорство срабатывает не потому, что был план, а потому, что отказ остановиться способен в конце концов изменить саму суть проблемы.',
+    },
+    {
+      title: 'The Composer Who Could Not Hear His Own Symphony',
+      content: `By the time he finished his ninth and greatest symphony, the composer had been completely deaf for years, unable to hear a single note of the music he had written entirely inside his own head.
+
+At the premiere, the orchestra played to thunderous effect, and when it ended the audience rose in wild applause, but he remained facing his sheet music, hearing nothing, unaware anything had even happened until a singer gently turned him around to see the crowd on its feet.`,
+      moral: 'The instrument you are missing does not have to be the same instrument the work gets made with.',
+      readTime: 1,
+      titleRu: 'Композитор, не слышавший собственную симфонию',
+      contentRu: `К тому времени, когда он закончил свою девятую, величайшую симфонию, композитор уже много лет был полностью глух — не мог услышать ни одной ноты музыки, целиком написанной внутри собственной головы.
+
+На премьере оркестр играл с оглушительным эффектом, и когда всё закончилось, зал поднялся в неистовых овациях, но композитор оставался лицом к нотам, ничего не слыша, не подозревая, что вообще что-то произошло, пока певица бережно не повернула его лицом к вставшему залу.`,
+      moralRu: 'Инструмент, которого тебе не хватает, не обязан быть тем же инструментом, которым создаётся работа.',
+    },
+    {
+      title: 'The Runner Who Finished Last',
+      content: `A marathon runner injured his leg early in an Olympic race but refused to stop, hobbling the remaining nineteen miles alone on a torn muscle while the stadium emptied and the medal ceremony for the winners came and went.
+
+Hours later, in near darkness, with only a handful of spectators left, he finally staggered through the finish line to a standing ovation louder than the one the gold medalist had received. Asked afterward why he didn't simply withdraw, he said his country hadn't sent him seven thousand kilometers to start a race — they had sent him to finish one.`,
+      moral: 'Finishing last is a different category of achievement entirely from not finishing at all.',
+      readTime: 1,
+      titleRu: 'Бегун, пришедший последним',
+      contentRu: `Марафонец повредил ногу в начале олимпийского забега, но отказался останавливаться, хромая оставшиеся тридцать километров в одиночестве на разорванной мышце, пока стадион пустел, а церемония награждения победителей проходила и завершалась.
+
+Спустя часы, почти в темноте, при горстке оставшихся зрителей, он наконец, пошатываясь, пересёк финишную черту под овацию громче той, что досталась золотому медалисту. На вопрос, почему он просто не сошёл с дистанции, он ответил, что его страна отправила его за семь тысяч километров не для того, чтобы начать забег, а для того, чтобы его закончить.`,
+      moralRu: 'Прийти последним — это совсем другая категория достижения, нежели вовсе не финишировать.',
+    },
+    {
+      title: 'Cut From the Team',
+      content: `As a sophomore, a lanky teenager was cut from his high school varsity basketball team, informed by the coach that he simply wasn't tall enough or good enough to make the roster that year. Instead of quitting the sport, he spent the following months waking before dawn to practice alone on an empty court, telling anyone who would listen later that he pictured that exact moment of being cut every time he was tempted to stop trying.
+
+He went on to become one of the greatest basketball players in the sport's history, and kept a photograph of that year's team roster — his name absent from it — where he could see it before every game he played for the rest of his career.`,
+      moral: "The moment someone tells you that you're not good enough can become either the end of the story or the reason you remember it.",
+      readTime: 1,
+      titleRu: 'Отчисленный из команды',
+      contentRu: `На втором году школы долговязого подростка отчислили из основной баскетбольной команды — тренер сообщил, что тот попросту недостаточно высок и недостаточно хорош для состава в этом году. Вместо того чтобы бросить спорт, следующие месяцы он вставал до рассвета, чтобы тренироваться в одиночку на пустой площадке, и позже рассказывал всем, кто готов был слушать, что представлял себе именно тот момент отчисления каждый раз, когда хотел сдаться.
+
+Он стал одним из величайших баскетболистов в истории этого спорта и хранил фотографию состава той команды — без своего имени в списке — там, где мог видеть её перед каждой игрой до конца карьеры.`,
+      moralRu: 'Момент, когда тебе говорят, что ты недостаточно хорош, может стать либо концом истории, либо причиной, по которой ты её запомнишь.',
+    },
   ],
 
   leadership: [
@@ -705,6 +963,127 @@ She understood.`,
 
 Она всё поняла.`,
       moralRu: 'Задача лидера — создавать условия, а не управлять результатами.',
+    },
+    {
+      title: 'The North Wind and the Sun',
+      content: `The North Wind and the Sun argued over which of them was stronger. Spotting a traveler wrapped in a heavy cloak, they agreed: whoever could make him remove it would win.
+
+The Wind went first, howling with all its force. But the harder it blew, the tighter the traveler clutched his cloak around him. Exhausted, the Wind gave up.
+
+Then the Sun simply shone, warm and steady. Within minutes, the traveler loosened his cloak, and soon took it off entirely to walk in comfort. The Sun had never raised its voice.`,
+      moral: 'Warmth moves people where force only makes them hold on tighter.',
+      readTime: 1,
+      titleRu: 'Северный ветер и Солнце',
+      contentRu: `Северный Ветер и Солнце спорили, кто из них сильнее. Заметив путника в тёплом плаще, они решили: кто заставит его снять плащ, тот и победил.
+
+Первым взялся Ветер и подул изо всех сил. Но чем сильнее он дул, тем крепче путник кутался в свой плащ. Обессилев, Ветер сдался.
+
+Тогда Солнце просто засияло — тепло и ровно. Через несколько минут путник ослабил плащ, а вскоре и вовсе снял его, чтобы идти налегке. Солнце ни разу не повысило голос.`,
+      moralRu: 'Тепло ведёт людей вперёд, тогда как сила лишь заставляет их держаться крепче.',
+    },
+    {
+      title: 'The Farmer Who Ruled Rome',
+      content: `Rome's army was surrounded and near collapse, and the Senate needed a dictator to save the city. They sent messengers to find Cincinnatus, a retired statesman, and found him plowing his own small field, dressed as any farmer.
+
+He put down his plow, took command, crushed the enemy in sixteen days, and then did something no one expected: he resigned the near-total power he'd been given and walked back to his farm to finish the plowing he'd left unfinished.`,
+      moral: "The clearest sign of a leader's character is how quickly they hand power back.",
+      readTime: 1,
+      titleRu: 'Земледелец, который правил Римом',
+      contentRu: `Римская армия попала в окружение и была на грани разгрома, и Сенату требовался диктатор, способный спасти город. Гонцов отправили за Цинциннатом, отошедшим от дел государственным мужем, — и нашли его пашущим собственное небольшое поле, одетым как простой земледелец.
+
+Он оставил плуг, принял командование, разгромил врага за шестнадцать дней, а затем сделал то, чего никто не ожидал: сложил с себя почти неограниченную власть, которую ему вручили, и вернулся на поле — доканчивать вспашку, которую оставил незавершённой.`,
+      moralRu: 'Самый ясный признак характера лидера — то, как быстро он возвращает власть.',
+    },
+    {
+      title: 'The Captain Who Lost His Ship and Saved His Crew',
+      content: `An explorer's ship became trapped in Antarctic ice, was slowly crushed over months, and finally sank, stranding twenty-eight men on the frozen sea with no ship, no radio, and no hope of rescue. The captain's original goal — to be first across the continent — was now impossible, so he quietly set a new one: bring every single man home alive.
+
+Over the next year and a half, through open-boat voyages across brutal seas and a trek over mountains no one had crossed, he did exactly that. Every man survived.`,
+      moral: 'When the goal you set out for becomes impossible, the measure of your character is which goal you replace it with.',
+      readTime: 1,
+      titleRu: 'Капитан, который потерял корабль и спас команду',
+      contentRu: `Корабль исследователя застрял во льдах Антарктики, месяцами медленно раздавливался льдами и в итоге затонул, оставив двадцать восемь человек на замёрзшем море без корабля, без радиосвязи и без надежды на спасение. Первоначальная цель капитана — первым пересечь континент — стала невозможной, и он молча поставил себе новую: привести домой живыми всех до единого.
+
+В течение следующих полутора лет, через плавания на открытых шлюпках по жестоким морям и переход через горы, которые прежде никто не пересекал, он добился именно этого. Выжили все.`,
+      moralRu: 'Когда цель, к которой ты шёл, становится недостижимой, мерилом характера служит то, какой целью ты её заменишь.',
+    },
+    {
+      title: "The Emperor's New Clothes",
+      content: `Two swindlers told a vain emperor they could weave him a magnificent suit invisible to anyone stupid or unfit for their position. The emperor paid handsomely for cloth that didn't exist, and every minister, terrified of appearing incompetent, praised the imaginary garment along with him.
+
+The emperor paraded through the city in nothing at all, and every adult in the crowd, afraid of seeming foolish, cheered the splendor of his invisible robes. It took one small child, with nothing yet to lose by speaking honestly, to shout what everyone could already see: "But he isn't wearing anything at all!"`,
+      moral: 'An obvious truth can be suppressed by an entire crowd of adults with something to lose, and revealed by the one person who has nothing to protect.',
+      readTime: 1,
+      titleRu: 'Новое платье короля',
+      contentRu: `Два мошенника сказали тщеславному королю, что могут соткать для него роскошный наряд, невидимый для всякого глупца или человека, не соответствующего своей должности. Король щедро заплатил за несуществующую ткань, и каждый министр, боясь показаться некомпетентным, восхищался вымышленным нарядом вместе с ним.
+
+Король прошествовал по городу совершенно голым, и каждый взрослый в толпе, боясь показаться глупым, восхвалял великолепие его невидимых одежд. Понадобился один-единственный маленький ребёнок, которому нечего было терять от честных слов, чтобы выкрикнуть то, что все и так уже видели: — Да он вообще ничего не надел!`,
+      moralRu: 'Очевидную правду способна скрывать целая толпа взрослых, которым есть что терять, и раскрыть её способен лишь тот, кому нечего защищать.',
+    },
+    {
+      title: 'The King Who Commanded the Tide',
+      content: `Tired of courtiers endlessly flattering him as though his power had no limits, King Canute ordered his throne carried to the seashore at low tide and sat facing the incoming water. "Sea," he commanded, "you are mine to rule, and I forbid you to rise onto my land, or to wet the feet of your lord."
+
+The tide rose exactly as it always had, soaking his robes and his throne, forcing him to leap back to dry ground. Canute turned to his stunned courtiers and said, "Let all men know how empty and worthless is the power of kings, for there is none worthy of the name save He whom heaven, earth, and sea obey."`,
+      moral: 'The clearest way to correct people who flatter your power is to let reality demonstrate its limits in front of them.',
+      readTime: 1,
+      titleRu: 'Король, повелевший приливу',
+      contentRu: `Устав от бесконечной лести придворных, будто его власть не знает границ, король Кнут велел вынести свой трон к морскому берегу во время отлива и сел лицом к наступающей воде. — Море, — произнёс он, — ты подвластно мне, и я запрещаю тебе подниматься на мою землю или мочить ноги твоему господину.
+
+Прилив поднялся точно так же, как всегда, промочив его одежды и трон, и король был вынужден отскочить на сушу. Кнут повернулся к ошеломлённым придворным и сказал: — Пусть все знают, сколь пуста и ничтожна власть королей, ибо нет никого достойного этого имени, кроме Того, кому подчиняются небо, земля и море.`,
+      moralRu: 'Самый ясный способ поправить тех, кто льстит твоей власти — позволить реальности прямо у них на глазах показать её пределы.',
+    },
+    {
+      title: 'The General Who Ate Last',
+      content: `A famous ancient general, celebrated for the loyalty of his troops, had a habit that puzzled visiting officials: whenever supplies of food or wine ran short during a campaign, he insisted his own portion be given to the wounded and the ordinary soldiers first, eating only what remained after everyone else had been fed, and sometimes not eating at all.
+
+When asked why he risked his own strength this way, he said that a soldier who has watched his commander go hungry so that he could eat will follow that commander into any battle without needing to be ordered.`,
+      moral: 'Loyalty that can survive real danger is built in the small, unwitnessed moments of unequal sacrifice, not in speeches.',
+      readTime: 1,
+      titleRu: 'Полководец, который ел последним',
+      contentRu: `У знаменитого древнего полководца, прославленного преданностью своих войск, была привычка, озадачивавшая заезжих чиновников: всякий раз, когда во время похода не хватало еды или вина, он требовал, чтобы его порцию отдавали раненым и рядовым солдатам, а сам ел лишь то, что оставалось после того, как накормили всех остальных, порой не ев вовсе.
+
+Когда его спросили, зачем он так рискует собственными силами, он ответил, что солдат, видевший, как его командир голодал, чтобы поесть мог он, пойдёт за этим командиром в любой бой без всякого приказа.`,
+      moralRu: 'Верность, способная выдержать настоящую опасность, строится в маленьких, никем не увиденных моментах неравной жертвы, а не в речах.',
+    },
+    {
+      title: 'The Bridge of the Ten Thousand',
+      content: `Deep inside hostile territory, a Greek army's generals were killed by treachery during a false truce, leaving ten thousand soldiers stranded thousands of miles from home with no leadership and enemies on every side. Rather than surrender, the soldiers elected new commanders from among their own ranks that same night and began an organized march back toward the sea, fighting through hostile territory, crossing mountains and rivers, for months.
+
+When the survivors finally saw the sea from a mountaintop, they are said to have wept and embraced each other, shouting the same word over and over: the sea, the sea.`,
+      moral: 'Losing your leadership is not the same as losing your ability to lead yourselves.',
+      readTime: 1,
+      titleRu: 'Поход десяти тысяч',
+      contentRu: `Глубоко на вражеской территории военачальников греческого войска предательски убили во время ложного перемирия, оставив десять тысяч солдат за тысячи миль от дома без командования и с врагами со всех сторон. Вместо того чтобы сдаться, солдаты в ту же ночь избрали новых командиров из собственных рядов и начали организованный марш обратно к морю, месяцами пробиваясь через враждебные земли, пересекая горы и реки.
+
+Когда уцелевшие наконец увидели море с вершины горы, они, как гласит предание, плакали и обнимали друг друга, снова и снова выкрикивая одно и то же слово: море, море.`,
+      moralRu: 'Потерять командование — не то же самое, что потерять способность вести себя самим.',
+    },
+    {
+      title: 'The Reluctant King Who Hid Among the Baggage',
+      content: `When the elders demanded a king, and the prophet Samuel finally presented the man God had chosen — tall, striking, exactly what a crowd wants to see — no one could find him anywhere in the gathered assembly.
+
+Someone finally thought to search among the supply carts and baggage at the edge of camp, and there he was found: hiding, of all places, among the equipment, unwilling to step forward into the role everyone else was certain he was destined for.`,
+      moral: "Being obviously suited for something, in everyone else's eyes, is no guarantee you'll feel ready to walk toward it yourself.",
+      readTime: 1,
+      titleRu: 'Неохотный царь, спрятавшийся среди обоза',
+      contentRu: `Когда старейшины потребовали царя, и пророк Самуил наконец представил человека, избранного Богом — высокого, статного, именно такого, какого хочет видеть толпа, — его нигде не могли найти среди собравшихся.
+
+Наконец кому-то пришло в голову поискать среди повозок с припасами и обоза на краю лагеря, и там его и нашли: он прятался, из всех мест именно среди снаряжения, не желая выходить навстречу роли, к которой, как все были уверены, он предназначен.`,
+      moralRu: 'То, что все вокруг считают тебя явно подходящим для чего-то, вовсе не гарантирует, что ты сам почувствуешь готовность шагнуть навстречу этому.',
+    },
+    {
+      title: 'The Three Hundred at the Narrow Pass',
+      content: `Facing an invading army so vast that, according to legend, their arrows would block out the sun, a Spartan king chose a narrow mountain pass where the enemy's overwhelming numbers couldn't be brought fully to bear at once, and held the line there with a small force for three days.
+
+When warned about the enemy's arrows darkening the sky, one of his soldiers reportedly replied that they would simply fight in the shade. The defenders were eventually surrounded and killed to the last man, but the delay they bought gave the rest of Greece the time it needed to prepare its own defense.`,
+      moral: "A leader's job is sometimes not to win the battle in front of them, but to buy time for the battle that actually decides everything.",
+      readTime: 1,
+      titleRu: 'Триста воинов в узком ущелье',
+      contentRu: `Столкнувшись с армией вторжения настолько огромной, что, по преданию, её стрелы должны были закрыть солнце, спартанский царь выбрал узкий горный проход, где подавляющая численность врага не могла быть полностью развёрнута, и удерживал этот рубеж малыми силами три дня.
+
+Когда его предупредили, что вражеские стрелы затмят небо, один из воинов, по преданию, ответил, что тогда они будут сражаться в тени. Защитники в итоге были окружены и перебиты все до единого, но выигранная отсрочка дала остальной Греции время, необходимое для подготовки собственной обороны.`,
+      moralRu: 'Задача лидера порой не в том, чтобы выиграть бой, что перед ним, а в том, чтобы выиграть время для боя, который на самом деле решает всё.',
     },
   ],
 
@@ -946,6 +1325,131 @@ He thought for a long time.
 
 «Я видел, что самая интересная страна», — сказал он наконец, — «это та, что живёт внутри каждого человека, с которым я встречался».`,
       moralRu: 'Величайшее путешествие — это путешествие в понимание другого человека.',
+    },
+    {
+      title: "The Farmer's Lost Horse",
+      content: `An old farmer's horse ran away. His neighbors came to console him over his bad luck. "Maybe," the farmer said.
+
+The next week, the horse returned, bringing three wild horses with it. The neighbors came to celebrate his good luck. "Maybe," the farmer said.
+
+While taming one of the wild horses, his son fell and broke his leg. The neighbors came to console him again. "Maybe," the farmer said.
+
+Soon after, the army came through the village, conscripting every able-bodied young man for war — except the farmer's son, whose broken leg spared him. The neighbors called it wonderful luck. The farmer only said, "Maybe."`,
+      moral: "What looks like the end of the road may only be a bend you can't see around yet.",
+      readTime: 1,
+      titleRu: 'Пропавший конь старика',
+      contentRu: `У старого крестьянина убежал конь. Соседи пришли посочувствовать его несчастью. — Может быть, — сказал старик.
+
+Через неделю конь вернулся, приведя с собой трёх диких лошадей. Соседи пришли порадоваться его удаче. — Может быть, — сказал старик.
+
+Пытаясь приручить одну из диких лошадей, его сын упал и сломал ногу. Соседи снова пришли выразить сочувствие. — Может быть, — сказал старик.
+
+Вскоре через деревню прошла армия, забирая всех крепких юношей на войну — кроме сына старика, которого спасла сломанная нога. Соседи назвали это великой удачей. Старик лишь повторил: — Может быть.`,
+      moralRu: 'То, что кажется концом пути, порой оказывается лишь поворотом, которого пока не видно.',
+    },
+    {
+      title: 'The Thread Through the Labyrinth',
+      content: `Before Theseus entered the labyrinth to face the Minotaur, Ariadne gave him a single spool of thread. "Tie one end at the entrance," she said, "and let it unwind as you go deeper. It won't help you fight what's inside. It will only help you find your way back out."
+
+Theseus fought the Minotaur in the dark, disoriented, uncertain which turn led forward and which led only deeper. But when it was over, he simply followed the thread, hand over hand, back to the light.`,
+      moral: "You don't need a plan for the fight itself — you need a way back to who you were before it.",
+      readTime: 1,
+      titleRu: 'Нить сквозь лабиринт',
+      contentRu: `Прежде чем Тесей вошёл в лабиринт, чтобы сразиться с Минотавром, Ариадна дала ему один-единственный клубок нити. — Привяжи один конец у входа, — сказала она, — и пусть она разматывается, пока ты идёшь вглубь. Она не поможет тебе одолеть то, что внутри. Она лишь поможет найти дорогу обратно.
+
+Тесей сражался с Минотавром в темноте, теряя ориентиры, не зная, какой поворот ведёт вперёд, а какой — лишь глубже. Но когда всё закончилось, он просто пошёл вдоль нити, перебирая её руками, обратно к свету.`,
+      moralRu: 'Тебе не нужен план на саму схватку — тебе нужен путь обратно к тому, кем ты был до неё.',
+    },
+    {
+      title: 'Odysseus and the Sirens',
+      content: `Odysseus knew his ship would pass the island of the Sirens, whose song drove sailors mad with longing and lured their ships onto the rocks. He didn't trust himself to resist it, so before they came near, he had his crew stuff their ears with wax and bind him tightly to the mast, ordering them not to release him no matter how he begged.
+
+As the song rose, he strained against the ropes, weeping, screaming to be freed. His crew, deaf to the Sirens and following only his earlier orders, rowed on. When the island fell behind them, Odysseus was still alive to hear the silence.`,
+      moral: "Knowing you'll be tempted is not weakness — refusing to plan for it is.",
+      readTime: 1,
+      titleRu: 'Одиссей и сирены',
+      contentRu: `Одиссей знал, что его корабль пройдёт мимо острова сирен, чья песня сводила моряков с ума от тоски и заманивала их корабли на скалы. Он не доверял себе устоять перед ней, поэтому, прежде чем они приблизились, велел команде залепить уши воском, а самого себя крепко привязать к мачте, приказав не отпускать его, как бы он ни умолял.
+
+Когда песня зазвучала, он рвался из верёвок, плача, крича, чтобы его освободили. Его команда, глухая к сиренам и подчинявшаяся лишь его прежнему приказу, продолжала грести. Когда остров остался позади, Одиссей был ещё жив, чтобы услышать тишину.`,
+      moralRu: 'Знать, что тебя ждёт искушение — не слабость. Слабость — отказаться заранее к нему подготовиться.',
+    },
+    {
+      title: 'The Merchant No One Recognized',
+      content: `After twenty-four years traveling the length of Asia, a Venetian merchant finally returned to his home city, weathered, speaking with a foreign accent, dressed in worn Eastern robes. He knocked on his own family's door and had to argue at length before anyone would believe he was the boy who had left as a teenager decades earlier.
+
+Even after they let him in, it took a dramatic gesture — ripping open the seams of his ragged coat to spill out hidden jewels — before his own relatives fully accepted that the stranger at their table was truly their own.`,
+      moral: 'A long enough journey can change you so completely that coming home means having to prove who you are all over again.',
+      readTime: 1,
+      titleRu: 'Купец, которого никто не узнал',
+      contentRu: `После двадцати четырёх лет странствий по всей Азии венецианский купец наконец вернулся в родной город — обветренный, говорящий с чужеземным акцентом, одетый в потрёпанные восточные одежды. Он постучал в дверь собственного дома, и ему пришлось долго доказывать, что он и есть тот мальчик, что ушёл подростком десятилетия назад.
+
+Даже когда его впустили, потребовался эффектный жест — он распорол швы своего рваного плаща, и оттуда посыпались спрятанные драгоценности, — прежде чем родные до конца поверили, что незнакомец за их столом действительно свой.`,
+      moralRu: 'Достаточно долгое путешествие может изменить тебя настолько, что вернуться домой — значит заново доказывать, кто ты такой.',
+    },
+    {
+      title: 'The Prince and the Four Sights',
+      content: `A young prince was raised entirely within his palace walls, deliberately shielded by his father from ever seeing suffering of any kind, so that he might grow up content and eventually rule in peace. Curious about the world beyond the gates, he finally rode out and saw, in a single day, four things he had never encountered before: a frail old man, a man wracked with sickness, a corpse being carried to its burial, and finally a wandering ascetic who had given up everything, and who alone among the four seemed at peace.
+
+The prince returned to his palace that night, but he could no longer see it as home.`,
+      moral: 'You cannot un-see suffering once it is real to you, and a sheltered peace rarely survives contact with the truth.',
+      readTime: 1,
+      titleRu: 'Принц и четыре встречи',
+      contentRu: `Юного принца воспитывали целиком внутри дворцовых стен: отец намеренно ограждал его от любого вида страдания, чтобы он рос счастливым и однажды правил в мире. Любопытствуя о том, что лежит за воротами, принц наконец выехал наружу и увидел за один день четыре вещи, которых прежде никогда не встречал: дряхлого старика, человека, изнурённого болезнью, тело, которое несли к месту погребения, и, наконец, странствующего аскета, отказавшегося от всего, — единственного из четверых, кто выглядел умиротворённым.
+
+В ту ночь принц вернулся во дворец, но больше не мог видеть в нём дом.`,
+      moralRu: 'Однажды по-настоящему увидев страдание, ты уже не можешь его развидеть, а укрытый от правды покой редко переживает встречу с ней.',
+    },
+    {
+      title: 'The Unfinished Shroud',
+      content: `While Odysseus was lost at sea for twenty years, dozens of suitors pressed his wife Penelope to remarry, certain he was dead. She told them she would choose one once she finished weaving a burial shroud for her elderly father-in-law. Every day she wove visibly at her loom before the suitors' eyes.
+
+Every night, alone, she quietly unraveled everything she had woven that day, undoing her own work so the shroud would never actually be finished. For three years this went on, buying time with no plan beyond one more day, until the day her husband finally returned.`,
+      moral: "Sometimes faithfulness isn't one heroic act — it's the discipline of undoing your own progress every night rather than let a false ending arrive.",
+      readTime: 1,
+      titleRu: 'Неоконченный саван',
+      contentRu: `Пока Одиссей двадцать лет пропадал в море, десятки женихов настаивали, чтобы его жена Пенелопа вышла замуж снова, уверенные, что он мёртв. Она сказала, что выберет одного из них, как только закончит ткать погребальный саван для своего престарелого свёкра. Каждый день она открыто ткала на глазах у женихов.
+
+Каждую ночь, оставшись одна, она тихо распускала всё, что соткала за день, разрушая собственную работу, чтобы саван так никогда и не был закончен. Так продолжалось три года — она выигрывала время без всякого плана, кроме как продержаться ещё один день, — пока наконец не вернулся её муж.`,
+      moralRu: 'Порой верность — это не один героический поступок, а дисциплина каждую ночь разрушать собственный прогресс, лишь бы не позволить наступить ложному финалу.',
+    },
+    {
+      title: 'The Long Road to Ithaca',
+      content: `A poet, writing centuries after Homer, imagined Odysseus's true reward was never the return to his island at all, but everything that happened on the twenty-year road there — the Cyclops, the Sirens, the storms, the strange ports and stranger temptations along the way.
+
+He warned future travelers to pray for a long road full of adventure and knowledge rather than a short one, because Ithaca itself, once you finally arrived, would turn out to be humble and unremarkable, having given you already, through the sheer distance of the journey, everything worth having.`,
+      moral: 'The destination is often just the excuse the journey needed in order to happen at all.',
+      readTime: 1,
+      titleRu: 'Долгая дорога на Итаку',
+      contentRu: `Поэт, писавший спустя века после Гомера, представлял, что истинной наградой Одиссея была вовсе не сама Итака, а всё, что случилось на двадцатилетнем пути туда — циклоп, сирены, бури, чужие порты и ещё более чужие соблазны на этом пути.
+
+Он призывал будущих путников молиться о долгой дороге, полной приключений и познания, а не о короткой, ведь сама Итака, когда до неё наконец доберёшься, окажется скромной и ничем не примечательной — она уже отдала тебе, самой протяжённостью пути, всё, что стоило получить.`,
+      moralRu: 'Пункт назначения часто оказывается лишь поводом, который был нужен путешествию, чтобы вообще состояться.',
+    },
+    {
+      title: 'The Sailor Who Would Not Look Back',
+      content: `Told to lead his wife out of a doomed city, a man was warned by an angel that neither he nor anyone with him should look back at the destruction behind them, no matter what they heard.
+
+As fire and ruin rained down and the sound of everything they'd known collapsing filled the air, his wife could not stop herself and turned to look one last time at the home she was leaving. She was turned to a pillar of salt on the spot, frozen forever at the exact moment of looking backward instead of forward.`,
+      moral: "Some journeys only work if you refuse yourself even one glance at what you're actually leaving.",
+      readTime: 1,
+      titleRu: 'Путник, который не оглянулся',
+      contentRu: `Человеку, которому велели вывести жену из обречённого города, ангел предупредил, что ни он, ни кто-либо из его спутников не должен оглядываться на разрушение позади, что бы они ни услышали.
+
+Пока огонь и руины сыпались с неба, а звук рушащегося прошлого заполнял воздух, его жена не смогла сдержаться и обернулась в последний раз взглянуть на дом, который покидала. В тот же миг она превратилась в соляной столп, застыв навсегда в момент, когда обернулась назад вместо того, чтобы смотреть вперёд.`,
+      moralRu: 'Некоторые путешествия срабатывают лишь тогда, когда ты отказываешь себе даже в одном взгляде на то, что на самом деле оставляешь.',
+    },
+    {
+      title: 'The Man Who Sailed West Anyway',
+      content: `Every mapmaker and scholar of his time agreed that sailing west across the open ocean to reach the East would mean running out of food and water long before land ever appeared, if the ships didn't simply fall off the edge of a flat world first. A stubborn navigator spent seven years being rejected by court after court before one queen finally agreed to fund three small ships.
+
+His own crew nearly mutinied in the final week, certain they were sailing to their deaths in open water with no land in sight. Three days later, they sighted land that none of the world's mapmakers had known existed.`,
+      moral: "Being wrong about why you're right doesn't stop you from actually finding what you were looking for.",
+      readTime: 1,
+      titleRu: 'Человек, который всё равно поплыл на запад',
+      contentRu: `Все картографы и учёные его времени сходились на том, что плавание на запад через открытый океан ради достижения Востока обернётся нехваткой еды и воды задолго до появления земли — если корабли и вовсе не свалятся с края плоского мира. Упрямый мореплаватель семь лет получал отказ за отказом при разных дворах, пока одна королева наконец не согласилась снарядить три небольших корабля.
+
+Его собственная команда чуть не подняла мятеж в последнюю неделю, уверенная, что они плывут навстречу гибели в открытом море без единого клочка земли на горизонте. Через три дня они увидели землю, о существовании которой не знал ни один картограф мира.`,
+      moralRu: 'Ошибаться в том, почему ты прав, не мешает на самом деле найти то, что искал.',
     },
   ],
 
@@ -1191,6 +1695,114 @@ She looked at the light on the walls for a long time.`,
 
 Долго смотрел на свет на стенах.`,
       moralRu: 'То, что мы теряем, не исчезает — оно превращается в то, что оно нам дало.',
+    },
+    {
+      title: 'The Borrowed Jewels',
+      content: `A rabbi returned home to find his wife strangely composed, though her eyes were red. "A friend once lent us two precious jewels," she said carefully. "He asked me to keep them safe until he wished to reclaim them. Now he has come for them. Must I return them?"
+
+"Of course," the rabbi answered. "A loan must be returned to its owner."
+
+She led him to their sons' room, where both boys lay still, having died suddenly that afternoon. "The jewels I meant," she whispered, "were ours only to hold. The Lord has reclaimed what was always His."`,
+      moral: 'What we love was never fully ours to keep — only ours to hold for a while.',
+      readTime: 1,
+      titleRu: 'Одолженные драгоценности',
+      contentRu: `Раввин вернулся домой и застал жену странно спокойной, хотя глаза её были красны. — Один друг когда-то одолжил нам два драгоценных камня, — осторожно начала она, — и просил сохранить их, пока не придёт время их забрать. Теперь он пришёл за ними. Должна ли я их вернуть?
+
+— Разумеется, — ответил раввин. — То, что дано взаймы, нужно вернуть владельцу.
+
+Она провела его в комнату сыновей, где оба мальчика лежали неподвижно — они внезапно умерли тем днём. — Драгоценности, о которых я говорила, — прошептала она, — были даны нам лишь подержать. Господь забрал то, что всегда принадлежало Ему.`,
+      moralRu: 'То, что мы любим, никогда не было нашим насовсем — лишь доверено нам на время.',
+    },
+    {
+      title: "The Selkie's Return",
+      content: `A fisherman found a sealskin on the shore and hid it, and the woman who had worn it — unable to return to the sea without it — became his wife. They lived together for years, and she loved their children fiercely, but he sometimes caught her staring at the waves with an ache he couldn't name.
+
+One day their youngest child found the hidden sealskin in the rafters and brought it to her, not knowing what it was. She held it for a long moment, kissed each of her children, and walked into the sea without looking back.`,
+      moral: 'Loving someone was never the same thing as owning what makes them whole.',
+      readTime: 1,
+      titleRu: 'Возвращение селки',
+      contentRu: `Рыбак нашёл на берегу тюленью шкуру и спрятал её, и женщина, которая её носила, — не в силах вернуться в море без неё, — стала его женой. Они прожили вместе годы, и она яростно любила их детей, но иногда он замечал, как она смотрит на волны с тоской, которой не мог назвать.
+
+Однажды их младший ребёнок нашёл спрятанную под крышей шкуру и принёс её матери, не зная, что это такое. Она долго держала её в руках, поцеловала каждого из детей и, не оглядываясь, ушла в море.`,
+      moralRu: 'Любить кого-то — никогда не то же самое, что владеть тем, что делает его целым.',
+    },
+    {
+      title: "Zhuangzi's Drum",
+      content: `When Zhuangzi's wife died, his friend Hui Shi came to offer condolences and found him sitting on the floor, drumming on an upturned basin and singing. "You lived with her, raised children with her, grew old with her," Hui Shi said, appalled. "Not weeping is bad enough — but singing?"
+
+Zhuangzi said, "When she first died, how could I not grieve? But then I looked back to before she was born, before she had a body, before she even had breath. She was a change in the vast flow of things, and now she has changed again, lying down to sleep in a great room. To follow her with wailing would be to misunderstand the flow entirely."`,
+      moral: 'Grief and understanding can occupy the same body without either one canceling the other.',
+      readTime: 1,
+      titleRu: 'Барабан Чжуанцзы',
+      contentRu: `Когда умерла жена Чжуанцзы, его друг Хуэй Ши пришёл выразить соболезнования и застал его сидящим на полу — тот отбивал ритм на перевёрнутом тазу и пел. — Ты прожил с ней жизнь, растил детей, состарился рядом с ней, — сказал потрясённый Хуэй Ши. — Не плакать — уже плохо, но петь?
+
+Чжуанцзы ответил: — Когда она только умерла, как я мог не горевать? Но потом я заглянул назад — до её рождения, до того, как у неё было тело, до самого дыхания. Она была лишь переменой в великом потоке вещей, и теперь она снова изменилась, улёгшись спать в огромной комнате. Оплакивать её причитаниями — значит вовсе не понимать этот поток.`,
+      moralRu: 'Горе и понимание могут уживаться в одном человеке, не отменяя друг друга.',
+    },
+    {
+      title: "The Woodcutter's Wish",
+      content: `A poor woodcutter, exhausted from years of cutting and hauling timber for wealthy merchants, sat under a great tree one evening and said aloud, half-joking, "I wish Death would just come for me already." To his shock, Death himself appeared immediately.
+
+Terrified, the woodcutter stammered out an excuse: "I only called you because I needed help lifting this bundle of wood back onto my shoulders. My back has given out." Death, without a word, helped him hoist the bundle, and the woodcutter walked home alive, having learned not to say aloud what he did not actually mean.`,
+      moral: 'Complaints spoken carelessly can be mistaken, by others and by yourself, for the truth of what you actually want.',
+      readTime: 1,
+      titleRu: 'Желание дровосека',
+      contentRu: `Бедный дровосек, измотанный годами рубки и переноски дров для богатых торговцев, сел однажды вечером под большим деревом и сказал вслух, полушутя: — Хоть бы Смерть уже пришла за мной. К его ужасу, Смерть явилась немедленно.
+
+В испуге дровосек пробормотал оправдание: — Я позвал тебя лишь потому, что мне нужна помощь взвалить эту вязанку дров обратно на плечи. Спина совсем не гнётся. Смерть молча помогла ему поднять вязанку, и дровосек пошёл домой живым, усвоив урок: не стоит вслух говорить то, чего на самом деле не хочешь.`,
+      moralRu: 'Неосторожно сказанные жалобы можно принять — другими и тобой самим — за правду о том, чего ты на самом деле хочешь.',
+    },
+    {
+      title: 'The God Every Living Thing Wept For',
+      content: `Baldr, most beloved of all the gods, began having dreams of his own death, so his mother Frigg traveled across the world and made every single thing — fire, water, iron, stone, every disease, every beast and tree — swear an oath never to harm him. Believing him now invincible, the gods made a game of throwing weapons at him for sport, laughing as everything bounced harmlessly away.
+
+Only the mistletoe, a plant so young and small that Frigg had thought it beneath the trouble of asking, had never taken the oath. Loki learned this, shaped it into a dart, and guided a blind god's throwing hand. Baldr fell dead, and the whole world — every creature, every stone, every river — wept for him, except for one giantess hiding in a cave, who alone refused to shed a single tear, sealing his fate to remain among the dead.`,
+      moral: 'It only takes one thing you forgot to guard against, and one refusal to grieve, to make a loss permanent.',
+      readTime: 1,
+      titleRu: 'Бог, по которому плакало всё живое',
+      contentRu: `Бальдру, самому любимому из богов, стали сниться сны о собственной смерти, и его мать Фригг обошла весь мир, взяв клятву с каждой вещи — огня, воды, железа, камня, каждой болезни, каждого зверя и дерева — никогда не причинять ему вреда. Уверовав в его неуязвимость, боги устроили забаву: метали в него оружие, смеясь, как всё безвредно отскакивает.
+
+Лишь омела, столь юное и малое растение, что Фригг сочла хлопоты о её клятве излишними, никогда не давала обещания. Локи узнал об этом, сделал из неё дротик и направил руку слепого бога. Бальдр упал замертво, и весь мир — каждое существо, каждый камень, каждая река — оплакивал его, кроме одной великанши, укрывшейся в пещере, которая одна отказалась пролить хоть слезу, тем самым закрепив его судьбу навсегда остаться среди мёртвых.`,
+      moralRu: 'Достаточно одной вещи, о которой забыли позаботиться, и одного отказа горевать, чтобы потеря стала окончательной.',
+    },
+    {
+      title: 'The Weeping of Rachel',
+      content: `An old story tells of a mother named Rachel, buried along the road her descendants would one day be marched down into exile, said to rise from her grave at the sound of their chains and weep for children she could no longer protect, refusing every comfort offered to her because they were simply gone.
+
+Later generations retold her weeping not as a flaw to be corrected, but as the truest possible response — grief so complete it became its own form of loyalty to what had been lost.`,
+      moral: 'Some griefs are not meant to be consoled away. They are meant to be witnessed.',
+      readTime: 1,
+      titleRu: 'Плач Рахили',
+      contentRu: `Древнее предание рассказывает о матери по имени Рахиль, похороненной у дороги, по которой её потомкам однажды предстояло пройти в изгнание закованными в цепи. Говорят, она поднимается из могилы на звук их цепей и плачет о детях, которых больше не может защитить, отвергая всякое утешение, потому что их просто больше нет.
+
+Позднейшие поколения пересказывали её плач не как изъян, который нужно исправить, а как самый истинный из возможных ответов — горе настолько полное, что оно само стало формой верности утраченному.`,
+      moralRu: 'Некоторые горести не предназначены для того, чтобы их утешали. Они предназначены для того, чтобы их засвидетельствовали.',
+    },
+    {
+      title: 'The Terracotta Army',
+      content: `An emperor obsessed with conquering death itself ordered an entire underground army built in clay to accompany him into the afterlife — thousands of life-sized soldiers, each face carved individually, horses, chariots, generals, archers, an entire kingdom in miniature meant to keep ruling even after he was gone.
+
+He also sent explorers across the sea searching for a literal elixir of immortality, and died anyway, at only forty-nine, likely poisoned by the mercury he'd been drinking in the belief that it would extend his life. His clay army sat sealed in the dark and utterly still for over two thousand years before anyone found it again.`,
+      moral: 'No amount of preparation can buy you out of the ending — it can only decide what gets left behind after it happens.',
+      readTime: 1,
+      titleRu: 'Терракотовая армия',
+      contentRu: `Император, одержимый идеей победить саму смерть, приказал создать под землёй целую армию из глины, чтобы она сопровождала его в загробной жизни — тысячи воинов в полный рост, у каждого своё лицо, кони, колесницы, полководцы, лучники — целое царство в миниатюре, призванное продолжать существовать даже после его ухода.
+
+Он также отправлял через море исследователей на поиски настоящего эликсира бессмертия и всё равно умер, всего в сорок девять лет, вероятно отравленный ртутью, которую пил, веря, что она продлевает жизнь. Его глиняная армия пролежала в темноте и полной неподвижности более двух тысяч лет, прежде чем её снова нашли.`,
+      moralRu: 'Никакая подготовка не способна откупиться от конца — она способна лишь решить, что останется после того, как он наступит.',
+    },
+    {
+      title: 'The Death of Enkidu',
+      content: `When his closest friend Enkidu died after the gods punished them for killing the Bull of Heaven, King Gilgamesh refused to leave the body for six days and nights, weeping and touching his friend's face, unable to accept that a man could simply stop.
+
+Only when signs of decay finally appeared did he allow burial, and even then he tore off his royal robes, put on the skins of animals, and walked out into the wilderness alone, terrified for the first time in his life — not of any enemy, but of his own death, now made undeniably real by watching his friend's.`,
+      moral: 'Someone else\'s death is often the moment we finally believe in our own.',
+      readTime: 1,
+      titleRu: 'Смерть Энкиду',
+      contentRu: `Когда его ближайший друг Энкиду умер после того, как боги наказали их за убийство Небесного быка, царь Гильгамеш шесть дней и ночей отказывался покинуть тело, плача и касаясь лица друга, не в силах поверить, что человек может просто перестать быть.
+
+Лишь когда наконец появились признаки тлена, он позволил похоронить его, и даже тогда он разорвал свои царские одежды, надел звериные шкуры и в одиночестве ушёл в пустыню, впервые в жизни испытывая страх — не перед каким-либо врагом, а перед собственной смертью, ставшей неоспоримо реальной после того, как он увидел смерть друга.`,
+      moralRu: 'Чужая смерть часто становится моментом, когда мы наконец начинаем верить в собственную.',
     },
   ],
 
@@ -1457,6 +2069,140 @@ He stood there for so long that a woman behind him finally said: "Are you going 
 «Я тоже», — сказала она. «Но я знаю, что за первой вы уже видели всё».`,
       moralRu: 'Величайший риск — выбрать известное вместо возможного.',
     },
+    {
+      title: 'The Gordian Knot',
+      content: `In the city of Gordium stood an ancient wagon, its yoke bound to the pole by a knot so intricate that no one could find its ends. An old prophecy declared that whoever untied it would rule all of Asia.
+
+For generations, kings and scholars picked at its coils and walked away defeated. When young Alexander arrived at the head of his army, he examined the knot briefly, then drew his sword and cut straight through it in a single stroke.
+
+Some called it cheating. Alexander called it done. Within a decade, he had conquered the very lands the prophecy foretold.`,
+      moral: "Sometimes the boldest move isn't solving the puzzle everyone else is stuck on — it's refusing to play by its rules.",
+      readTime: 1,
+      titleRu: 'Гордиев узел',
+      contentRu: `В городе Гордий стояла древняя повозка, ярмо которой было привязано к дышлу узлом настолько запутанным, что никто не мог найти его концов. Древнее пророчество гласило: кто развяжет этот узел, будет править всей Азией.
+
+Поколениями цари и мудрецы перебирали его петли и уходили ни с чем. Когда молодой Александр во главе своего войска прибыл в город, он недолго разглядывал узел, затем выхватил меч и одним ударом рассёк его.
+
+Кто-то назвал это обманом. Александр назвал это решением. Не прошло и десяти лет, как он завоевал именно те земли, что предрекало пророчество.`,
+      moralRu: 'Порой самый смелый шаг — не решить головоломку, над которой бьются все остальные, а отказаться играть по её правилам.',
+    },
+    {
+      title: 'The Pearl at the Bottom of the Sea',
+      content: `A young diver stood on the boat's edge, staring down at water so dark he couldn't see the seabed. An old pearl merchant beside him said, "The finest pearls are always at the depth that frightens you the most. Divers who only search the shallows come home with sand and small shells."
+
+The young man asked how deep was too deep. The merchant shrugged. "You'll know when your lungs answer that question, not before. But no one has ever found a pearl by staying in the boat."`,
+      moral: "What you're most afraid to go after is usually a fair description of what's actually worth finding.",
+      readTime: 1,
+      titleRu: 'Жемчужина на дне моря',
+      contentRu: `Молодой ныряльщик стоял на краю лодки, вглядываясь в воду настолько тёмную, что не мог разглядеть дно. Старый торговец жемчугом рядом с ним сказал: — Лучший жемчуг всегда лежит на той глубине, которая пугает тебя больше всего. Ныряльщики, что ищут только на мелководье, возвращаются с песком и мелкими ракушками.
+
+Юноша спросил, какая глубина уже слишком велика. Торговец пожал плечами. — Ты узнаешь это, когда тебе ответят твои лёгкие, не раньше. Но ещё никто не нашёл жемчужину, оставаясь в лодке.`,
+      moralRu: 'То, чего ты боишься больше всего, обычно и есть довольно точное описание того, что действительно стоит найти.',
+    },
+    {
+      title: "Hannibal's Elephants",
+      content: `When Hannibal decided to invade Rome, every advisor told him the only sane route was by sea. Instead, he marched his army — and thirty-seven war elephants — directly into the Alps, through snow, ice, and mountain tribes who attacked from the cliffs above.
+
+Thousands of his men and most of his elephants died in the crossing. When he finally descended into Italy, the Romans had no army waiting at the passes, because no one had believed anyone would attempt what he had just done.`,
+      moral: "The route everyone agrees is impossible is often undefended precisely because everyone agrees it's impossible.",
+      readTime: 1,
+      titleRu: 'Слоны Ганнибала',
+      contentRu: `Когда Ганнибал решил вторгнуться в Рим, все советники твердили, что единственный разумный путь — морем. Вместо этого он повёл своё войско — и тридцать семь боевых слонов — прямо через Альпы, сквозь снег, лёд и горные племена, нападавшие со скал сверху.
+
+Тысячи его солдат и большинство слонов погибли при переходе. Когда он наконец спустился в Италию, римлян не оказалось на перевалах — никто не верил, что кто-то решится на подобное.`,
+      moralRu: 'Путь, который все считают невозможным, часто остаётся незащищённым именно потому, что все считают его невозможным.',
+    },
+    {
+      title: 'The Frog in the Slowly Warming Pot',
+      content: `A cook wanted to boil a live frog for the evening's soup. Dropped straight into already-boiling water, the frog would instantly sense the danger and leap out to safety. So instead, the cook placed the frog into a pot of comfortably cool water and set it over a low flame.
+
+As the water warmed by fractions of a degree, minute by minute, the frog adjusted to each small change and stayed exactly where it was, never once noticing the one moment when it should have jumped.`,
+      moral: "Danger that arrives all at once gets fought. Danger that arrives one degree at a time gets adapted to, right up until it's fatal.",
+      readTime: 1,
+      titleRu: 'Лягушка в медленно нагревающейся кастрюле',
+      contentRu: `Повар хотел сварить живую лягушку для вечернего супа. Брошенная сразу в уже кипящую воду, лягушка мгновенно почувствовала бы опасность и выпрыгнула бы в безопасное место. Поэтому вместо этого повар опустил лягушку в кастрюлю с приятно прохладной водой и поставил её на слабый огонь.
+
+Пока вода нагревалась на доли градуса, минута за минутой, лягушка приспосабливалась к каждому небольшому изменению и оставалась на месте, так ни разу и не заметив тот единственный момент, когда стоило бы выпрыгнуть.`,
+      moralRu: 'Опасность, которая приходит вся сразу, встречает сопротивление. Опасность, что приходит по градусу за раз, встречает лишь привыкание — вплоть до самого конца.',
+    },
+    {
+      title: 'The Golden Bridge',
+      content: `Sun Tzu warned his generals never to surround an enemy army completely, no matter how total the advantage. Instead, he taught them to always leave one visible route of retreat open — a "golden bridge" for the losing side to flee across. An enemy with no possible escape, he explained, believes he has nothing left to lose and will fight with the desperate ferocity of a cornered animal, inflicting far greater casualties than a normal battle would.
+
+An enemy offered an open road to retreat, however, will very often take it, and a fleeing army is far easier and cheaper to defeat than a trapped one that has decided to die fighting.`,
+      moral: 'Winning completely sometimes costs more than winning enough — leaving your opponent a way out can be the safer victory.',
+      readTime: 1,
+      titleRu: 'Золотой мост',
+      contentRu: `Сунь-цзы предупреждал своих полководцев никогда не окружать вражеское войско полностью, каким бы подавляющим ни было преимущество. Вместо этого он учил всегда оставлять один заметный путь отступления — «золотой мост» — для проигрывающей стороны. Врагу, у которого нет пути к бегству, объяснял он, нечего больше терять, и он будет сражаться с отчаянной яростью загнанного зверя, нанося куда больший урон, чем в обычном бою.
+
+Врагу же, которому предложена открытая дорога для отступления, он очень часто ею воспользуется, а отступающее войско разбить гораздо легче и дешевле, чем то, что окружено и решило умереть сражаясь.`,
+      moralRu: 'Полная победа порой обходится дороже, чем победа достаточная — оставить противнику путь к отступлению иногда и есть более безопасная победа.',
+    },
+    {
+      title: 'The One Unguarded Heel',
+      content: `At his birth, a sea-nymph mother dipped her infant son into the river that was said to make any mortal flesh it touched unbreakable, holding him by one heel so she wouldn't lose her grip on him in the current. Every part of him the water touched became impossible to wound, and he grew into the greatest warrior of his generation, fearless in a way that seemed to prove he genuinely could not be killed.
+
+He fought an entire war believing exactly that, until a single arrow, guided to the one small heel the river had never touched, found him and ended him instantly.`,
+      moral: 'One overlooked spot is enough to undo an entire lifetime of being right about your own invincibility.',
+      readTime: 1,
+      titleRu: 'Единственная незащищённая пятка',
+      contentRu: `При рождении мать-нимфа окунула младенца-сына в реку, которая, по преданию, делала неуязвимой любую смертную плоть, которой касалась, держа его за одну пятку, чтобы не потерять хватку в течении. Каждая часть тела, которой коснулась вода, стала неуязвима для ран, и он вырос величайшим воином своего поколения, бесстрашным настолько, что это как будто доказывало его подлинную неуязвимость.
+
+Он прошёл целую войну, веря именно в это, пока одна-единственная стрела, направленная точно в ту маленькую пятку, которой река так и не коснулась, не настигла его и не убила мгновенно.`,
+      moralRu: 'Одного упущенного места достаточно, чтобы свести на нет целую жизнь уверенности в собственной неуязвимости.',
+    },
+    {
+      title: "The Oracle's Ambiguous Answer",
+      content: `Before invading a powerful neighboring empire, a wealthy king sent envoys loaded with gifts to consult the most trusted oracle in the world, asking whether he should go to war. The oracle answered that if he attacked, he would destroy a great empire.
+
+Delighted, the king took this as certain approval and marched his army across the border. He was catastrophically defeated, and within months his own kingdom, one of the greatest empires of its age, had been utterly destroyed. Only then did he understand which great empire the oracle had actually meant.`,
+      moral: "Good news you haven't questioned closely enough may simply be bad news you didn't ask enough follow-up questions about.",
+      readTime: 1,
+      titleRu: 'Двусмысленный ответ оракула',
+      contentRu: `Прежде чем вторгнуться в могущественную соседнюю империю, богатый царь отправил послов с богатыми дарами к самому надёжному оракулу в мире, чтобы спросить, стоит ли идти на войну. Оракул ответил: если он нападёт, то разрушит великую империю.
+
+Обрадованный, царь принял это за верное одобрение и повёл войско через границу. Он потерпел сокрушительное поражение, и в считаные месяцы его собственное царство — одна из величайших империй своего времени — было полностью уничтожено. Лишь тогда он понял, какую именно великую империю имел в виду оракул.`,
+      moralRu: 'Хорошая новость, которую ты недостаточно тщательно расспросил, может оказаться просто плохой новостью, которой не задали достаточно уточняющих вопросов.',
+    },
+    {
+      title: 'The Wire Between the Towers',
+      content: `For six years, a young tightrope walker planned in secret to string a wire illegally between the two tallest buildings in the world and walk across it, over a quarter mile above the ground, with no net and no permission.
+
+On the morning of the walk, police waited on both rooftops to arrest him the moment he reached either side, so he simply stayed out on the wire, walking back and forth eight times over nearly an hour — kneeling, lying down, even dancing on the cable — because as long as he remained suspended between the two towers, no one could actually reach him.`,
+      moral: 'Sometimes the safest place to be is the one place no one expects you to have the nerve to stay.',
+      readTime: 1,
+      titleRu: 'Трос между башнями',
+      contentRu: `Шесть лет молодой канатоходец тайно готовился незаконно натянуть трос между двумя самыми высокими зданиями мира и пройти по нему на высоте четырёхсот метров без страховочной сетки и без разрешения.
+
+Утром в день прохода полиция ждала на обеих крышах, готовая арестовать его в тот момент, как он достигнет любой из сторон, поэтому он просто остался на тросе, проходя туда и обратно восемь раз почти час — вставая на колени, ложась, даже танцуя на канате, — ведь пока он оставался подвешенным между башнями, никто не мог до него добраться.`,
+      moralRu: 'Порой самое безопасное место — то единственное, где никто не ожидает, что у тебя хватит духа там оставаться.',
+    },
+    {
+      title: 'The Aviator Who Flew Alone',
+      content: `Dozens of pilots had already died trying to cross the ocean nonstop, and every aviation expert insisted the flight required a co-pilot, a navigator, and multiple engines for any real chance of survival.
+
+A young airmail pilot instead stripped his single-engine plane of every unnecessary part — even the radio and parachute — to save weight for fuel, and flew the thirty-three-hour crossing entirely alone, fighting sleep deprivation so severe he later said he'd hallucinated ghostly passengers keeping him company in the cockpit.`,
+      moral: 'Sometimes surviving the impossible version of a plan means stripping away everything except the one part that actually needs to work.',
+      readTime: 1,
+      titleRu: 'Лётчик, летевший в одиночку',
+      contentRu: `Десятки пилотов уже погибли, пытаясь пересечь океан без посадки, и каждый авиационный эксперт настаивал, что для реального шанса выжить нужны второй пилот, штурман и несколько двигателей.
+
+Молодой почтовый лётчик вместо этого снял с одномоторного самолёта всё лишнее — даже рацию и парашют, — чтобы выгадать вес под топливо, и пролетел тридцать три часа перелёта совершенно один, борясь с таким тяжёлым недосыпом, что позже рассказывал, как ему мерещились призрачные пассажиры, составлявшие ему компанию в кабине.`,
+      moralRu: 'Иногда выжить в невозможной версии плана означает срезать всё, кроме той единственной части, которая действительно должна сработать.',
+    },
+    {
+      title: 'The Flight That Never Landed',
+      content: `Determined to become the first person to fly around the world at its widest point, an aviator pushed her twin-engine plane toward a series of increasingly remote refueling stops across open ocean, navigating by dead reckoning with equipment already at the edge of what the technology of her era could support.
+
+On the final and most dangerous leg, searching for a speck of an island barely two miles wide in thousands of miles of open Pacific, her last confirmed radio transmission reported she was running low on fuel and could not locate the runway. Neither she nor her plane was ever found.`,
+      moral: 'Attempting something because no one has done it yet means accepting that not finishing it is also a real possible ending.',
+      readTime: 1,
+      titleRu: 'Полёт, который не приземлился',
+      contentRu: `Решив стать первой, кто облетит земной шар в его самой широкой части, лётчица вела свой двухмоторный самолёт через череду всё более отдалённых точек дозаправки над открытым океаном, ориентируясь счислением пути на технике, уже находившейся на пределе возможностей своей эпохи.
+
+На последнем, самом опасном участке, разыскивая крошечный остров шириной едва в три километра среди тысяч миль открытого Тихого океана, она в последнем подтверждённом радиосообщении доложила, что топливо на исходе, а полосу найти не удаётся. Ни её, ни самолёт так и не нашли.`,
+      moralRu: 'Пытаться сделать то, чего ещё никто не делал, значит принимать и то, что не завершить это — тоже вполне реальный исход.',
+    },
   ],
 
   trust: [
@@ -1681,6 +2427,118 @@ The villagers looked at the gap — the evidence of years of separate faith that
 
 Жители посмотрели на зазор — свидетельство многолетней раздельной веры в то, что другая сторона тоже строит — и решили оставить его как есть.`,
       moralRu: 'Небольшое несовпадение в доверии доказывает, что обе стороны работали.',
+    },
+    {
+      title: 'Tie Your Camel',
+      content: `A traveler left his camel untied outside a mosque before going in to pray. "I have placed all my trust in God," he told a passerby who urged him to secure the animal. "He will watch over it."
+
+When he came out, the camel was gone. Distressed, he sought out a wise teacher and told him what had happened, sure that his faith had failed him.
+
+The teacher shook his head. "Trust in God," he said, "but first tie your camel."`,
+      moral: 'Real trust does not replace responsibility — it is what makes carrying it bearable.',
+      readTime: 1,
+      titleRu: 'Привяжи своего верблюда',
+      contentRu: `Путник оставил верблюда непривязанным у мечети и вошёл внутрь молиться. — Я вверил всё Богу, — сказал он прохожему, который посоветовал привязать животное. — Он присмотрит за ним.
+
+Когда путник вышел, верблюда не было. Расстроенный, он пришёл к мудрому наставнику и рассказал о случившемся, уверенный, что его вера не помогла ему.
+
+Наставник покачал головой. — Доверяй Богу, — сказал он, — но сперва привяжи своего верблюда.`,
+      moralRu: 'Настоящее доверие не отменяет ответственность — оно делает её посильной.',
+    },
+    {
+      title: 'The Elder Who Chased the Thief',
+      content: `A thief broke into an old monk's hut one night and found nothing but a blanket and a cup. As he was slipping away, the monk woke, gathered his only remaining robe, and ran after him.
+
+"You forgot this," he said, pressing it into the thief's hands. "Please, take it too."
+
+The thief fled in confusion, unable to steal from a man who gave freely. Years later, he sought the monk out again — not to rob him this time, but to ask how a man learns to live that way.`,
+      moral: 'Trusting someone with more than they tried to take can undo them more than punishment ever would.',
+      readTime: 1,
+      titleRu: 'Старец, догнавший вора',
+      contentRu: `Однажды ночью вор забрался в хижину старого монаха и не нашёл там ничего, кроме одеяла и чашки. Когда он уже ускользал прочь, монах проснулся, взял свою последнюю оставшуюся рясу и побежал за ним.
+
+— Ты забыл вот это, — сказал он, вкладывая рясу вору в руки. — Пожалуйста, возьми и её тоже.
+
+Вор в замешательстве бросился бежать, не в силах красть у человека, который отдаёт всё сам. Годы спустя он снова разыскал монаха — на этот раз не чтобы ограбить его, а чтобы спросить, как человек учится жить так.`,
+      moralRu: 'Довериться тому, кто пытался у тебя украсть, дав ему больше — иногда меняет человека сильнее, чем любое наказание.',
+    },
+    {
+      title: 'The Father Who Ran',
+      content: `A young man demanded his inheritance early, left home, and spent it all on reckless living until he was reduced to feeding pigs for a stranger, starving. He rehearsed an apology and turned back toward home, expecting nothing more than a servant's job if his father would even let him through the gate.
+
+But his father, who had apparently been watching the road every single day, saw him while he was still far off, and ran to him before a single word of apology had been spoken.`,
+      moral: "The welcome you're afraid to ask for is sometimes already running toward you before you finish rehearsing your excuse.",
+      readTime: 1,
+      titleRu: 'Отец, который побежал навстречу',
+      contentRu: `Молодой человек потребовал свою долю наследства заранее, покинул дом и промотал всё на беспутную жизнь, пока не оказался пасти чужих свиней, голодая. Он репетировал слова извинения и повернул обратно к дому, не рассчитывая ни на что, кроме места слуги, если отец вообще впустит его за ворота.
+
+Но отец, который, судя по всему, каждый день высматривал дорогу, увидел его ещё издалека и побежал ему навстречу, прежде чем тот успел произнести хоть слово извинения.`,
+      moralRu: 'Приём, который ты боишься попросить, порой уже бежит тебе навстречу, пока ты ещё репетируешь свои оправдания.',
+    },
+    {
+      title: 'The Camel in the Tent',
+      content: `A merchant sleeping in his tent one cold desert night was woken by his camel, who asked if he could just poke his nose inside out of the wind. Feeling generous, the merchant agreed. A while later, the camel asked if his head could come in too, since the wind hadn't let up. The merchant agreed again.
+
+Little by little — the neck, the front legs, the whole body — the camel kept asking for just one more small accommodation, until the merchant woke at dawn lying outside in the sand, having been pushed out of his own tent entirely by the animal he'd let in one polite request at a time.`,
+      moral: "The boundary you don't defend on the first small request is rarely the one you get to defend on the last.",
+      readTime: 1,
+      titleRu: 'Верблюд в шатре',
+      contentRu: `Купца, спавшего в своём шатре холодной пустынной ночью, разбудил верблюд, попросивший впустить хотя бы нос — укрыться от ветра. Расчувствовавшись, купец согласился. Немного погодя верблюд попросил впустить и голову, раз уж ветер не утих. Купец снова согласился.
+
+Понемногу — шея, передние ноги, всё тело целиком — верблюд продолжал просить лишь ещё одну маленькую уступку, пока на рассвете купец не проснулся снаружи, на песке, полностью вытесненный из собственного шатра животным, которое он впускал вежливыми просьбами, шаг за шагом.`,
+      moralRu: 'Границу, которую ты не отстоял при первой маленькой просьбе, редко удаётся отстоять при последней.',
+    },
+    {
+      title: 'The Scorpion and the Frog',
+      content: `A scorpion asked a frog to carry him across a river on his back. "Why would I do that?" the frog said. "You'll sting me and we'll both drown." The scorpion pointed out that this made no sense — if he stung the frog mid-river, he would drown too.
+
+Convinced by the logic, the frog agreed and began swimming across with the scorpion on his back. Halfway across, the scorpion stung him anyway. As they both began to sink, the dying frog asked why. "I couldn't help it," the scorpion said. "It's my nature."`,
+      moral: "A convincing argument for why someone won't hurt you is not the same thing as proof that they can't.",
+      readTime: 1,
+      titleRu: 'Скорпион и лягушка',
+      contentRu: `Скорпион попросил лягушку перевезти его через реку на спине. — С чего бы мне это делать? — сказала лягушка. — Ты меня ужалишь, и мы оба утонем. Скорпион возразил, что в этом нет логики: если он ужалит её посреди реки, он тоже утонет.
+
+Убеждённая этим доводом, лягушка согласилась и поплыла через реку со скорпионом на спине. На середине пути скорпион всё же её ужалил. Когда оба начали тонуть, умирающая лягушка спросила, зачем он это сделал. — Я не мог иначе, — ответил скорпион. — Такова моя природа.`,
+      moralRu: 'Убедительный довод в пользу того, что тебя не тронут — это не то же самое, что доказательство того, что не смогут.',
+    },
+    {
+      title: 'The Boy Who Cried Wolf',
+      content: `A shepherd boy, bored watching his flock alone on the hillside, shouted "Wolf! Wolf!" and laughed as the whole village came running with weapons, only to find no wolf at all. He did it again the next week for the same thrill, and again the villagers came, and again found nothing.
+
+The third time, a wolf actually appeared and began killing his sheep. He screamed for help as loudly as he could, but the villagers, certain it was another joke, stayed home, and he lost the entire flock alone.`,
+      moral: "Every false alarm you raise spends down trust you'll eventually need for the real one.",
+      readTime: 1,
+      titleRu: 'Мальчик, который кричал «Волк!»',
+      contentRu: `Пастушок, которому было скучно в одиночестве стеречь стадо на холме, закричал: «Волк! Волк!» — и рассмеялся, глядя, как вся деревня сбегается с оружием, не находя никакого волка. Через неделю он повторил это ради того же удовольствия, и жители снова прибежали, и снова ничего не нашли.
+
+На третий раз волк действительно появился и начал резать овец. Мальчик закричал о помощи изо всех сил, но жители, уверенные, что это очередная шутка, остались дома, и он в одиночку потерял всё стадо.`,
+      moralRu: 'Каждая ложная тревога тратит запас доверия, который однажды понадобится для настоящей.',
+    },
+    {
+      title: 'The Long Spoons',
+      content: `A traveler was shown two rooms by an angel to understand the difference between two realms. In the first room, a great feast was spread on the table, yet everyone sat gaunt and starving, holding spoons so long they couldn't bend them back to their own mouths, growing more desperate and bitter with every failed attempt to feed themselves.
+
+In the second room, the same feast, the same impossibly long spoons — but here, everyone was well-fed and laughing, because each person was calmly using their spoon to feed the person sitting across from them.`,
+      moral: 'The identical constraint can starve you or feed you, depending only on whether you turn toward yourself or toward the person across from you.',
+      readTime: 1,
+      titleRu: 'Длинные ложки',
+      contentRu: `Ангел показал путнику две комнаты, чтобы объяснить разницу между двумя мирами. В первой комнате на столе был накрыт роскошный пир, но все сидели истощённые и голодные, держа ложки настолько длинные, что не могли донести их до собственного рта, — с каждой неудачной попыткой накормить себя они становились всё отчаяннее и озлобленнее.
+
+Во второй комнате — тот же пир, те же невозможно длинные ложки, — но здесь все были сыты и смеялись, потому что каждый спокойно кормил своей ложкой того, кто сидел напротив.`,
+      moralRu: 'Одно и то же ограничение способно уморить голодом или накормить — в зависимости лишь от того, обращён ты к себе самому или к тому, кто сидит напротив.',
+    },
+    {
+      title: 'The Debtor Who Was Forgiven',
+      content: `A servant owed his king an amount so large he could never possibly repay it in ten lifetimes, and when the king ordered him and his family sold to cover the debt, the servant begged for mercy and time. Moved to pity, the king didn't just grant more time — he cancelled the entire debt outright.
+
+That same servant walked out of the palace, found a coworker who owed him a small sum, and had the man thrown into prison for failing to pay it back immediately. When the king heard what his forgiven servant had done to someone else, he had him summoned back and reinstated the original, crushing debt in full.`,
+      moral: "Mercy you received but didn't pass on was never really understood as mercy at all.",
+      readTime: 1,
+      titleRu: 'Должник, которого простили',
+      contentRu: `Слуга задолжал своему царю сумму настолько огромную, что не смог бы расплатиться и за десять жизней, и когда царь велел продать его вместе с семьёй в счёт долга, слуга взмолился о пощаде и отсрочке. Тронутый жалостью, царь не просто дал отсрочку — он простил весь долг целиком.
+
+Выйдя из дворца, тот же слуга нашёл сослуживца, задолжавшего ему небольшую сумму, и бросил его в тюрьму за то, что тот не смог расплатиться немедленно. Когда царь узнал, что сделал прощённый им слуга с другим человеком, он призвал его обратно и восстановил прежний, непосильный долг в полном объёме.`,
+      moralRu: 'Милость, которую ты получил, но не передал дальше, на самом деле никогда и не была по-настоящему понята как милость.',
     },
   ],
 
@@ -1938,6 +2796,114 @@ She looked up again.
 
 «Это делает тебя древней», — ответил он. «Что ты с этим сделаешь — решать тебе».`,
       moralRu: 'Вселенная даёт нам происхождение. Смысл мы даём себе сами.',
+    },
+    {
+      title: "The King's Ring",
+      content: `King Solomon summoned his court jeweler and gave him a strange task: to craft a ring that would make a happy man sad when he looked at it, and a sad man happy. The jeweler labored for weeks without success, until his young son suggested a simple engraving.
+
+When the ring was finished, Solomon read the inscription and smiled. On days of triumph, the words humbled him. On days of grief, the same words lifted him. The ring read: "This too shall pass."`,
+      moral: 'The same truth that steadies you in triumph is the one that carries you through grief.',
+      readTime: 1,
+      titleRu: 'Кольцо царя',
+      contentRu: `Царь Соломон призвал придворного ювелира и дал ему странную задачу: изготовить кольцо, которое сделает счастливого человека печальным, когда он на него посмотрит, а печального — счастливым. Ювелир трудился неделями безуспешно, пока его юный сын не предложил простую гравировку.
+
+Когда кольцо было готово, Соломон прочитал надпись и улыбнулся. В дни триумфа эти слова смиряли его. В дни горя те же слова поднимали его дух. На кольце было написано: «И это тоже пройдёт».`,
+      moralRu: 'Та же истина, что удерживает тебя в триумфе, проносит тебя и через горе.',
+    },
+    {
+      title: "Diogenes and the Emperor's Shadow",
+      content: `Alexander the Great, having conquered half the known world, sought out the famous philosopher Diogenes, who lived in a barrel and owned almost nothing. He found him sitting outside, enjoying the morning sun.
+
+"I am Alexander, the great king," he announced. "Ask me for anything you wish, and it is yours." Diogenes looked up at him and said, "Yes — could you move a little? You're blocking my sunlight."
+
+Alexander's generals laughed, expecting their king's fury. Instead, Alexander said quietly, "If I were not Alexander, I would wish to be Diogenes."`,
+      moral: 'The man with nothing to gain from you is the only one who can tell you the truth.',
+      readTime: 1,
+      titleRu: 'Диоген и тень императора',
+      contentRu: `Александр Великий, покоривший половину известного мира, разыскал знаменитого философа Диогена, который жил в бочке и почти ничем не владел. Он нашёл его сидящим снаружи, наслаждающимся утренним солнцем.
+
+— Я Александр, великий царь, — объявил он. — Попроси у меня всё, что пожелаешь, и это будет твоим. Диоген поднял на него взгляд и сказал: — Да, вот что: отойди немного в сторону. Ты загораживаешь мне солнце.
+
+Полководцы Александра рассмеялись, ожидая гнева царя. Но Александр тихо произнёс: — Если бы я не был Александром, я хотел бы быть Диогеном.`,
+      moralRu: 'Только тот, кому от тебя ничего не нужно, способен сказать тебе правду.',
+    },
+    {
+      title: 'The Obituary Read Too Soon',
+      content: `One morning, a wealthy inventor opened the newspaper and found his own obituary, printed by mistake after a brother's death was confused for his own. It called him "the merchant of death," crediting his fortune to explosives that had killed thousands in war.
+
+He read every word, alive to see exactly how the world intended to remember him. Within weeks, he had rewritten his will, directing his entire fortune toward a prize honoring those who did the most good for humanity — the very prize that today bears his name for peace, not for war.`,
+      moral: 'You rarely get to read your own obituary — but you can still choose to rewrite it while you are alive.',
+      readTime: 1,
+      titleRu: 'Некролог, прочитанный слишком рано',
+      contentRu: `Однажды утром богатый изобретатель открыл газету и обнаружил собственный некролог, напечатанный по ошибке — смерть брата перепутали с его собственной. В некрологе его называли «торговцем смертью», приписывая его состояние взрывчатке, унёсшей тысячи жизней на войнах.
+
+Он прочитал каждое слово, будучи живым свидетелем того, как именно мир собирался его запомнить. Через несколько недель он переписал завещание, направив всё своё состояние на премию в честь тех, кто принёс наибольшую пользу человечеству, — ту самую премию, что сегодня носит его имя за вклад в мир, а не в войну.`,
+      moralRu: 'Собственный некролог редко удаётся прочитать при жизни — но переписать его, пока ты жив, ты всё ещё можешь.',
+    },
+    {
+      title: 'Two Vast and Trunkless Legs of Stone',
+      content: `A traveler returning from an ancient desert described what he had found there: two enormous stone legs standing alone with no body attached, and half-buried in the sand nearby, a shattered face still wearing an expression of cold command.
+
+On the pedestal, still legible, were words the long-dead king had ordered carved: "My name is Ozymandias, king of kings — look on my works, ye Mighty, and despair." Around the ruin, the traveler said, nothing remained. Only the flat sand stretched away in every direction, empty to the horizon.`,
+      moral: 'The more a monument insists on its own permanence, the more certain you can be that the sand is already winning.',
+      readTime: 1,
+      titleRu: 'Две исполинские каменные ноги без туловища',
+      contentRu: `Путешественник, вернувшийся из древней пустыни, рассказывал о том, что нашёл там: две исполинские каменные ноги, стоящие сами по себе, без туловища, а рядом, наполовину занесённое песком, — разбитое лицо, всё ещё хранящее выражение холодной власти.
+
+На постаменте, ещё различимые, были высечены слова, которые давно умерший царь велел вырезать: «Я Озимандия, царь царей — взгляните на мои деяния, о Владыки, и отчайтесь». Вокруг руин, по словам путешественника, не осталось ничего. Лишь ровный песок простирался во все стороны, пустой до самого горизонта.`,
+      moralRu: 'Чем настойчивее памятник заявляет о своей вечности, тем увереннее можно сказать, что песок уже побеждает.',
+    },
+    {
+      title: 'The Two Brothers and the Sheaves of Wheat',
+      content: `Two brothers farmed a shared field and split the harvest evenly each year — one married with a large family, the other living alone. One night, the married brother thought, "My brother has no children to help him or care for him in old age; he needs more than I do," and secretly carried extra sheaves of wheat to his brother's side of the barn.
+
+That same night, the unmarried brother thought, "My brother has many mouths to feed and I have only myself; he needs more than I do," and secretly carried extra sheaves the opposite way. Each morning, both were quietly puzzled to find their piles exactly the same size as before. This continued for years, neither ever learning what the other had been doing, until one night they finally met each other on the path between their houses, arms full of wheat meant for the other.`,
+      moral: 'The most complete generosity is the kind that never gets to see itself being received.',
+      readTime: 1,
+      titleRu: 'Два брата и снопы пшеницы',
+      contentRu: `Два брата обрабатывали общее поле и каждый год честно делили урожай пополам — один был женат и имел большую семью, другой жил один. Однажды ночью женатый брат подумал: «У моего брата нет детей, которые помогли бы ему и позаботились о нём в старости — ему нужно больше, чем мне», — и тайком перенёс лишние снопы пшеницы на сторону брата в амбаре.
+
+В ту же ночь неженатый брат подумал: «У моего брата много ртов, которые нужно кормить, а у меня — только я сам, ему нужно больше, чем мне», — и тайком перенёс лишние снопы в обратную сторону. Каждое утро оба с тихим недоумением обнаруживали, что их доли остались точно такого же размера, как прежде. Так продолжалось годами, и ни один из них так и не узнал, что делает другой, — пока однажды ночью они наконец не встретились на тропе между своими домами, каждый с охапкой пшеницы, предназначенной для другого.`,
+      moralRu: 'Самая полная щедрость — та, которая никогда не увидит, как её принимают.',
+    },
+    {
+      title: 'The Man Condemned to Push the Stone',
+      content: `For deceiving the gods of the underworld, a cunning king was sentenced to an eternity of pushing a massive boulder up a steep mountain. Each time he neared the summit, straining with everything he had, the stone would slip from his grasp and roll all the way back down, forcing him to descend and begin again.
+
+This was to repeat forever, with no possible ending, no victory he could ever point to as finished. And yet, in the walk back down the mountain each time, in that brief stretch when the stone was behind him and the next climb hadn't yet begun, he was, in his own way, free.`,
+      moral: "A task with no possible finish line doesn't have to be a punishment — it can simply be the shape your life takes, met with your own quiet defiance.",
+      readTime: 1,
+      titleRu: 'Человек, обречённый катить камень',
+      contentRu: `За обман богов подземного царства хитрый царь был осуждён на вечность толкать огромный валун на крутую гору. Каждый раз, когда он, напрягая все силы, приближался к вершине, камень выскальзывал из рук и катился обратно вниз, вынуждая его спускаться и начинать заново.
+
+Это должно было повторяться вечно, без какого-либо конца, без победы, на которую он мог бы когда-либо указать как на завершённую. И всё же, в этом спуске с горы каждый раз, в тот короткий промежуток, когда камень уже остался позади, а следующий подъём ещё не начался, он был — по-своему — свободен.`,
+      moralRu: 'Задача без возможного финала не обязана быть наказанием — она может просто быть формой, которую принимает твоя жизнь, встреченная твоим же тихим вызовом.',
+    },
+    {
+      title: "The Widow's Two Coins",
+      content: `Sitting near the temple treasury, a teacher watched a stream of wealthy people ceremoniously drop large sums of money into the offering box, their generosity plain for everyone nearby to admire. Then a poor widow approached and quietly dropped in two small copper coins — together worth barely a fraction of a single wealthy man's donation.
+
+The teacher called his students over and told them that the widow had actually given more than every rich donor that day combined. The wealthy had given only a surplus they wouldn't miss; she had given every coin she had left to live on.`,
+      moral: 'The size of a gift means less than the size of the life left behind after giving it.',
+      readTime: 1,
+      titleRu: 'Две монеты вдовы',
+      contentRu: `Сидя у храмовой сокровищницы, учитель наблюдал, как вереница богачей торжественно бросала в ящик для пожертвований крупные суммы, а их щедрость была у всех на виду. Затем подошла бедная вдова и тихо опустила две маленькие медные монеты — вместе едва составлявшие крошечную долю пожертвования одного богача.
+
+Учитель подозвал учеников и сказал, что вдова на самом деле отдала больше, чем все богачи в тот день вместе взятые. Богатые отдали лишь избыток, которого не заметят; она отдала все монеты, что у неё оставались на жизнь.`,
+      moralRu: 'Размер дара значит меньше, чем размер жизни, что остаётся после того, как его отдали.',
+    },
+    {
+      title: 'The Fisherman and the Businessman',
+      content: `A businessman on vacation watched a fisherman pull in a small catch and pack up early. "Why not fish longer and catch more?" he asked. The fisherman said he had enough for his family's needs that day.
+
+The businessman explained that with more fish, he could sell the surplus, buy a bigger boat, hire a crew, eventually build a fleet and a company, and after twenty or thirty years of hard work, he could sell it all and retire to a quiet village, sleep late, fish a little each morning, and spend afternoons with his family and friends. The fisherman looked at him and said, "That's exactly what I'm doing right now."`,
+      moral: 'The destination some people spend their whole lives grinding toward is one that others simply decided to already live in.',
+      readTime: 1,
+      titleRu: 'Рыбак и бизнесмен',
+      contentRu: `Бизнесмен на отдыхе наблюдал, как рыбак вытащил небольшой улов и рано собрался домой. — Почему бы не порыбачить подольше и не поймать больше? — спросил он. Рыбак ответил, что этого достаточно для нужд его семьи на сегодня.
+
+Бизнесмен объяснил, что, поймав больше рыбы, можно продать излишек, купить лодку побольше, нанять команду, со временем построить целый флот и компанию, а через двадцать-тридцать лет тяжёлого труда продать всё это и удалиться на покой в тихую деревню, спать подольше, немного рыбачить по утрам и проводить дни с семьёй и друзьями. Рыбак посмотрел на него и сказал: — Именно это я сейчас и делаю.`,
+      moralRu: 'То, к чему некоторые люди всю жизнь пробиваются на износ, другие просто с самого начала выбрали уже жить в этом.',
     },
   ],
 };
