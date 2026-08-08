@@ -117,7 +117,7 @@ web/
 ├── public/
 │   └── llms.txt                # AI-crawler discovery file (robots.txt analog for LLMs) — static, English
 ├── prisma.config.ts            # Prisma 7 config — no dotenv import (Next.js loads .env.local)
-├── next.config.ts              # serverExternalPackages: ['@prisma/client', 'pg']; images.remotePatterns allows sagewayai.com + *.public.blob.vercel-storage.com (Vercel Blob, so next/image can optimize uploaded parable/digest images); redirects() 308s old unprefixed URLs (/, /d/:slug, /digests) to /ru/...
+├── next.config.ts              # serverExternalPackages: ['@prisma/client', 'pg']; images.formats prefers AVIF then WebP; images.remotePatterns allows sagewayai.com + *.public.blob.vercel-storage.com (Vercel Blob, so next/image can optimize uploaded parable/digest images); redirects() 308s old unprefixed URLs (/, /d/:slug, /digests) to /ru/...
 ├── middleware.ts                # 308-redirects the sagewayai.vercel.app host (Vercel's production alias — served the same content as the canonical domain, indexed as a duplicate) to sagewayai.com, preserving path + query. Scoped to that exact host, not *.vercel.app broadly, so PR preview deployments stay directly viewable.
 ├── tailwind.config.ts          # extend: colors, fontFamily, borderRadius
 ├── postcss.config.mjs          # @tailwindcss/postcss plugin (Tailwind v4)
