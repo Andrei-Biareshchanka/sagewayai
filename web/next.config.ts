@@ -4,6 +4,7 @@ import path from 'path';
 const config: NextConfig = {
   serverExternalPackages: ['pg'],
   images: {
+    formats: ['image/avif', 'image/webp'],
     remotePatterns: [
       { protocol: 'https', hostname: 'sagewayai.com' },
       { protocol: 'https', hostname: '*.public.blob.vercel-storage.com' },
