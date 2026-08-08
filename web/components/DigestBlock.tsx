@@ -8,6 +8,7 @@ import { colors } from '@/lib/brand';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { pickLocalized } from '@/lib/locale-content';
 import { t } from '@/lib/i18n';
+import { shimmerBlurDataUrl } from '@/lib/imagePlaceholder';
 import { ShareButton } from './ShareButton';
 
 export interface DigestData {
@@ -139,6 +140,8 @@ export function DigestBlock({
             height={900}
             sizes="(max-width: 680px) 100vw, 680px"
             priority={priority}
+            placeholder="blur"
+            blurDataURL={shimmerBlurDataUrl(1600, 900)}
             className="w-full h-auto rounded-xl object-cover"
           />
         )}
