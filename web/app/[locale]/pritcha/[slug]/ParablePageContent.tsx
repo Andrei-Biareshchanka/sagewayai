@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { pickLocalized } from '@/lib/locale-content';
@@ -37,10 +38,12 @@ export function ParablePageContent({ parable, related }: ParablePageContentProps
         <h1 className="font-serif text-2xl md:text-3xl font-semibold text-ink">{title}</h1>
 
         {parable.imageUrl && (
-          <img
+          <Image
             src={parable.imageUrl}
             alt={imageAlt ?? title}
-            loading="lazy"
+            width={1600}
+            height={900}
+            sizes="(max-width: 680px) 100vw, 680px"
             className="w-full h-auto rounded-xl object-cover"
           />
         )}

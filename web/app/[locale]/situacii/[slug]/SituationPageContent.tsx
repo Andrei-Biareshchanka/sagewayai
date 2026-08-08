@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { t } from '@/lib/i18n';
@@ -45,10 +46,11 @@ export function SituationPageContent({ situation }: SituationPageContentProps) {
             >
               <div className="flex gap-4">
                 {p.imageUrl && (
-                  <img
+                  <Image
                     src={p.imageUrl}
                     alt={p.imageAlt ?? p.title}
-                    loading="lazy"
+                    width={80}
+                    height={80}
                     className="w-20 h-20 rounded-xl object-cover shrink-0"
                   />
                 )}

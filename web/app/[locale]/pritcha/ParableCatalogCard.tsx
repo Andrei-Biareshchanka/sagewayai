@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import Link from 'next/link';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { pickLocalized } from '@/lib/locale-content';
@@ -26,12 +27,15 @@ export function ParableCatalogCard({ parable }: { parable: ParableCatalogSummary
       className="block bg-white border border-[var(--color-border)] rounded-card overflow-hidden hover:border-sage transition-colors"
     >
       {parable.imageUrl && (
-        <img
-          src={parable.imageUrl}
-          alt={imageAlt}
-          loading="lazy"
-          className="w-full aspect-[16/9] object-cover"
-        />
+        <div className="relative w-full aspect-[16/9]">
+          <Image
+            src={parable.imageUrl}
+            alt={imageAlt}
+            fill
+            sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, 33vw"
+            className="object-cover"
+          />
+        </div>
       )}
       <p className="font-serif text-sm font-medium text-ink p-3 line-clamp-2">{title}</p>
     </Link>
