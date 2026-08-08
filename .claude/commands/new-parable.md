@@ -16,43 +16,46 @@ Examples:
 
    | Field | Prompt |
    |-------|--------|
-   | `title` | "Title of the parable (5–100 chars):" |
-   | `content` | "The parable story (100–2000 chars):" |
-   | `moral` | "The moral or lesson (20–300 chars):" |
+   | `title` | "Title of the parable, English (5–100 chars):" |
+   | `content` | "The parable story, English (100–2000 chars):" |
+   | `moral` | "The moral or lesson, English (20–300 chars):" |
+   | `titleRu` | "Title of the parable, Russian:" |
+   | `contentRu` | "The parable story, Russian:" |
+   | `moralRu` | "The moral or lesson, Russian:" |
    | `source` | "Source or tradition? (optional, press Enter to skip):" |
    | `category` | "Category slug — one of: wisdom, motivation, leadership, journey, loss, risk, trust, meaning:" |
 
 2. **Auto-calculate readTime:**
    ```
-   readTime = Math.ceil(wordCount / 200)  // minimum 1
+   readTime = Math.ceil(wordCount / 200)  // minimum 1, based on the English content
    ```
 
-3. **Run /parable-formatter** to validate all fields before proceeding.
+3. **Run /parable-formatter** to validate all fields before proceeding — this includes the exact-title duplicate check and the semantic (embedding-similarity) duplicate check against the existing parables and against anything else already accepted earlier in the current session's batch.
    If validation fails — show the errors and stop. Do not continue until the user fixes them.
 
-4. **Check for duplicates** using MCP Postgres:
-   ```sql
-   SELECT id FROM "Parable" WHERE title ILIKE '<title>';
+4. **Show preview** of the final parable:
    ```
-   If found — warn the user and stop.
-
-5. **Show preview** of the final parable:
-   ```
-   Title:    The Two Wolves
+   Title:    The Two Wolves / Два волка
    Category: wisdom
    ReadTime: 2 min
    Source:   Cherokee tradition (optional)
 
-   Content:
+   Content (EN):
    <content text>
 
-   Moral:
+   Content (RU):
+   <contentRu text>
+
+   Moral (EN):
    <moral text>
+
+   Moral (RU):
+   <moralRu text>
    ```
 
-6. **Ask for confirmation:** "Add this parable to seed.ts? (yes/no)"
+5. **Ask for confirmation:** "Add this parable to seed.ts? (yes/no)"
 
-7. **If confirmed** — append to `server/prisma/seed.ts`:
+6. **If confirmed** — append to `server/prisma/seed.ts`:
 
    Find the array for the correct category and append the new entry:
    ```ts
@@ -60,18 +63,26 @@ Examples:
      title: "The Two Wolves",
      content: `...`,
      moral: "...",
+     titleRu: "Два волка",
+     contentRu: `...`,
+     moralRu: "...",
      source: "Cherokee tradition",  // omit line if no source
      readTime: 2,
    },
    ```
 
-   Then remind the user to run:
+   Then remind the user to run, in order:
    ```bash
    npx prisma db seed
+   npx tsx scripts/seed-embeddings.ts
+   npx tsx scripts/backfill-parable-slugs.ts
+   npx tsx scripts/backfill-parable-quotes.ts
    ```
+   The new parable lands with `reflectionStatus: DRAFT` (schema default) — `conclusion`/`questions`/`imageUrl` are a separate, later step (see `docs/manual-backfill-process.md`), not part of this command.
 
 ## Rules
 
 - Never write directly to the database — always go through seed.ts
 - Always validate with /parable-formatter before appending
-- English only — reject input containing Cyrillic characters
+- Both `title`/`content`/`moral` (English) and `titleRu`/`contentRu`/`moralRu` (Russian) are required — reject a submission missing either language
+- Never hand-author `slugRu`/`slugEn` or a `Quote`/`ParableQuote` row here — those come from the backfill scripts run after seeding
