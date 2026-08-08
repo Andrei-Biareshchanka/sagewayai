@@ -1,10 +1,13 @@
-import 'dotenv/config';
+import { config } from 'dotenv';
+import path from 'path';
 import { readFileSync } from 'fs';
 import { Pool } from 'pg';
 import { put } from '@vercel/blob';
 import sharp from 'sharp';
 import { PrismaClient } from '../app/generated/prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
+
+config({ path: path.resolve(__dirname, '../.env.local') });
 
 const pool = new Pool({ connectionString: process.env['DATABASE_URL'] ?? '' });
 const prisma = new PrismaClient({ adapter: new PrismaPg(pool) });

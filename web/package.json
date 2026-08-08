@@ -12,7 +12,8 @@
     "start": "next start",
     "type-check": "tsc --noEmit",
     "digests:upcoming": "tsx scripts/list-upcoming-digests.ts",
-    "digests:set-image": "tsx scripts/set-digest-image.ts"
+    "digests:set-image": "tsx scripts/set-digest-image.ts",
+    "images:backfill-compress": "tsx scripts/backfill-compress-images.ts"
   },
   "dependencies": {
     "@next/third-parties": "^16.2.9",
