@@ -55,6 +55,11 @@ interface DigestBlockProps {
   shareTitle?: string;
   imageUrl?: string;
   imageAlt?: string;
+  // Set true only by callers that render a single DigestBlock as the page's
+  // hero content (HomeDailyDigest, DigestPageContent) — the image is their
+  // LCP candidate, so it should preload instead of lazy-loading like every
+  // other image on the site.
+  priority?: boolean;
   showDailyBadge?: boolean;
   // Locale-resolved slug of the parable's own canonical page — only passed
   // when Parable.reflectionStatus is REVIEWED for that locale. null/undefined
@@ -71,6 +76,7 @@ export function DigestBlock({
   shareTitle,
   imageUrl,
   imageAlt,
+  priority = false,
   showDailyBadge = true,
   parableCanonicalSlug,
 }: DigestBlockProps) {
@@ -132,6 +138,7 @@ export function DigestBlock({
             width={1600}
             height={900}
             sizes="(max-width: 680px) 100vw, 680px"
+            priority={priority}
             className="w-full h-auto rounded-xl object-cover"
           />
         )}
