@@ -111,7 +111,8 @@ web/
 ├── scripts/
 │   ├── list-upcoming-digests.ts  # npm run digests:upcoming — lists unpublished drafts + image status
 │   ├── set-digest-image.ts       # npm run digests:set-image -- <slug> <path> <altRu> <altEn> — resizes to max 1600px width + converts to WebP (q82, via sharp), uploads to Vercel Blob, writes imageUrl/imageAltRu/imageAltEn on DailyDigest
-│   └── set-parable-image.ts      # npx tsx scripts/set-parable-image.ts <slugRu> <path> <altRu> <altEn> — same resize/WebP/upload, but writes imageUrl/imageAltRu/imageAltEn on Parable (canonical page images, keyed by slugRu not a digest slug)
+│   ├── set-parable-image.ts      # npx tsx scripts/set-parable-image.ts <slugRu> <path> <altRu> <altEn> — same resize/WebP/upload, but writes imageUrl/imageAltRu/imageAltEn on Parable (canonical page images, keyed by slugRu not a digest slug)
+│   └── backfill-compress-images.ts # npm run images:backfill-compress — one-off: re-downloads every Parable/DailyDigest's current imageUrl, resizes+WebP-converts it with the same settings as the two scripts above, re-uploads, updates the DB row, and deletes the old blob. For images uploaded before the WebP migration (still raw PNG/JPG); skips any imageUrl already ending in .webp, so safe to re-run
 ├── prisma/
 │   └── schema.prisma           # Copy of server/prisma/schema.prisma (read access only)
 ├── public/
