@@ -53,6 +53,7 @@ export function DigestPageContent({ digest, related }: DigestPageContentProps) {
         category={digest.category}
         imageUrl={digest.imageUrl ?? undefined}
         imageAlt={imageAlt}
+        priority
         shareUrl={`${SITE_URL}/${lang}/d/${digest.slug}?utm_source=share&utm_medium=social`}
         shareTitle={digestTitle}
         parableCanonicalSlug={digest.parableCanonicalSlug}

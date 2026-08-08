@@ -28,6 +28,7 @@ export function HomeDailyDigest({ data }: HomeDailyDigestProps) {
       category={data.category}
       imageUrl={data.imageUrl ?? undefined}
       imageAlt={imageAlt}
+      priority
       shareUrl={data.slug ? `${SITE_URL}/${lang}/d/${data.slug}?utm_source=share&utm_medium=social` : undefined}
       shareTitle={title}
       parableCanonicalSlug={data.parableCanonicalSlug}
