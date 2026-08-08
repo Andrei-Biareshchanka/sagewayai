@@ -2,6 +2,7 @@
 
 import { format } from 'date-fns';
 import { ru, enUS } from 'date-fns/locale';
+import Image from 'next/image';
 import Link from 'next/link';
 import { colors } from '@/lib/brand';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -125,10 +126,12 @@ export function DigestBlock({
         </figure>
 
         {imageUrl && (
-          <img
+          <Image
             src={imageUrl}
             alt={imageAlt ?? title ?? parable.title}
-            loading="lazy"
+            width={1600}
+            height={900}
+            sizes="(max-width: 680px) 100vw, 680px"
             className="w-full h-auto rounded-xl object-cover"
           />
         )}

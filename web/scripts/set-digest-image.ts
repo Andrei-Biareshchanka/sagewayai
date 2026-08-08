@@ -1,13 +1,16 @@
 import 'dotenv/config';
 import { readFileSync } from 'fs';
-import { extname } from 'path';
 import { Pool } from 'pg';
 import { put } from '@vercel/blob';
+import sharp from 'sharp';
 import { PrismaClient } from '../app/generated/prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
 
 const pool = new Pool({ connectionString: process.env['DATABASE_URL'] ?? '' });
 const prisma = new PrismaClient({ adapter: new PrismaPg(pool) });
+
+const MAX_WIDTH = 1600;
+const WEBP_QUALITY = 82;
 
 function usage(): never {
   console.error(
@@ -27,10 +30,15 @@ async function main() {
   }
 
   const fileBuffer = readFileSync(filePath);
-  const ext = extname(filePath) || '.jpg';
-  const blob = await put(`digests/${slug}${ext}`, fileBuffer, {
+  const optimized = await sharp(fileBuffer)
+    .resize({ width: MAX_WIDTH, withoutEnlargement: true })
+    .webp({ quality: WEBP_QUALITY })
+    .toBuffer();
+
+  const blob = await put(`digests/${slug}.webp`, optimized, {
     access: 'public',
     addRandomSuffix: false,
+    contentType: 'image/webp',
     token: process.env['BLOB_READ_WRITE_TOKEN'],
   });
 
@@ -41,6 +49,7 @@ async function main() {
 
   console.log(`✔ Uploaded and linked image for "${slug}"`);
   console.log(`  URL: ${blob.url}`);
+  console.log(`  Size: ${fileBuffer.length} bytes → ${optimized.length} bytes`);
   await prisma.$disconnect();
 }
 

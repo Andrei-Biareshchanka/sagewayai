@@ -4,7 +4,10 @@ import path from 'path';
 const config: NextConfig = {
   serverExternalPackages: ['pg'],
   images: {
-    remotePatterns: [{ protocol: 'https', hostname: 'sagewayai.com' }],
+    remotePatterns: [
+      { protocol: 'https', hostname: 'sagewayai.com' },
+      { protocol: 'https', hostname: '*.public.blob.vercel-storage.com' },
+    ],
   },
   async redirects() {
     return [
