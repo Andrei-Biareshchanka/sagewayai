@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { pickLocalized } from '@/lib/locale-content';
 import { t } from '@/lib/i18n';
+import { shimmerBlurDataUrl } from '@/lib/imagePlaceholder';
 import { useLocalizedParable, type BilingualParableContent } from '@/hooks/useLocalizedParable';
 
 interface RelatedParable {
@@ -44,6 +45,8 @@ export function ParablePageContent({ parable, related }: ParablePageContentProps
             width={1600}
             height={900}
             sizes="(max-width: 680px) 100vw, 680px"
+            placeholder="blur"
+            blurDataURL={shimmerBlurDataUrl(1600, 900)}
             className="w-full h-auto rounded-xl object-cover"
           />
         )}

@@ -4,6 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { pickLocalized } from '@/lib/locale-content';
+import { shimmerBlurDataUrl } from '@/lib/imagePlaceholder';
 
 export interface ParableCatalogSummary {
   slugRu: string;
@@ -33,6 +34,8 @@ export function ParableCatalogCard({ parable }: { parable: ParableCatalogSummary
             alt={imageAlt}
             fill
             sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, 33vw"
+            placeholder="blur"
+            blurDataURL={shimmerBlurDataUrl(400, 225)}
             className="object-cover"
           />
         </div>

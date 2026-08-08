@@ -5,6 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { t } from '@/lib/i18n';
+import { shimmerBlurDataUrl } from '@/lib/imagePlaceholder';
 import {
   useLocalizedSituation,
   type BilingualSituationContent,
@@ -51,6 +52,8 @@ export function SituationPageContent({ situation }: SituationPageContentProps) {
                     alt={p.imageAlt ?? p.title}
                     width={80}
                     height={80}
+                    placeholder="blur"
+                    blurDataURL={shimmerBlurDataUrl(80, 80)}
                     className="w-20 h-20 rounded-xl object-cover shrink-0"
                   />
                 )}

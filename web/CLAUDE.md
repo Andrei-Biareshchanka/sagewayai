@@ -357,6 +357,14 @@ Applies to the `/api/situation` flow (`POST /api/situation` above). Two differen
 
 `web/prisma/schema.prisma` is a read-only copy of the shared schema — it also carries `TelegramSubscriber.referredBy` (referral tracking, owned by `telegram-bot/`) even though `web/` doesn't read it, to stay in sync with `server/` and `telegram-bot/` (see root `CLAUDE.md` → `schema-sync-check`).
 
+## Image optimization
+
+All `Parable`/`DailyDigest` `imageUrl` values point at Vercel Blob (`*.public.blob.vercel-storage.com`, whitelisted in `next.config.ts`'s `images.remotePatterns`); every rendering of one goes through `next/image`, never a raw `<img>` — `DigestBlock`, `ParableCatalogCard`, `ParablePageContent`, `SituationPageContent` (see their entries above/below for per-caller sizing). `next.config.ts`'s `images.formats` prefers AVIF then WebP, so `next/image` negotiates the smallest format the requesting browser supports on top of whatever's stored.
+
+**Upload-time compression** — `scripts/set-parable-image.ts`/`scripts/set-digest-image.ts` resize to max 1600px width and convert to WebP (quality 82, via `sharp`) before uploading, rather than storing the raw AI-generated PNG. `scripts/backfill-compress-images.ts` (`npm run images:backfill-compress`) is the one-off migration script for images uploaded before this existed — re-downloads, compresses, re-uploads, deletes the old blob, skips anything already `.webp` (idempotent). Support `--dry-run` (reports the size delta, no upload/delete/DB write). All three explicitly load `.env.local` via `dotenv`'s `config({ path: ... })` rather than the bare `dotenv/config` import — `dotenv/config` only auto-loads a file literally named `.env`, which this repo doesn't have, so the bare form silently left `DATABASE_URL` undefined when running these scripts directly via `tsx`.
+
+**`lib/imagePlaceholder.ts`**'s `shimmerBlurDataUrl(width, height)` — every `next/image` usage above passes `placeholder="blur"` with this as `blurDataURL`. It's a generic shimmer/skeleton SVG data URI, not a real blurred thumbnail of the actual image — `next/image` can only auto-derive a `blurDataURL` for static imports, not remote URLs, so a per-image blurhash would require storing one in the DB and generating it at upload time (not done; this is the lighter-weight standard workaround for dynamic sources).
+
 ## Design system
 
 Colors from brand logotype, defined as CSS variables in `globals.css` + `tailwind.config.ts` + `lib/brand.ts`:
