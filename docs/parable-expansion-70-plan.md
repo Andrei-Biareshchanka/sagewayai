@@ -106,21 +106,35 @@ See `SELECT c.slug, p.title FROM "Parable" p JOIN "Category" c ON c.id = p."cate
 
 Run after Phase 1 is fully done (all 70 base parables in the DB), batched by category or another convenient grouping — does not need to follow the Phase 1 batch boundaries.
 
-Follow `docs/manual-backfill-process.md` exactly (lens rotation by `pos % 7` over `id ASC` across the *whole* table, ROLE_FRAME, DO_NOT_USE_BLOCK, length gates, etc.):
+Follow `docs/manual-backfill-process.md` exactly (lens rotation by `pos % 7` over `id ASC` across the *whole* table, ROLE_FRAME, DO_NOT_USE_BLOCK, length gates, etc.). **2026-08-08 addition:** a gender-agreement check (Step 5.5) was added to the process doc — every named character's grammatical gender in `contentRu` must be preserved consistently through `conclusionRu`/RU questions and made explicit in the English image scene, same bug class `.claude/skills/parable-consistency-audit` found in the image pipeline.
 
-- [ ] Generate `conclusionEn`/`conclusionRu` + `questionsEn`/`questionsRu` per parable
-- [ ] Generate `imagePromptEn` (scene + style constants) + `imageAltEn`/`imageAltRu`
-- [ ] Run the objective checks (`audit-manual-insights-metrics.ts`, `audit-manual-insights-codeonly.ts`) before marking `reflectionStatus: REVIEWED`
-- [ ] Manual check for the "not X, but Y" single-use rule (code doesn't catch this)
+- [x] Batch 1 (7, pos 80-86 — the same 7 parables as Phase 1's batch 1): `master-chaya-i-ronin`, `telenok-i-byk`, `severnyy-veter-i-solnce`, `propavshiy-kon-starika`, `odolzhennye-dragocennosti`, `gordiev-uzel`, `privyazhi-svoego-verblyuda` — done 2026-08-08 via one Opus subagent call. All 7 passed the objective checks (length, dashes, forbidden phrases, "not X but Y" count, mixed-script) and the manual gender-agreement check (notably: the wife in `odolzhennye-dragocennosti` stayed feminine throughout, `Солнце`/Sun stayed grammatically neuter — not masculine — in `severnyy-veter-i-solnce`). All 7 now `reflectionStatus: REVIEWED`. **Not yet verified visually** — local dev server wasn't running this session; `curl` the `/ru/pritcha/<slugRu>` and `/en/pritcha/<slugEn>` URLs (expect 200) before trusting this batch fully done.
+- [x] Batch 2 (7, pos 87-93) — done 2026-08-08: `bespoleznoe-derevo`, `kameshki-zaiki`, `zemledelec-kotoryy-pravil-rimom`, `nit-skvoz-labirint`, `zhemchuzhina-na-dne-morya`, `starec-dognavshiy-vora`, `kolco-carya`. Gender check passed (tree stayed neuter, Ariadne stayed feminine throughout). 3 of 7 RU conclusions landed slightly under the 330-word soft floor (316-328) — left as-is per user decision rather than padding artificially; all still comfortably clear every other objective check. All 7 now `reflectionStatus: REVIEWED`. Still not visually verified (dev server not running this session).
+- [ ] Batch 3 (7, pos 94-100)
+- [ ] Batch 4 (7, pos 101-107)
+- [ ] Batch 5 (7, pos 108-114)
+- [ ] Batch 6 (7, pos 115-121)
+- [ ] Batch 7 (7, pos 122-128)
+- [ ] Batch 8 (7, pos 129-135)
+- [ ] Batch 9 (7, pos 136-142)
+- [ ] Batch 10 (7, pos 143-149)
 
 ---
 
 ## Phase 3 — images (after user generates them)
 
-- [ ] Hand off all `imagePromptEn` values to the user
+- [x] Batch 1 images (5 of 7 — 2 still pending): `master-chaya-i-ronin`, `telenok-i-byk`, `severnyy-veter-i-solnce`, `propavshiy-kon-starika`, `odolzhennye-dragocennosti` — done 2026-08-09. User generated via Nano Banana, images reviewed against `contentRu` per the `parable-consistency-audit` checklist (gender/role/object/count/moral all matched, no invented details), uploaded via `web/scripts/set-parable-image.ts`, compressed 1.5-1.7MB PNG → 35-58KB WebP. All 5 now have `imageUrl` + `reflectionStatus: REVIEWED` + both slugs — **fully render-ready in local dev DB only, not yet in production** (see below).
+- [ ] `gordiev-uzel`, `privyazhi-svoego-verblyuda` (remaining 2 of batch 1)
+- [ ] Hand off remaining `imagePromptEn` values to the user
 - [ ] User generates images externally, sends files back
 - [ ] Match each file to its parable by content (not by order)
 - [ ] Upload via `web/scripts/set-parable-image.ts <slugRu> <path> <altRu> <altEn>`
 - [ ] Verify `/ru/pritcha/<slugRu>` and `/en/pritcha/<slugEn>` return 200 for all 70
 - [ ] Update `Category.parablesCount` for all 8 categories
 - [ ] Update `.claude/docs/ARCHITECTURE.md` / `FOLLOWUPS.md` via the `docs-maintainer` skill once everything lands
+
+## Production sync
+
+**First 5 fully-ready parables synced to prod 2026-08-09** (Neon, via `server/.env`'s commented-out `DATABASE_URL` line): `master-chaya-i-ronin`, `telenok-i-byk`, `severnyy-veter-i-solnce`, `propavshiy-kon-starika`, `odolzhennye-dragocennosti`. Done via a one-off Node script (`pg` Client, transactional, `--dry-run` verified first) rather than a `docs/prod-sync-*.sql` file — synced: the 5 `Parable` rows in full (content, RU fields, slugs, embedding, image, conclusion/questions, `reflectionStatus: REVIEWED`), their 14 unique referenced `Quote` rows (upserted by `(text, author)` — one already existed in prod under a different id, requiring a dev-id→prod-id resolution step after upsert, not a straight id copy), 15 `ParableQuote` join rows, and `Category.parablesCount` bumped for the 5 affected categories (all +1). Prod now at 85 parables / 118 quotes (was 80/114). Verified post-commit: all 5 have `reflectionStatus: REVIEWED`, non-null image/embedding, and exactly 3 `ParableQuote` rows each. **These 5 are now live and visible on the production site** at `/ru/pritcha/<slugRu>` / `/en/pritcha/<slugEn>` (not separately curl-verified this session, but the same `REVIEWED` + both-slugs-non-null gate that governs `/pritcha/[slug]`'s `generateStaticParams` is satisfied).
+
+**Everything else from Phases 1-3 (the remaining 145 parables, 82 quotes, and 65 not-yet-reflected parables) is still local-dev-only.** Repeat the same sync approach for future batches once their images land — a reusable version of the one-off script (not committed, was `server/scripts/_scratch_prod_sync.js`, deleted after use) would be worth writing properly if this becomes routine rather than re-deriving it each time.
