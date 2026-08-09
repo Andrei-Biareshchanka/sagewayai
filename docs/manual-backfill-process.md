@@ -63,6 +63,7 @@ Slugs (`slugRu`/`slugEn`) and the 3 `ParableQuote` rows are already assigned for
 - **DO NOT USE**: triads, stock phrases ("important to note"/"ultimately"/"in the end"/"resonates"/"profound", RU: "важно понимать"/"в конечном счёте"/"резонирует"/"поистине"), "dear reader", restating the moral as an ending, **no more than ONE "not X, but Y" construction per text** (this is the rule most often violated — see `docs/audit-content-model.md`'s "Bamboo Tree" incident, where 6 such constructions turned up instead of 1), mixed alphabets within a single word, more than 4-5 dashes per text (soft target ≤2).
 - **INCLUDE**: direct address to the reader ("you"), at least one bodily/sensory detail, exactly one non-obvious insight, question 3 left open.
 - **RU-specific dialogue formatting** (if the conclusion happens to include direct speech — unlikely for an essay, but just in case): dash-prefixed lines, not guillemets («»); a blank line only between scene changes, not between lines of the same exchange.
+- **Gender agreement (RU)**: before writing, note the grammatical gender `contentRu` establishes for every named character (`учитель`/`учительница`, `мастер`/`подруга`, verb endings like `сказал`/`сказала`, `он`/`она`). `conclusionRu` and `questionsRu` must carry that same gender through every verb, short-form adjective, and pronoun referring to that character — a character who is female in the parable cannot flip to masculine verb agreement in the reflection. This is the same class of bug `.claude/skills/parable-consistency-audit` found in the image pipeline (`strela-i-luk` — correctly-gendered RU text, wrongly-gendered downstream artifact); here the downstream artifact is the reflection text, not an image. **Image brief must carry the same gender too** — write the scene with the RU-established gender explicit (e.g. "an old female teacher", not "a teacher") so `imagePromptEn` doesn't default to male, the actual root cause found in that skill's audit.
 - **Image brief**: scene (3-5 sentences, EN, **1-2 characters max** — Nano Banana doesn't generate more reliably than that), plus `imageAltEn`/`imageAltRu` (<125 characters, literally what's in the picture, not the moral), plus the final assembly `imagePromptEn` = `{IMAGE_STYLE_PREFIX} {scene} {IMAGE_STYLE_PALETTE} {IMAGE_STYLE_FORMAT}` — constants below, verbatim.
 
 ```
@@ -82,6 +83,10 @@ A Python script (in scratchpad) counts, per language:
 - scan against the list of forbidden phrases (stock phrases/meaning-inflation)
 
 Checked by eye (code doesn't catch this): no more than 1 "not X, but Y" construction per text — read manually, this turned out to be the most frequently violated rule in past batches.
+
+## Step 5.5 — gender agreement check (also by eye, code doesn't catch this)
+
+For every named human character in `contentRu`, re-derive their grammatical gender from the source text (verb endings, short-form adjectives, explicit nouns like `учительница`/`мастер`), then re-read `conclusionRu` and `questionsRu` end to end checking every verb/adjective/pronoun referring to that character still agrees. Also check `imagePromptEn`: the scene must state the character's gender explicitly in English (e.g. "an old woman", "her students") rather than a gender-neutral role noun ("a teacher") that an image model will default to male — this is the exact root cause documented in `.claude/skills/parable-consistency-audit/SKILL.md`. Flag and fix before Step 6, not after — this is cheaper to catch here than as a later image-audit finding.
 
 ## Step 6 — write to the DB
 
