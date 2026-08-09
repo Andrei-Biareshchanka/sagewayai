@@ -146,5 +146,5 @@ Summary across all 8 batches: **11 confirmed defects found and fixed** — 5 ima
 
 ## Follow-ups raised, not yet actioned
 
-- **Root cause, not yet fixed in the pipeline itself:** `server/scripts/backfill-parable-insights.ts`'s call to `generateParableImageBrief()` passes only English `title`/`content`/`moral` — English role nouns carry no gender, so every future parable is at risk of the same defect. Should pass RU fields (or both, with explicit gender/age instructions).
+- **Root cause, not yet fixed in the pipeline itself:** `server/scripts/backfill/backfill-parable-insights.ts`'s call to `generateParableImageBrief()` passes only English `title`/`content`/`moral` — English role nouns carry no gender, so every future parable is at risk of the same defect. Should pass RU fields (or both, with explicit gender/age instructions).
 - `urok-reki` (pos 36) — awaiting a decision on whether an invented human illustrating a personified-object parable counts as a defect going forward, or is acceptable creative license (this batch's only case, may recur in later batches with similar "nature speaks" parables).

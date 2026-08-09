@@ -11,9 +11,9 @@ Checklist detail lives in `checklist.md` next to this file — read it before ju
 
 Found 2026-08-07: `strela-i-luk` ("The Arrow and the Bow") — RU and EN text both correctly describe a female teacher (`Учительница`/`teacher...her`), but the generated illustration shows a man, and `imageAltRu` still says "Учительница" (describes the text, not the delivered picture).
 
-Root cause: `server/scripts/backfill-parable-insights.ts` (the image-brief call, `generateParableImageBrief`) is fed only the **English** `title`/`content`/`moral`. English role nouns (teacher, student, traveler, master) carry no gender; the Russian equivalents do. The image generator defaults to male, and alt text gets written from the brief instead of from the finished image — so both `imagePromptEn` and `imageAltRu` can be wrong even when the parable text itself is perfectly translated. This is **not** a translation bug — check RU vs EN text first and expect it to usually pass; the real yield is in image-vs-RU-text.
+Root cause: `server/scripts/backfill/backfill-parable-insights.ts` (the image-brief call, `generateParableImageBrief`) is fed only the **English** `title`/`content`/`moral`. English role nouns (teacher, student, traveler, master) carry no gender; the Russian equivalents do. The image generator defaults to male, and alt text gets written from the brief instead of from the finished image — so both `imagePromptEn` and `imageAltRu` can be wrong even when the parable text itself is perfectly translated. This is **not** a translation bug — check RU vs EN text first and expect it to usually pass; the real yield is in image-vs-RU-text.
 
-There is no existing automated check for this — `server/scripts/audit-manual-insights*.ts` check length/dashes/schema only, `fix-wrong-language-titles.ts` only checks language, not accuracy.
+There is no existing automated check for this — `server/scripts/audit/audit-manual-insights*.ts` check length/dashes/schema only, `fix-wrong-language-titles.ts` only checks language, not accuracy.
 
 ## Scope rule
 
@@ -107,7 +107,7 @@ Authority rule (state once, don't relitigate per parable): **`contentRu` is auth
 | **A** | Image contradicts RU text | Rewrite the scene in `imagePromptEn` with explicit gender/age/count, hand to the user per `docs/manual-backfill-process.md` Шаг 8, then `npx tsx web/scripts/set-parable-image.ts <slugRu> <path> <altRu> <altEn>` — re-uploads to Blob and rewrites both alts in one step. Same Blob path (`addRandomSuffix: false, allowOverwrite: true`) so the URL is stable — verify with a cache-busting query string (`/pritcha/[slug]` has `revalidate = 86400`). |
 | **B** | Alt text wrong, image fine | `UPDATE "Parable" SET "imageAltRu"=…, "imageAltEn"=… WHERE "slugRu"=…` — local dev DB first, then a `docs/prod-sync-*.sql` file against Neon, same pattern as existing prod-sync files. |
 | **C** | `imagePromptEn` wrong/genderless, current image happens to be right anyway | Update `imagePromptEn` only — cheap, prevents recurrence on the next regeneration. Do this alongside every class-A fix too. |
-| **D** | RU text diverges from EN text | **Do not auto-fix.** Present both, let the user decide which is right. Warn: editing `content`/`contentRu` invalidates the derived `conclusion*`/`questions*` and the parable's search embedding — `server/scripts/seed-embeddings.ts` needs a rerun after. |
+| **D** | RU text diverges from EN text | **Do not auto-fix.** Present both, let the user decide which is right. Warn: editing `content`/`contentRu` invalidates the derived `conclusion*`/`questions*` and the parable's search embedding — `server/scripts/seed/seed-embeddings.ts` needs a rerun after. |
 | **E** | Conclusion/questions contradict the parable | Rewrite via `docs/manual-backfill-process.md` Шаг 4 (Opus subagent, **same lens** as originally used — `pos % 7`, don't reroll it), then its free objective checks. Keep `reflectionStatus = 'REVIEWED'`. |
 
 Both writes are ordered **local dev DB first, then a `docs/prod-sync-<batch>.sql` file** applied to Neon (`DATABASE_URL` for prod is the commented-out line in `server/.env` — extract with `grep '^# DATABASE_URL=' server/.env | sed 's/^# //' | cut -d= -f2-`, never hardcode it). Blob is shared between local and prod — an image fix (class A) lands in prod the moment it's uploaded, *before* any DB sync — only regenerate images you're prepared to ship immediately.
@@ -133,4 +133,4 @@ rm -rf "$SCRATCH"
 
 ## Long-term fix (not part of a single audit batch)
 
-`server/scripts/backfill-parable-insights.ts`'s call to `generateParableImageBrief()` should pass the Russian fields (or both languages, with explicit gender/age instructions) instead of English-only — otherwise every newly added parable reintroduces this exact bug. Flag this to the user as a follow-up; don't silently patch the generation pipeline mid-audit.
+`server/scripts/backfill/backfill-parable-insights.ts`'s call to `generateParableImageBrief()` should pass the Russian fields (or both languages, with explicit gender/age instructions) instead of English-only — otherwise every newly added parable reintroduces this exact bug. Flag this to the user as a follow-up; don't silently patch the generation pipeline mid-audit.

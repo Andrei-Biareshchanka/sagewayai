@@ -4,15 +4,15 @@ dotenv.config();
 import * as fs from 'fs';
 import { PrismaClient } from '@prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
-import { getEmbeddings } from '../src/lib/voyage';
+import { getEmbeddings } from '../../src/lib/voyage';
 
 const adapter = new PrismaPg({ connectionString: process.env['DATABASE_URL'] });
 const prisma = new PrismaClient({ adapter });
 
-type Candidate = { text: string; author: string };
+type Candidate = { title: string; content: string; moral: string };
 
-function buildEmbeddingText(q: Candidate): string {
-  return `${q.text} — ${q.author}`;
+function buildEmbeddingText(p: Candidate): string {
+  return `${p.title}. ${p.content} ${p.moral}`;
 }
 
 function cosineSimilarity(a: number[], b: number[]): number {
@@ -28,7 +28,7 @@ function cosineSimilarity(a: number[], b: number[]): number {
 async function main() {
   const filePath = process.argv[2];
   if (!filePath) {
-    process.stderr.write('Usage: ts-node scripts/check-new-quote-similarity.ts <candidates.json>\n');
+    process.stderr.write('Usage: tsx scripts/check/check-new-parable-similarity.ts <candidates.json>\n');
     process.exit(1);
   }
 
@@ -38,37 +38,33 @@ async function main() {
   let anyFlagged = false;
 
   for (let i = 0; i < candidates.length; i++) {
-    const exactMatch = await prisma.quote.findFirst({
-      where: { text: { equals: candidates[i]!.text, mode: 'insensitive' } },
-    });
-
     const vectorStr = `[${embeddings[i]!.join(',')}]`;
-    const dbMatches = await prisma.$queryRaw<{ text: string; author: string; similarity: number }[]>`
-      SELECT text, author, CAST(1 - (embedding <=> ${vectorStr}::vector) AS float8) AS similarity
-      FROM "Quote"
+
+    const dbMatches = await prisma.$queryRaw<{ title: string; similarity: number }[]>`
+      SELECT title, CAST(1 - (embedding <=> ${vectorStr}::vector) AS float8) AS similarity
+      FROM "Parable"
       WHERE embedding IS NOT NULL
       ORDER BY embedding <=> ${vectorStr}::vector
       LIMIT 3
     `;
 
-    const batchMatches: { text: string; similarity: number }[] = [];
+    const batchMatches: { title: string; similarity: number }[] = [];
     for (let j = 0; j < candidates.length; j++) {
       if (j === i) continue;
       const sim = cosineSimilarity(embeddings[i]!, embeddings[j]!);
-      batchMatches.push({ text: candidates[j]!.text, similarity: sim });
+      batchMatches.push({ title: candidates[j]!.title, similarity: sim });
     }
     batchMatches.sort((a, b) => b.similarity - a.similarity);
 
     const topDb = dbMatches[0];
     const topBatch = batchMatches[0];
-    const flagged = !!exactMatch || (topDb && topDb.similarity >= 0.9) || (topBatch && topBatch.similarity >= 0.9);
+    const flagged = (topDb && topDb.similarity >= 0.85) || (topBatch && topBatch.similarity >= 0.85);
     if (flagged) anyFlagged = true;
 
-    process.stdout.write(`\n"${candidates[i]!.text}" — ${candidates[i]!.author}${flagged ? '  [FLAGGED]' : ''}\n`);
-    if (exactMatch) process.stdout.write(`  EXACT TEXT MATCH already in DB (author: ${exactMatch.author})\n`);
-    process.stdout.write(`  vs DB:    ${dbMatches.map((m) => `"${m.text.slice(0, 40)}..." — ${m.author} (${m.similarity.toFixed(3)})`).join(', ')}\n`);
+    process.stdout.write(`\n"${candidates[i]!.title}"${flagged ? '  [FLAGGED]' : ''}\n`);
+    process.stdout.write(`  vs DB:    ${dbMatches.map((m) => `${m.title} (${m.similarity.toFixed(3)})`).join(', ')}\n`);
     if (topBatch) {
-      process.stdout.write(`  vs batch: "${topBatch.text.slice(0, 40)}..." (${topBatch.similarity.toFixed(3)})\n`);
+      process.stdout.write(`  vs batch: ${topBatch.title} (${topBatch.similarity.toFixed(3)})\n`);
     }
   }
 

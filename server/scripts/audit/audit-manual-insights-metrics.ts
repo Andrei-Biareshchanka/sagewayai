@@ -1,5 +1,5 @@
-import { prisma } from '../src/lib/prisma';
-import { countWords } from '../src/lib/anthropic';
+import { prisma } from '../../src/lib/prisma';
+import { countWords } from '../../src/lib/anthropic';
 
 // countEmDashes itself isn't exported from anthropic.ts, but its pattern is
 // documented right next to EM_DASH_REJECT_THRESHOLD: /[—–]/g

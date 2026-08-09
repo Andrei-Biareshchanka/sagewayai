@@ -17,9 +17,9 @@ Updated `/parable-formatter` and `/new-parable` (`.claude/commands/`) to match t
 - Added `titleRu` / `contentRu` / `moralRu` as required fields (adaptation, not literal translation)
 - Added a two-layer duplicate check: exact `title ILIKE` / `titleRu ILIKE` (as before) **plus** semantic — embed the candidate via `getEmbeddings` (`server/src/lib/voyage.ts`, same `` `${title}. ${content} ${moral}` `` text the DB uses) and compare via pgvector cosine similarity (`embedding <=>`) against all existing parables *and* against anything already accepted earlier in the same batch. Flag ≥0.85 similarity for manual review, don't auto-reject.
 - **Correction from the original draft of this plan:** slugs and quotes are *not* hand-authored by these commands. `slugRu`/`slugEn` and the 3 `ParableQuote` rows are produced by existing one-time backfill scripts that already handle this for the current 80 parables:
-  - `server/scripts/seed-embeddings.ts` — populates `embedding` (Voyage AI, `voyage-3`, batched with rate-limit backoff)
-  - `server/scripts/backfill-parable-slugs.ts` — RU→Latin transliteration + slugify, collision-safe (`-2`, `-3`, ...)
-  - `server/scripts/backfill-parable-quotes.ts` — assigns each parable 3 quotes from the **existing** `Quote` pool by nearest cosine similarity (`quote.embedding <=> parable.embedding`), not by writing new `Quote` rows
+  - `server/scripts/seed/seed-embeddings.ts` — populates `embedding` (Voyage AI, `voyage-3`, batched with rate-limit backoff)
+  - `server/scripts/backfill/backfill-parable-slugs.ts` — RU→Latin transliteration + slugify, collision-safe (`-2`, `-3`, ...)
+  - `server/scripts/backfill/backfill-parable-quotes.ts` — assigns each parable 3 quotes from the **existing** `Quote` pool by nearest cosine similarity (`quote.embedding <=> parable.embedding`), not by writing new `Quote` rows
   - All three are idempotent / only touch rows missing the relevant field — safe to re-run after every batch
 - Run order after seeding a batch: `npx prisma db seed` → `seed-embeddings.ts` → `backfill-parable-slugs.ts` → `backfill-parable-quotes.ts`. New rows land with `reflectionStatus: DRAFT` (schema default).
 
@@ -68,7 +68,7 @@ Final category counts: wisdom 18, motivation 20, leadership 19, journey 19, loss
 
 ## Quotes expansion: +85 new quotes (added 2026-08-08, separate from the 70-parable plan above)
 
-**Goal:** grow `Quote` from 114 to 199, adding 85 real, correctly-attributed quotes (public-domain authors only, same rule as `server/scripts/generate-quotes.ts`) under 5 new themes — one per parable category that didn't already have an aligned quote theme:
+**Goal:** grow `Quote` from 114 to 199, adding 85 real, correctly-attributed quotes (public-domain authors only, same rule as `server/scripts/seed/generate-quotes.ts`) under 5 new themes — one per parable category that didn't already have an aligned quote theme:
 
 | New theme | Aligned parable category | Target count |
 |---|---|---|
@@ -80,7 +80,7 @@ Final category counts: wisdom 18, motivation 20, leadership 19, journey 19, loss
 
 (Existing themes `wisdom-and-self-knowledge` → wisdom, `loss-and-acceptance` → loss, `courage-and-fear` → risk already align; `stoic-resilience`/`stoic-virtue-and-character` don't map to a category and are left alone.)
 
-**Process per batch:** draft real quotes (EN + idiomatic RU rendering, not literal translation) → run `server/scripts/check-new-quote-similarity.ts <file.json>` (exact-text check + pgvector cosine similarity vs DB and within-batch, flags ≥0.9) → append to `server/scripts/data/quotes-generated.json` → `npx ts-node --project tsconfig.json scripts/seed-quotes.ts` → `npx ts-node --project tsconfig.json scripts/seed-quote-embeddings.ts` (re-embeds all quotes each run, fast — no rate-limit backoff needed unlike the parable embedding script).
+**Process per batch:** draft real quotes (EN + idiomatic RU rendering, not literal translation) → run `server/scripts/check/check-new-quote-similarity.ts <file.json>` (exact-text check + pgvector cosine similarity vs DB and within-batch, flags ≥0.9) → append to `server/scripts/seed/data/quotes-generated.json` → `npx ts-node --project tsconfig.json scripts/seed/seed-quotes.ts` → `npx ts-node --project tsconfig.json scripts/seed/seed-quote-embeddings.ts` (re-embeds all quotes each run, fast — no rate-limit backoff needed unlike the parable embedding script).
 
 **Real-source discipline is stricter here than for parables** — a quote must be an actual real quote from a real (public-domain) person, not an adaptation. The existing DB already covers a lot of the well-known Stoic/Confucian/Emerson corpus densely, so duplicate/near-duplicate hits during the similarity check are common and expected — check each flagged one by hand (`SELECT text FROM "Quote" WHERE author = '<name>'` to see what's already there) rather than trusting the similarity score alone, since two different real quotes by the same philosopher on a similar theme will legitimately score high.
 
@@ -92,9 +92,9 @@ Final category counts: wisdom 18, motivation 20, leadership 19, journey 19, loss
 - [x] Batch 4 — `trust-and-connection` (17) — done 2026-08-08 (Cicero, Aristotle, George MacDonald, Booker T. Washington, Samuel Johnson, Emerson, Thoreau, Jane Austen, Shakespeare, Book of Proverbs, Confucius, Montaigne, Elbert Hubbard, Helen Keller). DB at 182 quotes.
 - [x] Batch 5 — `purpose-and-meaning` (18, one extra to land on exactly 200) — done 2026-08-08 (Marcus Aurelius, Tolstoy, Ecclesiastes, Aristotle, Kant, Pascal, Goethe, Dostoevsky, Cicero, William James, Buddha, Seneca, Emerson, Helen Keller, Montaigne). **DB at 200 quotes total — quote expansion complete.**
 
-**Rate-limit fix applied:** `server/scripts/seed-quote-embeddings.ts` had no retry/backoff (unlike the parable version) and kept hitting Voyage's 3 RPM free-tier cap mid-run. Added the same `BATCH_DELAY_MS` + retry-with-backoff pattern already used in `seed-embeddings.ts` — now self-recovers instead of needing manual re-runs.
+**Rate-limit fix applied:** `server/scripts/seed/seed-quote-embeddings.ts` had no retry/backoff (unlike the parable version) and kept hitting Voyage's 3 RPM free-tier cap mid-run. Added the same `BATCH_DELAY_MS` + retry-with-backoff pattern already used in `seed-embeddings.ts` — now self-recovers instead of needing manual re-runs.
 
-**Important: new quotes were NOT automatically attached to existing parables.** `backfill-parable-quotes.ts` only fills *missing* `ParableQuote` positions — since all 150 parables already had all 3 positions filled from the original 114-quote pool, re-running it was a no-op. Wrote `server/scripts/recompute-parable-quotes.ts` (new, not a modification of the one-time backfill script) to force a full re-match: for every parable, delete its 3 existing `ParableQuote` rows and reassign the top-3 nearest quotes from the *full* 200-quote pool. Run once, 2026-08-08 — 111/150 parables got at least one new quote (129 distinct quotes now in use across all `ParableQuote` rows, up from a smaller working set before). Safe to re-run after any future quote-pool expansion — it's idempotent (a no-op for parables whose top-3 doesn't change).
+**Important: new quotes were NOT automatically attached to existing parables.** `backfill/backfill-parable-quotes.ts` only fills *missing* `ParableQuote` positions — since all 150 parables already had all 3 positions filled from the original 114-quote pool, re-running it was a no-op. Wrote `server/scripts/recompute-parable-quotes.ts` (new, not a modification of the one-time backfill script) to force a full re-match: for every parable, delete its 3 existing `ParableQuote` rows and reassign the top-3 nearest quotes from the *full* 200-quote pool. Run once, 2026-08-08 — 111/150 parables got at least one new quote (129 distinct quotes now in use across all `ParableQuote` rows, up from a smaller working set before). Safe to re-run after any future quote-pool expansion — it's idempotent (a no-op for parables whose top-3 doesn't change).
 
 ### Existing 80 titles (for overlap checks — do not re-derive, just consult)
 

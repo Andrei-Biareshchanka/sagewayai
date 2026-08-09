@@ -74,9 +74,9 @@ Examples:
    Then remind the user to run, in order:
    ```bash
    npx prisma db seed
-   npx tsx scripts/seed-embeddings.ts
-   npx tsx scripts/backfill-parable-slugs.ts
-   npx tsx scripts/backfill-parable-quotes.ts
+   npx tsx scripts/seed/seed-embeddings.ts
+   npx tsx scripts/backfill/backfill-parable-slugs.ts
+   npx tsx scripts/backfill/backfill-parable-quotes.ts
    ```
    The new parable lands with `reflectionStatus: DRAFT` (schema default) — `conclusion`/`questions`/`imageUrl` are a separate, later step (see `docs/manual-backfill-process.md`), not part of this command.
 

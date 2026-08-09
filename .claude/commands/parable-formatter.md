@@ -58,7 +58,7 @@ Pass a parable as raw text or JSON. Examples:
       ```
       Flag anything ≥ 0.85 similarity for manual review rather than auto-rejecting — report the matched title(s) and similarity score(s) and ask the user whether it's a real duplicate or just a thematically-related parable. Also run this same check pairwise against any other candidates already accepted earlier in the current batch, not just against the DB.
 
-      In practice, `server/scripts/check-new-parable-similarity.ts <candidates.json>` runs this exact check (DB + within-batch) for a whole batch at once — prefer it over doing the SQL by hand when validating more than one parable.
+      In practice, `server/scripts/check/check-new-parable-similarity.ts <candidates.json>` runs this exact check (DB + within-batch) for a whole batch at once — prefer it over doing the SQL by hand when validating more than one parable.
 
 5. **Calculate readTime** automatically if not provided:
    ```
@@ -99,9 +99,9 @@ Then show the Prisma seed snippet:
 
 Then remind the user that after this batch is seeded, three scripts must run in order to make the new rows fully usable:
 ```bash
-npx tsx scripts/seed-embeddings.ts        # populates embedding
-npx tsx scripts/backfill-parable-slugs.ts # populates slugRu/slugEn
-npx tsx scripts/backfill-parable-quotes.ts # assigns 3 ParableQuote rows via vector similarity
+npx tsx scripts/seed/seed-embeddings.ts        # populates embedding
+npx tsx scripts/backfill/backfill-parable-slugs.ts # populates slugRu/slugEn
+npx tsx scripts/backfill/backfill-parable-quotes.ts # assigns 3 ParableQuote rows via vector similarity
 ```
 
 If validation fails — list every issue clearly:

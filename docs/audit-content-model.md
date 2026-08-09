@@ -110,7 +110,7 @@
 - `server/src/services/digest.ts` — if this content moves to be per-parable rather than per-pairing, `findParableForQuote` may need to also trigger/read insight generation rather than `dailyDigest.ts` doing it per digest.
 - `web/components/DigestBlock.tsx`, `DigestPageContent.tsx`, `HomeDailyDigest.tsx` — render the expanded structure; digest surfaces likely need a condensed variant per the stated "shorter in the digest" requirement, meaning `DigestBlock` needs a display-mode prop, not just more text.
 - `web/hooks/useLocalizedDigest.ts` — field selection expands beyond single `conclusion`/`question` strings.
-- Any backfill scripts analogous to `server/scripts/generate-digest-titles.ts` for existing digests missing the new structure.
+- Any backfill scripts analogous to `server/scripts/digest/generate-digest-titles.ts` for existing digests missing the new structure.
 
 ### (c) `Situation` model + hub pages
 - `server/prisma/schema.prisma` — new `Situation` model (id, slug, bilingual name/description) + join table (`SituationParable` or similar) for the many-to-many with `Parable`.

@@ -1,5 +1,5 @@
-import { prisma } from '../src/lib/prisma';
-import { findValidationIssue, countWords } from '../src/lib/anthropic';
+import { prisma } from '../../src/lib/prisma';
+import { findValidationIssue, countWords } from '../../src/lib/anthropic';
 
 // Free, local-only check (no API calls): findValidationIssue only covers
 // schema shape, tool-call-artifact leakage, and mixed-Cyrillic/Latin words —

@@ -1,6 +1,6 @@
 # Manual parable backfill (no real API calls) — process
 
-**Status:** active process, used by explicit user decision (2026-07-22) — instead of `server/scripts/backfill-parable-insights.ts` (which calls the real `generateReviewedParableInsight` through the Opus 4.8 + Haiku API and costs real money).
+**Status:** active process, used by explicit user decision (2026-07-22) — instead of `server/scripts/backfill/backfill-parable-insights.ts` (which calls the real `generateReviewedParableInsight` through the Opus 4.8 + Haiku API and costs real money).
 
 **Trade-off accepted here:** lenses and guardrail rules are followed manually (Claude Code follows the same prompt as the real pipeline), but the code-level checks (`findValidationIssue`) and the Haiku review gate (`reviewDeepReflection`) are either a free code-only check or not run at all unless explicitly requested. This means: there is no automatic guarantee the text would have passed the official gate — only a manual imitation of the same criteria. See `docs/audit-content-model.md` if the context behind this decision needs to be recovered.
 

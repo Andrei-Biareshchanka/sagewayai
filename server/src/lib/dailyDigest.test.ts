@@ -29,7 +29,7 @@ vi.mock('../services/dailyParableSelection', () => ({
 
 // generateDigestTitle is still imported by dailyDigest.ts (generateUniqueTitle/
 // buildTitleArgs remain exported for the legacy repair scripts — see
-// scripts/generate-digest-titles.ts, scripts/fix-wrong-language-titles.ts) but
+// scripts/digest/generate-digest-titles.ts, scripts/digest/fix-wrong-language-titles.ts) but
 // createDigestForDate no longer calls it — these tests never exercise it.
 vi.mock('./anthropic', () => ({
   generateDigestTitle: vi.fn(),
