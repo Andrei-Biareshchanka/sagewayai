@@ -64,6 +64,7 @@ scripts/
 ├── recompute-parable-quotes.ts   # forces a full re-match: deletes and reassigns all 3 ParableQuote rows per parable against the CURRENT full Quote pool — run after expanding the quote pool, since backfill-parable-quotes.ts alone won't attach new quotes to parables that already have all 3 positions filled
 ├── check-new-parable-similarity.ts  # dedup check for a batch of candidate parables before seeding: exact title match + pgvector cosine similarity vs the DB and within the batch (flags ≥0.85)
 ├── check-new-quote-similarity.ts    # same dedup check, for a batch of candidate quotes (flags ≥0.9, plus an exact-text check)
+├── sync-parables-to-prod.ts      # syncs specific slugRu parables (+ their quotes/ParableQuote rows) from local dev DB to prod (Neon) — requires PROD_DATABASE_URL set explicitly (never hardcoded), refuses parables missing reflectionStatus=REVIEWED/image/slugs, idempotent (skips titles already in prod), one transaction per batch. Orchestrated by `.claude/skills/publish-parable-images`.
 ├── backfill-parable-insights.ts  # batched runner: generateReviewedParableInsight + generateParableImageBrief across DRAFT parables, with a per-model cost report and reflectionStatus routing (REVIEWED/GENERATED/FAILED) — see "Canonical parable insight generation" below
 └── dry-run-parable-insight.ts    # manual verification: runs the insight pipeline for a single parable, prints full generated text for review before trusting the batch runner
 ```
