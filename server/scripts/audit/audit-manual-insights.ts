@@ -1,5 +1,5 @@
-import { prisma } from '../src/lib/prisma';
-import { findValidationIssue, reviewDeepReflection, countWords } from '../src/lib/anthropic';
+import { prisma } from '../../src/lib/prisma';
+import { findValidationIssue, reviewDeepReflection, countWords } from '../../src/lib/anthropic';
 
 // Retroactively runs the exact real-pipeline checks (findValidationIssue +
 // reviewDeepReflection, a real Haiku API call) against already-REVIEWED
@@ -8,8 +8,8 @@ import { findValidationIssue, reviewDeepReflection, countWords } from '../src/li
 // through generateReviewedParableInsight, to see whether they'd actually
 // have passed the real gate.
 //
-// Usage: npx tsx scripts/audit-manual-insights.ts <slugRu> [<slugRu> ...]
-//        npx tsx scripts/audit-manual-insights.ts             (audits every REVIEWED parable)
+// Usage: npx tsx scripts/audit/audit-manual-insights.ts <slugRu> [<slugRu> ...]
+//        npx tsx scripts/audit/audit-manual-insights.ts             (audits every REVIEWED parable)
 const SLUGS = process.argv.slice(2);
 
 type LangResult = {

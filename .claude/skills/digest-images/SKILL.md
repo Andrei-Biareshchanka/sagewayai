@@ -120,7 +120,7 @@ The daily cron keeps a rolling buffer of unpublished drafts (target 10, replenis
 ```bash
 cd server
 NEON_URL="$(grep '^# DATABASE_URL=' .env | sed 's/^# //' | cut -d= -f2-)"
-env DATABASE_URL="$NEON_URL" npx tsx scripts/prepare-future-digests.ts [target=10]
+env DATABASE_URL="$NEON_URL" npx tsx scripts/digest/prepare-future-digests.ts [target=10]
 ```
 
 **This calls the real Claude API** (title + reflection generation) for each new draft — not free, and takes real time (roughly one Claude round-trip pair per draft). Confirm with the user before running if the target implies more than 2-3 new drafts.

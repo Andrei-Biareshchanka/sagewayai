@@ -1,5 +1,5 @@
-import { prisma } from '../src/lib/prisma';
-import { buildTitleArgs, generateUniqueTitle, isWrongLanguage } from '../src/lib/dailyDigest';
+import { prisma } from '../../src/lib/prisma';
+import { buildTitleArgs, generateUniqueTitle, isWrongLanguage } from '../../src/lib/dailyDigest';
 
 async function main() {
   const digests = await prisma.dailyDigest.findMany({

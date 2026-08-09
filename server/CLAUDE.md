@@ -49,24 +49,34 @@ src/
     ├── prisma.ts      # shared PrismaClient instance
     ├── daily.ts       # daily parable selection logic
     └── anthropic.ts   # Claude API helpers: generateReflection(), generateDigestTitle()
-scripts/
-├── generate-digest-titles.ts     # backfill: generates titleEn/titleRu for digests missing either
-├── fix-wrong-language-titles.ts  # repair: regenerates titleRu for digests where it's null or came back in English
-├── populate-digest-slugs.ts      # repopulates ALL digest slugs (resets then rebuilds) — do not run on prod without checking for already-indexed URLs first
-├── check-digest-themes.ts
+scripts/                          # grouped into subfolders by pipeline stage — 3+ files sharing a verb prefix got a folder (audit-, backfill-, check-, seed-), everything digest-maintenance-related got digest/; one-off singletons stay at the top level
+├── dry-run-parable-insight.ts    # manual verification: runs the insight pipeline for a single parable, prints full generated text for review before trusting the batch runner
 ├── find-duplicate-parables.ts
-├── generate-quotes.ts
-├── seed-quotes.ts
-├── seed-embeddings.ts / seed-quote-embeddings.ts  # pgvector embedding backfills
-├── create-tomorrow-test.ts       # manual verification: creates one unpublished draft dated tomorrow (UTC), reusing createDigestForDate — for testing the publish-and-prepare flow without waiting for the cron
-├── backfill-parable-slugs.ts     # one-time: idempotent RU→Latin transliteration + EN slugify for Parable.slugRu/slugEn, collision suffixes (-2, -3, ...)
-├── backfill-parable-quotes.ts    # one-time: assigns each parable exactly 3 ParableQuote rows (position 0-2, one isPrimary) via vector similarity — only fills MISSING positions, does not re-evaluate existing assignments
-├── recompute-parable-quotes.ts   # forces a full re-match: deletes and reassigns all 3 ParableQuote rows per parable against the CURRENT full Quote pool — run after expanding the quote pool, since backfill-parable-quotes.ts alone won't attach new quotes to parables that already have all 3 positions filled
-├── check-new-parable-similarity.ts  # dedup check for a batch of candidate parables before seeding: exact title match + pgvector cosine similarity vs the DB and within the batch (flags ≥0.85)
-├── check-new-quote-similarity.ts    # same dedup check, for a batch of candidate quotes (flags ≥0.9, plus an exact-text check)
+├── recompute-parable-quotes.ts   # forces a full re-match: deletes and reassigns all 3 ParableQuote rows per parable against the CURRENT full Quote pool — run after expanding the quote pool, since backfill/backfill-parable-quotes.ts alone won't attach new quotes to parables that already have all 3 positions filled
 ├── sync-parables-to-prod.ts      # syncs specific slugRu parables (+ their quotes/ParableQuote rows) from local dev DB to prod (Neon) — requires PROD_DATABASE_URL set explicitly (never hardcoded), refuses parables missing reflectionStatus=REVIEWED/image/slugs, idempotent (skips titles already in prod), one transaction per batch. Orchestrated by `.claude/skills/publish-parable-images`.
-├── backfill-parable-insights.ts  # batched runner: generateReviewedParableInsight + generateParableImageBrief across DRAFT parables, with a per-model cost report and reflectionStatus routing (REVIEWED/GENERATED/FAILED) — see "Canonical parable insight generation" below
-└── dry-run-parable-insight.ts    # manual verification: runs the insight pipeline for a single parable, prints full generated text for review before trusting the batch runner
+├── audit/
+│   ├── audit-manual-insights.ts           # real Haiku API call (cheap, not free) — full reviewDeepReflection, only on explicit request
+│   ├── audit-manual-insights-codeonly.ts  # free — findValidationIssue (schema, tool-call artifacts, mixed alphabet)
+│   └── audit-manual-insights-metrics.ts   # free — length + dash-count checks
+├── backfill/
+│   ├── backfill-parable-insights.ts  # batched runner: generateReviewedParableInsight + generateParableImageBrief across DRAFT parables, with a per-model cost report and reflectionStatus routing (REVIEWED/GENERATED/FAILED) — see "Canonical parable insight generation" below
+│   ├── backfill-parable-quotes.ts    # one-time: assigns each parable exactly 3 ParableQuote rows (position 0-2, one isPrimary) via vector similarity — only fills MISSING positions, does not re-evaluate existing assignments
+│   └── backfill-parable-slugs.ts     # one-time: idempotent RU→Latin transliteration + EN slugify for Parable.slugRu/slugEn, collision suffixes (-2, -3, ...)
+├── check/
+│   ├── check-digest-themes.ts
+│   ├── check-new-parable-similarity.ts  # dedup check for a batch of candidate parables before seeding: exact title match + pgvector cosine similarity vs the DB and within the batch (flags ≥0.85)
+│   └── check-new-quote-similarity.ts    # same dedup check, for a batch of candidate quotes (flags ≥0.9, plus an exact-text check)
+├── seed/
+│   ├── generate-quotes.ts
+│   ├── seed-quotes.ts
+│   ├── seed-embeddings.ts / seed-quote-embeddings.ts  # pgvector embedding backfills
+│   └── data/                     # gitignored — generate-quotes.ts writes here, seed-quotes.ts reads from here
+└── digest/
+    ├── generate-digest-titles.ts     # backfill: generates titleEn/titleRu for digests missing either
+    ├── fix-wrong-language-titles.ts  # repair: regenerates titleRu for digests where it's null or came back in English
+    ├── populate-digest-slugs.ts      # repopulates ALL digest slugs (resets then rebuilds) — do not run on prod without checking for already-indexed URLs first
+    ├── prepare-future-digests.ts
+    └── create-tomorrow-test.ts       # manual verification: creates one unpublished draft dated tomorrow (UTC), reusing createDigestForDate — for testing the publish-and-prepare flow without waiting for the cron
 ```
 
 **Parable and quote pool size (as of 2026-08-08):** 150 parables across 8 categories (wisdom 18, motivation 20, leadership 19, journey 19, loss 18, risk 20, trust 18, meaning 18) and 200 quotes across 11 themes. Grown from an original 80 parables / 114 quotes — see `docs/parable-expansion-70-plan.md` for the batch-by-batch process (real-tradition sourcing, embedding-similarity dedup) and its current status. New parables land with `reflectionStatus: DRAFT` — the deep-insight/image-brief generation pass (`docs/manual-backfill-process.md`) is a separate, later phase.
@@ -154,7 +164,7 @@ If `publishTodayAndPrepareTomorrow()` throws (e.g. `selectDailyParable` exhausti
 
 `notifyAdmin()` calls the Telegram Bot API directly (`fetch` to `api.telegram.org`, not the `telegram-bot` process — they're separate deployments) using `TELEGRAM_BOT_TOKEN`/`ADMIN_CHAT_ID` env vars, the same values already configured for `telegram-bot`'s own admin notifications (see `telegram-bot/CLAUDE.md`) — not a second bot. No-ops silently if either var is unset (e.g. local dev), same guard pattern as `email.ts`'s `RESEND_API_KEY` check.
 
-`createDigestForDate(date, isPublished)` — exported, generalized version of what used to be `createDigestForToday`; reused by both the lazy on-demand path and the cron, and by `scripts/create-tomorrow-test.ts` for manual verification.
+`createDigestForDate(date, isPublished)` — exported, generalized version of what used to be `createDigestForToday`; reused by both the lazy on-demand path and the cron, and by `scripts/digest/create-tomorrow-test.ts` for manual verification.
 
 ### Reflections and titles: reused from the parable, not generated (`src/lib/dailyDigest.ts`)
 
@@ -165,7 +175,7 @@ If `publishTodayAndPrepareTomorrow()` throws (e.g. `selectDailyParable` exhausti
 
 This is only possible because `selectDailyParable()` restricts candidates to `reflectionStatus = 'REVIEWED'` (see "Daily digest parable/quote selection" below), which guarantees non-null `conclusionEn/Ru` and a populated `questionsEn/Ru` array — `buildReflections()` throws loudly if that invariant is ever violated rather than silently writing nulls.
 
-**`generateDigestTitle(quoteText, author, parableTitle, moral, theme, language)`** (`src/lib/anthropic.ts`) and `dailyDigest.ts`'s `generateUniqueTitle()`/`buildTitleArgs()`/`isWrongLanguage()` still exist but are **no longer called from the live digest-creation path** — they're kept only for the two one-off repair scripts that fix historical `DailyDigest` rows predating this change: `scripts/generate-digest-titles.ts` (backfills missing titles) and `scripts/fix-wrong-language-titles.ts` (regenerates a `titleRu` that came back in English). `generateReflection()` is still live and called elsewhere — see the situation-search endpoint below, which is a separate, still-AI-generated feature.
+**`generateDigestTitle(quoteText, author, parableTitle, moral, theme, language)`** (`src/lib/anthropic.ts`) and `dailyDigest.ts`'s `generateUniqueTitle()`/`buildTitleArgs()`/`isWrongLanguage()` still exist but are **no longer called from the live digest-creation path** — they're kept only for the two one-off repair scripts that fix historical `DailyDigest` rows predating this change: `scripts/digest/generate-digest-titles.ts` (backfills missing titles) and `scripts/digest/fix-wrong-language-titles.ts` (regenerates a `titleRu` that came back in English). `generateReflection()` is still live and called elsewhere — see the situation-search endpoint below, which is a separate, still-AI-generated feature.
 
 **Scripts that touch shared title/digest logic should import `prisma` from `src/lib/prisma`** (the app's singleton, which self-loads env vars via `import 'dotenv/config'`) rather than constructing their own `PrismaClient` — this guarantees they see the same DB state the dedup check relies on and avoids maintaining a second connection setup.
 
@@ -179,7 +189,7 @@ Powers the `/pritcha/[slug]` canonical parable page (`web/`) — separate from t
 - **`generateReviewedParableInsight()`** — orchestrates the two above, `MAX_REVIEW_CYCLES = 3` (generate → review → regenerate on fail, same lens every time). Returns `insightUsage`/`reviewUsage` as separate `TokenUsage` values, never blended — Opus and Haiku are priced differently, so a combined total would be meaningless for cost tracking.
 - **`generateParableImageBrief(parable)`** — Sonnet. The model only ever describes the scene (3-5 sentences) plus bilingual alt text; `imagePromptEn` is assembled by code (`${IMAGE_STYLE_PREFIX} ${scene} ${IMAGE_STYLE_PALETTE} ${IMAGE_STYLE_FORMAT}`) from fixed constants, so illustration style (flat children's-book look, fixed hex palette, 16:9 2048×1152) stays consistent across parables regardless of what the model generates for the scene itself.
 
-`scripts/backfill-parable-insights.ts` is the batch runner over `reflectionStatus = DRAFT` parables — see the scripts table above. A parable only becomes linkable at `/pritcha/[slug]` once `reflectionStatus` reaches `REVIEWED` (both languages passed the review gate) and both slugs are set; `GENERATED` means the text exists but failed review and needs manual attention, `FAILED` means generation itself never produced a valid response.
+`scripts/backfill/backfill-parable-insights.ts` is the batch runner over `reflectionStatus = DRAFT` parables — see the scripts table above. A parable only becomes linkable at `/pritcha/[slug]` once `reflectionStatus` reaches `REVIEWED` (both languages passed the review gate) and both slugs are set; `GENERATED` means the text exists but failed review and needs manual attention, `FAILED` means generation itself never produced a valid response.
 
 ### Slug format (`src/lib/slug.ts`)
 

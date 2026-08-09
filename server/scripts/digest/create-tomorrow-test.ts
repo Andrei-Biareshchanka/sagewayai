@@ -4,9 +4,9 @@
 import * as dotenv from 'dotenv';
 dotenv.config();
 
-import { prisma } from '../src/lib/prisma';
-import { getTodayDate } from '../src/lib/daily';
-import { createDigestForDate } from '../src/lib/dailyDigest';
+import { prisma } from '../../src/lib/prisma';
+import { getTodayDate } from '../../src/lib/daily';
+import { createDigestForDate } from '../../src/lib/dailyDigest';
 
 const ONE_DAY_MS = 24 * 60 * 60 * 1000;
 
