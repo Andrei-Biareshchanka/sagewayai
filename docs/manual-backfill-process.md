@@ -88,6 +88,18 @@ Checked by eye (code doesn't catch this): no more than 1 "not X, but Y" construc
 
 For every named human character in `contentRu`, re-derive their grammatical gender from the source text (verb endings, short-form adjectives, explicit nouns like `учительница`/`мастер`), then re-read `conclusionRu` and `questionsRu` end to end checking every verb/adjective/pronoun referring to that character still agrees. Also check `imagePromptEn`: the scene must state the character's gender explicitly in English (e.g. "an old woman", "her students") rather than a gender-neutral role noun ("a teacher") that an image model will default to male — this is the exact root cause documented in `.claude/skills/parable-consistency-audit/SKILL.md`. Flag and fix before Step 6, not after — this is cheaper to catch here than as a later image-audit finding.
 
+## Step 5.6 — RU naturalness check: awkward negation (also by eye, code doesn't catch this)
+
+Found 2026-08-10 in a `Situation` intro (`zavist-i-sravnenie`): "Сравнение почти никогда не честное." — grammatically valid, but stylistically clunky because it stacks a near-negator ("почти никогда") with a split negated short-form adjective ("не честное") instead of just stating the positive antonym ("Сравнение почти всегда нечестное."). The rewritten version says the same thing with one less negation to parse.
+
+Read every RU sentence that combines a frequency-hedge word (`почти`, `едва ли`, `вряд ли`) with `не` + adjective/verb, and ask: does a plain positive-antonym phrasing exist and read more naturally? If yes, rewrite. A quick grep pass to surface candidates before the manual read (not a substitute for it — this only flags, it can't judge naturalness):
+
+```js
+const pattern = /(почти\s+(никогда|нигде|ничего)\s+не\s+\S+|не\s+совсем\s+не|вовсе\s+не\s*\S*\s*не)/gi;
+```
+
+**Applies to `Situation.introRu`/`metaDescriptionRu` too** — those are written ad hoc (no dedicated pipeline doc exists for them, unlike parable reflections above), but the same by-eye RU style checks (this one, the gender check in Step 5.5, and the "not X, but Y" limit in Step 5) apply before writing any bilingual essay-style copy to the DB, parable or Situation.
+
 ## Step 6 — write to the DB
 
 SQL `UPDATE "Parable" SET conclusionEn=..., conclusionRu=..., questionsEn=...::jsonb, questionsRu=...::jsonb, imageAltEn=..., imageAltRu=..., imagePromptEn=..., reflectionStatus='REVIEWED', reflectionUpdatedAt=now() WHERE slugRu=...` — via `docker exec -i sagewayai-postgres-1 psql -U postgres -d sagewayai < file.sql`, dollar-quoting (`$tagN$...$tagN$`) for text containing quotes. **Local dev DB only** (`localhost:5433`), never prod directly.
