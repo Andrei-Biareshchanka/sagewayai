@@ -73,6 +73,9 @@ const MOCK_PARABLE_MATCH = {
   id: 'parable-1',
   title: 'The Mountain Climber',
   titleRu: 'Альпинист',
+  // digestLabel() reports this, not the digest's own slug — digests stopped getting one
+  // when the archive was frozen (see createDigestForDate in dailyDigest.ts).
+  slugRu: 'alpinist',
   content: 'A climber faced a steep ridge...',
   moral: 'Growth comes from the climb, not the summit.',
   source: null,
@@ -101,6 +104,11 @@ const MOCK_DIGEST_ROW = {
   quote: MOCK_QUOTE,
   parable: MOCK_PARABLE_MATCH,
 };
+
+// Distinct parables per step so publishTodayAndPrepareTomorrow's result identifies which
+// digest each half of the run acted on, instead of both reporting the same slug.
+const PARABLE_TO_PUBLISH = { ...MOCK_PARABLE_MATCH, id: 'parable-publish', slugRu: 'pritcha-publish' };
+const PARABLE_TO_PREPARE = { ...MOCK_PARABLE_MATCH, id: 'parable-prepare', slugRu: 'pritcha-prepare' };
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -192,7 +200,6 @@ describe('getDailyDigest', () => {
   it('handles race condition (P2002) by reading the already-created record', async () => {
     mockPrisma.dailyDigest.findUnique
       .mockResolvedValueOnce(null) // findDigestForDate: no digest yet
-      .mockResolvedValueOnce(null) // buildDigestSlug: base slug not taken
       .mockResolvedValueOnce(MOCK_DIGEST_ROW); // findDigestForDate retry after P2002
 
     mockPrisma.dailyDigest.findFirst.mockResolvedValue(null);
@@ -208,7 +215,7 @@ describe('getDailyDigest', () => {
     const result = await getDailyDigest();
 
     expect(result).toEqual(MOCK_DIGEST_ROW);
-    expect(mockPrisma.dailyDigest.findUnique).toHaveBeenCalledTimes(3);
+    expect(mockPrisma.dailyDigest.findUnique).toHaveBeenCalledTimes(2);
   });
 
   it('rethrows non-P2002 errors', async () => {
@@ -254,14 +261,13 @@ describe('getDailyDigest', () => {
 
 describe('publishTodayAndPrepareTomorrow', () => {
   it('publishes an unpublished draft for digestDateToPublish and creates digestDateToPrepare when missing', async () => {
-    const draftToPublish = { ...MOCK_DIGEST_ROW, id: 'digest-publish', slug: 'publish-slug', isPublished: false };
+    const draftToPublish = { ...MOCK_DIGEST_ROW, id: 'digest-publish', parable: PARABLE_TO_PUBLISH, isPublished: false };
     const published = { ...draftToPublish, isPublished: true, publishedAt: new Date() };
-    const prepared = { ...MOCK_DIGEST_ROW, id: 'digest-prepare', slug: 'prepare-slug', isPublished: false };
+    const prepared = { ...MOCK_DIGEST_ROW, id: 'digest-prepare', parable: PARABLE_TO_PREPARE, isPublished: false };
 
     mockPrisma.dailyDigest.findUnique
       .mockResolvedValueOnce(draftToPublish) // findDigestForDate(digestDateToPublish) — existing draft
-      .mockResolvedValueOnce(null) // findDigestForDate(digestDateToPrepare)
-      .mockResolvedValueOnce(null); // buildDigestSlug: base slug not taken
+      .mockResolvedValueOnce(null); // findDigestForDate(digestDateToPrepare)
     mockPrisma.dailyDigest.update.mockResolvedValue(published);
     mockPrisma.dailyDigest.findFirst.mockResolvedValue(null);
     mockSelectDailyParable.mockResolvedValue(MOCK_PARABLE_MATCH);
@@ -271,7 +277,7 @@ describe('publishTodayAndPrepareTomorrow', () => {
 
     const result = await publishTodayAndPrepareTomorrow();
 
-    expect(result).toEqual({ published: draftToPublish.slug, prepared: prepared.slug });
+    expect(result).toEqual({ published: PARABLE_TO_PUBLISH.slugRu, prepared: PARABLE_TO_PREPARE.slugRu });
     expect(mockPrisma.dailyDigest.create).toHaveBeenCalledWith(
       expect.objectContaining({ data: expect.objectContaining({ isPublished: false, publishedAt: null }) }),
     );
@@ -291,14 +297,12 @@ describe('publishTodayAndPrepareTomorrow', () => {
   });
 
   it('bootstrap: creates and publishes digestDateToPublish directly when no draft exists at all', async () => {
-    const publishedFromScratch = { ...MOCK_DIGEST_ROW, id: 'digest-publish', slug: 'publish-slug', isPublished: true };
-    const prepared = { ...MOCK_DIGEST_ROW, id: 'digest-prepare', slug: 'prepare-slug', isPublished: false };
+    const publishedFromScratch = { ...MOCK_DIGEST_ROW, id: 'digest-publish', parable: PARABLE_TO_PUBLISH, isPublished: true };
+    const prepared = { ...MOCK_DIGEST_ROW, id: 'digest-prepare', parable: PARABLE_TO_PREPARE, isPublished: false };
 
     mockPrisma.dailyDigest.findUnique
       .mockResolvedValueOnce(null) // findDigestForDate(digestDateToPublish) — nothing exists yet
-      .mockResolvedValueOnce(null) // buildDigestSlug: base slug not taken (for the publish-step create)
-      .mockResolvedValueOnce(null) // findDigestForDate(digestDateToPrepare)
-      .mockResolvedValueOnce(null); // buildDigestSlug: base slug not taken (for the prepare-step create)
+      .mockResolvedValueOnce(null); // findDigestForDate(digestDateToPrepare)
     mockPrisma.dailyDigest.findFirst.mockResolvedValue(null);
     mockSelectDailyParable.mockResolvedValue(MOCK_PARABLE_MATCH);
     mockFindQuoteForParable.mockResolvedValue(MOCK_QUOTE);
@@ -309,7 +313,7 @@ describe('publishTodayAndPrepareTomorrow', () => {
 
     const result = await publishTodayAndPrepareTomorrow();
 
-    expect(result).toEqual({ published: publishedFromScratch.slug, prepared: prepared.slug });
+    expect(result).toEqual({ published: PARABLE_TO_PUBLISH.slugRu, prepared: PARABLE_TO_PREPARE.slugRu });
     expect(mockPrisma.dailyDigest.create).toHaveBeenNthCalledWith(
       1,
       expect.objectContaining({ data: expect.objectContaining({ isPublished: true }) }),
@@ -322,22 +326,19 @@ describe('publishTodayAndPrepareTomorrow', () => {
   });
 
   it('tops up the draft buffer to 10 when it drops to the replenish threshold', async () => {
-    const draftToPublish = { ...MOCK_DIGEST_ROW, id: 'digest-publish', slug: 'publish-slug', isPublished: false };
+    const draftToPublish = { ...MOCK_DIGEST_ROW, id: 'digest-publish', parable: PARABLE_TO_PUBLISH, isPublished: false };
     const published = { ...draftToPublish, isPublished: true, publishedAt: new Date() };
-    const prepared = { ...MOCK_DIGEST_ROW, id: 'digest-prepare', slug: 'prepare-slug', isPublished: false };
+    const prepared = { ...MOCK_DIGEST_ROW, id: 'digest-prepare', parable: PARABLE_TO_PREPARE, isPublished: false };
 
-    // Default fallback for buildDigestSlug's uniqueness checks — without this, once the
-    // two queued values below are consumed, the mock falls through to whatever a *prior*
-    // test in this file left as findUnique's base implementation (clearAllMocks() only
-    // resets call history, not mockResolvedValue defaults), which can be truthy and send
-    // buildDigestSlug's `while (true)` uniqueness loop spinning forever.
+    // Base implementation, not just the two queued values: clearAllMocks() resets call
+    // history but not mockResolvedValue defaults, so without this the mock falls through
+    // to whatever a prior test in this file left behind once the queue is drained.
     mockPrisma.dailyDigest.findUnique.mockResolvedValue(null);
     mockPrisma.dailyDigest.findUnique
       .mockResolvedValueOnce(draftToPublish) // findDigestForDate(digestDateToPublish) — existing draft
       .mockResolvedValueOnce(null); // findDigestForDate(digestDateToPrepare)
     mockPrisma.dailyDigest.update.mockResolvedValue(published);
-    // furthest-date lookup for ensureDraftBuffer also goes through findFirst — same mock
-    // used for slug-uniqueness checks, so just resolve every findFirst call to null/no-match.
+    // ensureDraftBuffer's furthest-date lookup goes through findFirst.
     mockPrisma.dailyDigest.findFirst.mockResolvedValue(null);
     mockSelectDailyParable.mockResolvedValue(MOCK_PARABLE_MATCH);
     mockFindQuoteForParable.mockResolvedValue(MOCK_QUOTE);

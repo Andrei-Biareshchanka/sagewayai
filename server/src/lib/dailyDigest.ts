@@ -8,7 +8,6 @@ import {
   type DailyParableCandidate,
 } from '../services/dailyParableSelection';
 import { generateDigestTitle } from './anthropic';
-import { buildDigestSlug } from './slug';
 
 // The old quote-first pipeline (pickNextQuote() below, then vector-search a
 // matching parable) is replaced by the parable-first pipeline in
@@ -166,6 +165,13 @@ function buildReflections(parable: DailyParableCandidate, timesShown: number) {
   };
 }
 
+// Deliberately leaves `slug` null. A digest is no longer a page of its own: the parable's
+// canonical /pritcha/{slug} page carries the same story plus the full conclusion, all three
+// quotes and all three questions, so minting a second URL per day only split the signals
+// between them. web/'s sitemap and the /d/[slug] generateStaticParams both filter on
+// `slug: { not: null }`, so a null slug keeps the row out of both without any other change,
+// while the ~48 digests that already have slugs stay live and indexed. buildDigestSlug
+// (lib/slug.ts) is still used by scripts/digest/populate-digest-slugs.ts for those.
 export async function createDigestForDate(date: Date, isPublished: boolean): Promise<DigestWithRelations> {
   const parable = await selectDailyParable();
   // Must run before prisma.dailyDigest.create() below, not after: this counts existing
@@ -176,12 +182,10 @@ export async function createDigestForDate(date: Date, isPublished: boolean): Pro
   const timesShown = await getTimesShown(parable.id);
   const quote = await findQuoteForParable(parable, timesShown);
   const reflections = buildReflections(parable, timesShown);
-  const slug = await buildDigestSlug(prisma, parable.title, quote.author, quote.theme ?? null);
 
   return prisma.dailyDigest.create({
     data: {
       date,
-      slug,
       quoteId: quote.id,
       parableId: parable.id,
       isPublished,
@@ -242,6 +246,15 @@ export type PublishAndPrepareResult = {
   prepared: string | null;
 };
 
+// Identifies which digest a cron run acted on, for the endpoint's JSON response and so the
+// GitHub Actions log names something a human can look up. Reads the parable's canonical slug
+// rather than the digest's own, which is null on every digest created since the archive was
+// frozen — leaving these fields null would make a successful run indistinguishable from a
+// no-op, the same blind spot that hid the 2026-07 channel-publish failures.
+function digestLabel(digest: DigestWithRelations): string {
+  return digest.parable.slugRu ?? digest.id;
+}
+
 // Bootstrap: on the very first run there is no pre-existing draft for `date`
 // (nothing has ever run before), so it's created and published in one step
 // instead of only publishing an existing draft — otherwise that day would
@@ -250,11 +263,11 @@ async function publishDraftForDate(date: Date): Promise<string | null> {
   const digest = await findDigestForDate(date);
   if (!digest) {
     const created = await createDigestForDate(date, true);
-    return created.slug;
+    return digestLabel(created);
   }
   if (!digest.isPublished) {
     const updated = await publishDigest(digest);
-    return updated.slug;
+    return digestLabel(updated);
   }
   return null;
 }
@@ -263,7 +276,7 @@ async function prepareDraftForDate(date: Date): Promise<string | null> {
   const existing = await findDigestForDate(date);
   if (existing) return null;
   const created = await createDigestForDate(date, false);
-  return created.slug;
+  return digestLabel(created);
 }
 
 // Keeps a rolling buffer of unpublished future drafts so there's always enough

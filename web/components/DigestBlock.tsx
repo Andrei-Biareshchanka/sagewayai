@@ -106,7 +106,7 @@ export function DigestBlock({
             )}
             {category && (
               <Link
-                href={`/${lang}/digests?category=${category.slug}`}
+                href={`/${lang}/pritcha?category=${category.slug}`}
                 className="text-xs font-medium text-sage-dark bg-sage-light hover:bg-sage-pill px-3 py-1 rounded-full transition-colors"
               >
                 {categoryName}

@@ -7,7 +7,7 @@ const digest = {
   imageUrl: null,
   title: 'The Climb Is the Point',
   quote: { text: 'Difficulties strengthen the mind.', author: 'Seneca' },
-  parable: { title: 'The Mountain Climber', content: 'A climber faced a steep ridge.' },
+  parable: { slug: 'alpinist', title: 'The Mountain Climber', content: 'A climber faced a steep ridge.' },
   categoryName: 'Stoic Virtue',
   conclusion: 'Growth comes from the climb, not the summit.',
   question: 'What climb are you avoiding right now?',
@@ -43,7 +43,7 @@ describe('formatDigest', () => {
 
   it('escapes markdown special characters', () => {
     const result = formatDigest(
-      { ...digest, parable: { title: 'Title.', content: 'Content (with) special!' } },
+      { ...digest, parable: { ...digest.parable, title: 'Title.', content: 'Content (with) special!' } },
       labels,
     );
 

@@ -51,6 +51,10 @@ function localizeQuote(quote: DigestWithRelations['quote'], lang: Lang) {
 function localizeParable(parable: DigestWithRelations['parable'], lang: Lang) {
   return {
     id: parable.id,
+    // The parable's own canonical page slug for this language — what clients link to now
+    // that a digest has no page of its own (see createDigestForDate in lib/dailyDigest.ts).
+    // Null on parables that predate the slug backfill; callers must handle that.
+    slug: parable.slugRu || parable.slugEn ? pickLocalized(parable.slugRu, parable.slugEn, lang) : null,
     title: pickLocalized(parable.titleRu, parable.title, lang),
     content: pickLocalized(parable.contentRu, parable.content, lang),
     moral: pickLocalized(parable.moralRu, parable.moral, lang),
@@ -64,7 +68,10 @@ function localizeDigest(digest: DigestWithRelations, lang: Lang) {
   return {
     date: digest.date,
     slug: digest.slug,
-    imageUrl: digest.imageUrl,
+    // Most digests carry no image of their own (41 of 58 on production as of 2026-08-11)
+    // while every REVIEWED parable has one, so fall back to the parable's rather than
+    // sending null and having clients skip the photo entirely.
+    imageUrl: digest.imageUrl ?? digest.parable.imageUrl,
     title: pickLocalized(digest.titleRu, digest.titleEn, lang),
     quote: localizeQuote(digest.quote, lang),
     parable: localizeParable(digest.parable, lang),

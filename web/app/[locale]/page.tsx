@@ -68,8 +68,10 @@ function getDailyDigest() {
   });
 }
 
-// At any point there's at most one unpublished draft — the next digest already
-// prepared by the publish-digest cron, waiting for its own publish day.
+// Returns the nearest unpublished draft. There is usually more than one in the
+// queue — scripts/digest/prepare-future-digests.ts can fill a buffer days ahead
+// of the publish-digest cron — so this orders by date rather than assuming a
+// single row.
 function getTomorrowDigest() {
   return prisma.dailyDigest.findFirst({
     where: { isPublished: false },
@@ -80,6 +82,28 @@ function getTomorrowDigest() {
       parable: { select: { title: true, titleRu: true } },
     },
   });
+}
+
+type DailyDigestWithRelations = NonNullable<Awaited<ReturnType<typeof getDailyDigest>>>;
+
+// Most digests carry no image of their own while every REVIEWED parable does, so the
+// daily block would otherwise render imageless on the majority of days. Falls back as a
+// unit rather than field by field: pairing one source's image with the other's alt text
+// would describe a picture that isn't on screen.
+function pickDigestImage(digest: DailyDigestWithRelations) {
+  if (digest.imageUrl) {
+    return {
+      imageUrl: digest.imageUrl,
+      imageAltRu: digest.imageAltRu,
+      imageAltEn: digest.imageAltEn,
+    };
+  }
+
+  return {
+    imageUrl: digest.parable.imageUrl,
+    imageAltRu: digest.parable.imageAltRu,
+    imageAltEn: digest.parable.imageAltEn,
+  };
 }
 
 function buildWebsiteJsonLd() {
@@ -119,11 +143,8 @@ export default async function HomePage({ params }: PageProps) {
           <div className="mb-12">
             <HomeDailyDigest
               data={{
-                slug: digest.slug,
                 date: digest.date,
-                imageUrl: digest.imageUrl,
-                imageAltRu: digest.imageAltRu,
-                imageAltEn: digest.imageAltEn,
+                ...pickDigestImage(digest),
                 titleRu: digest.titleRu ?? digest.parable.titleRu ?? digest.parable.title,
                 titleEn: digest.titleEn ?? digest.parable.title,
                 quote: {

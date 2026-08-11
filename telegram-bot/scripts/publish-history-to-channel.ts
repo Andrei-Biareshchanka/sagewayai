@@ -19,6 +19,10 @@ function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+// Deliberately still keyed on the digest's own slug, unlike the live channel post which now
+// links to /pritcha/{slug}: this script reposts history, and a historical digest's /d/ page
+// is still live. The `slug: { not: null }` filter also means digests created after the
+// archive was frozen (which no longer get slugs) are simply never candidates here.
 async function fetchPublishedDigests(limit: number) {
   return prisma.dailyDigest.findMany({
     where: { isPublished: true, slug: { not: null } },
@@ -40,6 +44,7 @@ function toChannelDigest(record: PublishedDigest): Digest {
       author: record.quote.authorRu ?? record.quote.author,
     },
     parable: {
+      slug: record.parable.slugRu,
       title: record.parable.titleRu ?? record.parable.title,
       content: record.parable.contentRu ?? record.parable.content,
     },
