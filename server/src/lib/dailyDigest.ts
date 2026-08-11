@@ -12,7 +12,7 @@ import { buildDigestSlug } from './slug';
 
 // The old quote-first pipeline (pickNextQuote() below, then vector-search a
 // matching parable) is replaced by the parable-first pipeline in
-// createDigestForDate — selectDailyParable() (LRU + 60-day cooldown) then
+// createDigestForDate — selectDailyParable() (random draw under a 70-day cooldown) then
 // findQuoteForParable() (rotates through the parable's 3 pre-assigned
 // quotes). findParableForQuote (services/digest.ts) is intentionally left in
 // place, unimported here, as a rollback path — see that file if reverting.
