@@ -3,7 +3,12 @@ import { formatChannelDigest, formatChannelDigestCaption } from './formatChannel
 import { Digest } from './digestApi';
 import { escapeMarkdown } from './markdown';
 
-function buildDigest(overrides: Partial<Digest> = {}): Digest {
+// Merges `parable` field by field rather than replacing it wholesale, so a test that only
+// cares about the parable's text doesn't have to restate its slug and title too.
+type DigestOverrides = Partial<Omit<Digest, 'parable'>> & { parable?: Partial<Digest['parable']> };
+
+function buildDigest(overrides: DigestOverrides = {}): Digest {
+  const { parable, ...rest } = overrides;
   return {
     date: '2026-07-10',
     slug: 'the-captain-and-the-storm',
@@ -11,14 +16,16 @@ function buildDigest(overrides: Partial<Digest> = {}): Digest {
     title: 'Штурвал держат изнутри, не снаружи',
     quote: { text: 'Не событие расстраивает человека, а его суждение о нём.', author: 'Марк Аврелий' },
     parable: {
+      slug: 'kapitan-i-burya',
       title: 'Капитан и буря',
       content:
         'Был капитан, который вышел в море.\n\nБуря пришла внезапно (как всегда) - и корабль качало.\n\nОн держал штурвал крепко!',
+      ...parable,
     },
     categoryName: 'Смысл',
     conclusion: 'Сила не в отсутствии бури, а в том, как ты держишь штурвал.',
     question: 'Что для тебя "шторм" сегодня?',
-    ...overrides,
+    ...rest,
   };
 }
 

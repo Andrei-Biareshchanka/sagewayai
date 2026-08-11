@@ -13,6 +13,10 @@ const digestSchema = z.object({
     author: z.string(),
   }),
   parable: z.object({
+    // Canonical /pritcha/{slug} page for this language. Defaulted rather than merely
+    // nullable because situationDigestSchema reuses this object and POST /api/digest/situation
+    // returns no slug at all — it matches a parable on the fly rather than serving a digest.
+    slug: z.string().nullable().default(null),
     title: z.string(),
     content: z.string(),
   }),

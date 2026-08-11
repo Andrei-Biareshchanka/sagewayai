@@ -6,7 +6,6 @@ import { useLocalizedDigest, type BilingualDigestContent } from '@/hooks/useLoca
 import { DigestBlock, type DigestCategory } from './DigestBlock';
 
 interface BilingualDailyData extends BilingualDigestContent {
-  slug: string | null;
   date: Date;
   category: DigestCategory;
   parableCanonicalSlug: string | null;
@@ -14,6 +13,14 @@ interface BilingualDailyData extends BilingualDigestContent {
 
 interface HomeDailyDigestProps {
   data: BilingualDailyData;
+}
+
+// Shares the parable's canonical page rather than the digest's. Digests created after the
+// archive was frozen carry no slug and so have no page of their own — keying the share URL
+// on the digest slug (as this did) would silently drop the button on every new day.
+function buildShareUrl(parableCanonicalSlug: string | null, lang: string): string | undefined {
+  if (!parableCanonicalSlug) return undefined;
+  return `${SITE_URL}/${lang}/pritcha/${parableCanonicalSlug}?utm_source=share&utm_medium=social`;
 }
 
 export function HomeDailyDigest({ data }: HomeDailyDigestProps) {
@@ -29,7 +36,7 @@ export function HomeDailyDigest({ data }: HomeDailyDigestProps) {
       imageUrl={data.imageUrl ?? undefined}
       imageAlt={imageAlt}
       priority
-      shareUrl={data.slug ? `${SITE_URL}/${lang}/d/${data.slug}?utm_source=share&utm_medium=social` : undefined}
+      shareUrl={buildShareUrl(data.parableCanonicalSlug, lang)}
       shareTitle={title}
       parableCanonicalSlug={data.parableCanonicalSlug}
     />

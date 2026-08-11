@@ -18,7 +18,7 @@ function sleep(ms: number): Promise<void> {
 
 type ChannelPublishResult =
   | { status: 'published'; slug: string }
-  | { status: 'skipped'; reason: 'no_channel_id' | 'no_slug' }
+  | { status: 'skipped'; reason: 'no_channel_id' | 'no_parable_slug' }
   | { status: 'error'; message: string };
 
 async function getDigestCached(cache: Map<Language, Digest>, language: Language): Promise<Digest> {
@@ -39,12 +39,15 @@ async function publishToChannel(bot: Bot, digestCache: Map<Language, Digest>): P
 
   try {
     const digest = await getDigestCached(digestCache, CHANNEL_LANGUAGE);
-    if (!digest.slug) {
-      process.stderr.write(`Skipped channel publish: digest has no slug (date=${digest.date})\n`);
-      return { status: 'skipped', reason: 'no_slug' };
+    // Guards the parable's slug, not the digest's: digests stopped getting their own page
+    // (and their own slug) once /pritcha/{slug} became the single canonical URL, so the old
+    // `digest.slug` check would have skipped the channel post every single day.
+    if (!digest.parable.slug) {
+      process.stderr.write(`Skipped channel publish: parable has no slug (date=${digest.date})\n`);
+      return { status: 'skipped', reason: 'no_parable_slug' };
     }
 
-    const siteUrl = `${CHANNEL_BASE_URL}/ru/d/${digest.slug}?utm_source=telegram&utm_medium=social&utm_campaign=channel_post`;
+    const siteUrl = `${CHANNEL_BASE_URL}/ru/pritcha/${digest.parable.slug}?utm_source=telegram&utm_medium=social&utm_campaign=channel_post`;
 
     if (digest.imageUrl) {
       // Single message so the whole post — photo + text — forwards/shares as one unit.
@@ -64,8 +67,8 @@ async function publishToChannel(bot: Bot, digestCache: Map<Language, Digest>): P
         reply_markup: buildChannelKeyboard(siteUrl),
       });
     }
-    process.stdout.write(`Published digest to channel: ${digest.slug}\n`);
-    return { status: 'published', slug: digest.slug };
+    process.stdout.write(`Published digest to channel: ${digest.parable.slug}\n`);
+    return { status: 'published', slug: digest.parable.slug };
   } catch (error) {
     process.stderr.write(`Failed to publish digest to channel: ${error}\n`);
     return { status: 'error', message: String(error).slice(0, 500) };
@@ -77,7 +80,7 @@ function buildBroadcastReport(sent: number, total: number, deactivated: number, 
     channel.status === 'published'
       ? `✅ Channel: published (${channel.slug})`
       : channel.status === 'skipped'
-        ? `⏭️ Channel: skipped (${channel.reason === 'no_channel_id' ? 'TELEGRAM_CHANNEL_ID not set' : 'digest has no slug'})`
+        ? `⏭️ Channel: skipped (${channel.reason === 'no_channel_id' ? 'TELEGRAM_CHANNEL_ID not set' : 'parable has no slug'})`
         : `⚠️ Channel: FAILED — ${channel.message}`;
 
   return ['📣 Daily broadcast report', '', `✅ Subscribers: ${sent}/${total} (${deactivated} deactivated)`, channelLine].join(
