@@ -1,10 +1,18 @@
+import { z } from "zod";
+
 const VOYAGE_API_URL = "https://api.voyageai.com/v1/embeddings";
 const MODEL = "voyage-3";
 
+const voyageResponseSchema = z.object({
+  data: z.array(z.object({ embedding: z.array(z.number()) })).nonempty(),
+});
+
+type VoyageResponse = z.infer<typeof voyageResponseSchema>;
+
 async function requestEmbeddings(
   texts: string[],
-  inputType: "query" | "document"
-): Promise<{ data: { embedding: number[] }[] }> {
+  inputType: "query" | "document",
+): Promise<VoyageResponse> {
   const apiKey = process.env.VOYAGE_API_KEY;
   if (!apiKey) throw new Error("VOYAGE_API_KEY is not set");
 
@@ -22,12 +30,12 @@ async function requestEmbeddings(
     throw new Error(`Voyage AI error ${response.status}: ${error}`);
   }
 
-  return (await response.json()) as { data: { embedding: number[] }[] };
+  return voyageResponseSchema.parse(await response.json());
 }
 
 export async function getEmbeddings(
   texts: string[],
-  inputType: "query" | "document"
+  inputType: "query" | "document",
 ): Promise<number[][]> {
   const data = await requestEmbeddings(texts, inputType);
   return data.data.map((item) => item.embedding);
@@ -35,8 +43,9 @@ export async function getEmbeddings(
 
 export async function getEmbedding(
   text: string,
-  inputType: "query" | "document"
+  inputType: "query" | "document",
 ): Promise<number[]> {
   const [embedding] = await getEmbeddings([text], inputType);
+  if (!embedding) throw new Error("Voyage AI returned no embeddings");
   return embedding;
 }
