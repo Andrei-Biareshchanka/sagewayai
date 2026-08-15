@@ -19,6 +19,19 @@ const prisma = new PrismaClient({ adapter });
 // go-ahead after reviewing this batch's quality and real cost.
 const BATCH_SIZE = 5;
 
+// --titles "Title One,Title Two" targets specific DRAFT parables by exact
+// title instead of the default id-ordered batch — used to backfill only the
+// parables a specific feature (e.g. a Situation hub) actually needs.
+function parseTitlesArg(): string[] | null {
+  const arg = process.argv.find((a) => a.startsWith('--titles='));
+  if (!arg) return null;
+  return arg
+    .slice('--titles='.length)
+    .split(',')
+    .map((t) => t.trim())
+    .filter(Boolean);
+}
+
 const OPUS_PRICE_PER_MTOK = { input: 5, output: 25 };
 const SONNET_PRICE_PER_MTOK = { input: 3, output: 15 };
 const HAIKU_PRICE_PER_MTOK = { input: 1, output: 5 };
@@ -47,16 +60,22 @@ type ParableReport = {
 async function main() {
   const allIds = (await prisma.parable.findMany({ select: { id: true }, orderBy: { id: 'asc' } })).map((p) => p.id);
 
+  const titles = parseTitlesArg();
+
   const parables = await prisma.parable.findMany({
-    where: { reflectionStatus: 'DRAFT' },
+    where: titles ? { reflectionStatus: 'DRAFT', title: { in: titles } } : { reflectionStatus: 'DRAFT' },
     orderBy: { id: 'asc' },
-    take: BATCH_SIZE,
+    take: titles ? titles.length : BATCH_SIZE,
     include: {
       quotes: { where: { isPrimary: true }, include: { quote: true } },
     },
   });
 
-  console.log(`Processing ${parables.length} parable(s) with reflectionStatus=DRAFT (batch size ${BATCH_SIZE}).\n`);
+  if (titles) {
+    console.log(`Processing ${parables.length}/${titles.length} requested title(s) with reflectionStatus=DRAFT.\n`);
+  } else {
+    console.log(`Processing ${parables.length} parable(s) with reflectionStatus=DRAFT (batch size ${BATCH_SIZE}).\n`);
+  }
 
   let totalInsightUsage = ZERO;
   let totalReviewUsage = ZERO;
